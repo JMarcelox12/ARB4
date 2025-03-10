@@ -1,0 +1,93 @@
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id                String    @id @default(auto()) @map("_id") @db.ObjectId
+  name              String
+  age               Int
+  email             String    @unique
+  password          String
+  saldo             Float     @default(0)
+  resetToken        String?
+  resetTokenExpires DateTime?
+
+  bets         Bet[]
+  transactions Transaction[]
+}
+
+model Bet {
+  id        String    @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String    @db.ObjectId
+  antId     String    @db.ObjectId
+  amount    Float
+  status    BetStatus @default(PENDING)
+  createdAt DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+  ant  Ant  @relation(fields: [antId], references: [id])
+}
+
+enum BetStatus {
+  PENDING // Aposta em andamento (corrida não finalizada)
+  WON // Aposta ganha
+  LOST // Aposta perdida
+  CANCELED // Aposta cancelada
+}
+
+model Ant {
+  id    String @id @default(auto()) @map("_id") @db.ObjectId
+  image String
+  name  String @unique
+  win   Int
+  game  Int
+  odd   Float
+
+  rooms RoomAnt[]
+  bets  Bet[]
+}
+
+model Room {
+  id          String     @id @default(auto()) @map("_id") @db.ObjectId
+  image       String
+  name        String     @unique
+  description String
+  status      RoomStatus @default(PREPARING)
+
+  rooms RoomAnt[]
+}
+
+enum RoomStatus {
+  PENDING // Sala em andamento
+  FINISH // Sala finalizada
+  PREPARING // Sala em preparo
+}
+
+model RoomAnt {
+  id     String @id @default(auto()) @map("_id") @db.ObjectId
+  roomId String @db.ObjectId
+  antId  String @db.ObjectId
+
+  room Room @relation(fields: [roomId], references: [id])
+  ant  Ant  @relation(fields: [antId], references: [id])
+}
+
+model Transaction {
+  id        String          @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String          @db.ObjectId
+  amount    Float
+  type      TypeTransaction @default(DEPOSIT)
+  createdAt DateTime        @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+}
+
+enum TypeTransaction {
+  DEPOSIT
+  WITHDRAW
+}

@@ -1,0 +1,11 @@
+{
+  "dependencies": {
+    "@prisma/client": "^6.4.1",
+    "dotenv": "^16.4.7",
+    "mongodb": "^2.2.12",
+    "nodemailer": "^6.10.0"
+  },
+  "devDependencies": {
+    "prettier": "3.5.3"
+  }
+}

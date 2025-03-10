@@ -1,0 +1,18 @@
+  async function carregarSalas() {
+    try {
+      const resposta = await fetch('http://localhost:1200/room'); // Substitua pela URL do seu backend
+      const salas = await resposta.json();
+
+      const listaSalas = document.getElementById('lista-salas');
+      listaSalas.innerHTML = ''; // Limpa a lista antes de adicionar novos itens
+
+      salas.forEach(sala => {
+        const item = document.createElement('li');
+        item.textContent = `Sala: ${sala.nome} - Jogadores: ${sala.jogadores.length}`;
+        listaSalas.appendChild(item);
+      });
+    } catch (error) {
+      console.error('Erro ao carregar salas:', error);
+    }
+  // Chama a função ao carregar a página
+  document.addEventListener('DOMContentLoaded', carregarSalas);

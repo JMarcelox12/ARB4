@@ -1,0 +1,150 @@
+import { PrismaClient } from "@prisma/client";
+
+const prisma = new PrismaClient();
+
+async function createRoom() {
+    // Pega 8 formigas aleatórias
+    const ants = await prisma.ant.findMany({
+        take: 8,
+        orderBy: { id: "asc" }, // ou "random()" dependendo do banco
+    });
+
+    if (ants.length < 8) {
+        throw new Error("Não há formigas suficientes cadastradas!");
+    }
+
+    // Cria a nova sala
+    const room = await prisma.room.create({
+        data: {
+            formigas: {
+                create: ants.map(ant => ({
+                    ant: { connect: { id: ant.id } }
+                }))
+            }
+        }
+    });
+
+    console.log("Sala criada com sucesso!", room);
+}
+
+createRoom().catch(console.error);
+
+/**/*/**/*/**/*/**/*/**/*/**/*/**/*/**/*/**/*/**/
+
+import { PrismaClient } from "@prisma/client";
+
+const prisma = new PrismaClient();
+
+async function placeBet(userId, roomId, antId, amount) {
+    const bet = await prisma.betTicket.create({
+        data: {
+            userId: userId,
+            roomId: roomId,
+            antId: antId,
+            amount: amount,
+        }
+    });
+
+    console.log("Aposta realizada com sucesso!", bet);
+}
+
+// Exemplo de aposta (Usuário 1 aposta R$ 50 na formiga 3 da sala 2)
+placeBet(1, 2, 3, 50).catch(console.error);
+
+/**/*/**/*/**/*/**/*/**/*/**/*/**/*/**/*/**/*/**/
+
+async function drawAnt(array) => {
+    let quantidade = 8;
+    const sorteados = new Set();
+
+    while (sorteados.size < quantidade){
+        const index = Math.floor(Math.random()*array.length);
+        sorteados.add(array(index));
+    }
+    return Array.from(sorteados);
+}
+
+/**/*/**/*/**/*/**/*/**/*/**/*/**/*/**/*/**/*/**/
+
+async function calculateODDAnt(win, game){
+    if(game === 0){
+        return 0;
+    }
+    let result = (win/game)*100;
+    let odd = 0;
+    result = parseFloat(result.toFixed(0));
+
+    if(result>92){
+        odd = 1.10;
+    } else if (result < 6){
+        odd = 1.10;
+    } else {
+        let aux = 5;
+        odd = 4.62;
+        while (aux != result) {
+            aux++;
+            odd -= 0.04;
+        }
+    }
+    return odd.toFixed(2);
+}
+
+/**/*/**/*/**/*/**/*/**/*/**/*/**/*/**/*/**/*/**/
+
+import express from "express";
+import { placeBet, processRaceResults } from "../services/aposta.service.js";
+
+const app = express();
+
+//cria a aposta
+app.post("/bet", async (req, res) => {
+  try {
+    const { userId, antId, amount } = req.body;
+    const bet = await placeBet(userId, antId, amount);
+    res.status(201).json(bet);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+});
+
+//processa a corrida e paga os vencedores
+app.post("/race/results", async (req, res) => {
+  try {
+    const { winningAntId } = req.body;
+    await processRaceResults(winningAntId);
+    res.status(200).json({ message: "Resultados processados com sucesso." });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+/**/*/**/*/**/*/**/*/**/*/**/*/**/*/**/*/**/*/**/
+
+import express from "express";
+import { registerUser, loginUser } from "../services/authService.js";
+
+const router = express.Router();
+
+// Rota de Registro
+router.post("/register", async (req, res) => {
+  try {
+    const { name, email, password } = req.body;
+    const result = await registerUser(name, email, password);
+    res.status(201).json(result);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+});
+
+// Rota de Login
+router.post("/login", async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    const result = await loginUser(email, password);
+    res.status(200).json(result);
+  } catch (error) {
+    res.status(401).json({ error: error.message });
+  }
+});
+
+export default router;
