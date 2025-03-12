@@ -75,6 +75,11 @@ export default function Home() {
               </div>
             </div>
           </nav>
+
+          <div class="col-10 align-self-center left">
+            <img src="../../public/imagens/FPFV.png" alt="some text" class="img" />
+          </div>
+
           <div class="col align-self-end right">
             <Link to="/login" class="btn btn-outline-dark me-2" type="button">
               ENTRAR

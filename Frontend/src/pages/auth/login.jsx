@@ -23,15 +23,23 @@ export default function Login() {
                 ></script>
                 <header></header>
                 <div class="input">
+                    <p class="fw-bold fs-2 left">Faça o login em sua conta.</p>
                     <div class="form-floating mb-3">
-                        <input type="email" class="form-control bg-transparent border-success rounded py-2"
+                        <input type="email" class="form-control bg-transparent border-success rounded py-2 text-white"
                             id="floatingInput" placeholder="name@example.com" />
                         <label for="floatingInput">Email</label>
                     </div>
                     <div class="form-floating">
-                        <input type="password" class="form-control bg-transparent border-success rounded yp-2" id="floatingPassword" placeholder="Password" />
+                        <input type="password" class="form-control bg-transparent border-success rounded py-2 text-white" id="floatingPassword" placeholder="Password" />
                         <label for="floatingPassword">Senha</label>
                     </div>
+                    <button type="button" class="btn btn-success btnVerde">ENTRAR</button>
+                    <p>
+                        <a href="#" class="left link-light link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover">Esqueceu a senha?</a>
+                    </p>
+                        <p>
+                            <a href="#" class="left link-success link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover">Registre-se</a>
+                        </p>
                 </div>
             </body>
         </>
