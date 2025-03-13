@@ -1,7 +1,10 @@
 import api from '../../services/api'
 import { useState } from 'react'
+import { useNavigate } from "react-router-dom"
 
 export default function Registro() {
+  const navigate = useNavigate()
+
   const handleSubmit = (e) => {
     e.preventDefault()
     const { name, age, email, password, confirPassword } = e.target
@@ -18,6 +21,7 @@ export default function Registro() {
         .post('/register', userCreate)
         .then((res) => {
           alert('Usuário criado com sucesso!')
+          navigate("/")
         })
         .catch((err) => {
           alert('Erro ao registrar usuário!')

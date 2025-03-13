@@ -1,5 +1,48 @@
 import '../../styles/home.css'
+import { useState } from "react"
+import { useNavigate } from "react-router-dom" 
 export default function Login() {
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState("")
+  const navigate = useNavigate()
+
+  const handleSignUp = async (e) => {
+    e.preventDefault()
+
+    const email = e.target.elements.email.value
+    const password = e.target.elements.password.value
+
+    if (!email || !password) {
+      setError("Preencha todos os campos.")
+      return
+    }
+
+    setLoading(true)
+    setError("")
+
+    try {
+      const response = await fetch("http://localhost:5000/api/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.message || "Erro ao fazer login")
+      }
+
+      localStorage.setItem("token", data.token) 
+      navigate("/") 
+
+    } catch (err) {
+      setError(err.message)
+    } finally {
+      setLoading(false)
+    }
+  }
+
   return (
     <>
       <link
@@ -35,47 +78,53 @@ export default function Login() {
         </header>
 
         <div class="input  flex-column align-items-center rounded">
-          <p class="fw-bold fs-3 left">Faça o login em sua conta.</p>
-          <div class="form-floating mb-3">
-            <input
-              type="email"
-              class="form-control bg-transparent border-success rounded py-2 text-white"
-              id="floatingInput"
-              placeholder="name@example.com"
-            />
-            <label for="floatingInput">Email</label>
-          </div>
-          <div class="form-floating">
-            <input
-              type="password"
-              class="form-control bg-transparent border-success rounded py-2 text-white"
-              id="floatingPassword"
-              placeholder="Password"
-            />
-            <label for="floatingPassword">Senha</label>
-          </div>
-          <button type="submit" class="btn btn-success btnVerde">
-            ENTRAR
-          </button>
-          <p>
-            <a
-              href="#"
-              class="left link-light link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover"
-            >
-              Esqueceu a senha?
-            </a>
-          </p>
-          <div class="row-column">
-            <p class="left">
-              Não tem uma conta?
+          <form onSubmit={handleSignUp}>
+            <p class="fw-bold fs-3 left">Faça o login em sua conta.</p>
+            <div class="form-floating mb-3">
+              <input
+                type="email"
+                class="form-control bg-transparent border-success rounded py-2 text-white"
+                id="floatingInput"
+                placeholder="name@example.com"
+                name="email"
+                required
+              />
+              <label for="floatingInput">Email</label>
+            </div>
+            <div class="form-floating">
+              <input
+                type="password"
+                class="form-control bg-transparent border-success rounded py-2 text-white"
+                id="floatingPassword"
+                placeholder="Password"
+                name="password"
+                required
+              />
+              <label for="floatingPassword">Senha</label>
+            </div>
+            <button type="submit" class="btn btn-success btnVerde">
+              ENTRAR
+            </button>
+            <p>
               <a
-                href="/register"
-                class="left link-success link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover ms-1 textVerde"
+                href="#"
+                class="left link-light link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover"
               >
-                Registre-se
+                Esqueceu a senha?
               </a>
             </p>
-          </div>
+            <div class="row-column">
+              <p class="left">
+                Não tem uma conta?
+                <a
+                  href="/register"
+                  class="left link-success link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover ms-1 textVerde"
+                >
+                  Registre-se
+                </a>
+              </p>
+            </div>
+          </form>
         </div>
       </body>
     </>

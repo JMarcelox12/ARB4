@@ -58,7 +58,7 @@ export default function Home() {
               <p class="fs-1 fw-bold">Formigas coloridas</p>
             </div>
             <div class="col-auto">
-              <button type="button" class="btn btn-dark fs-1 fw-bold">
+              <button type="button" class="btn btnlogin-dark fs-1 fw-bold">
                 <p class="textVerde">Mostrar tudo</p>
               </button>
             </div>
@@ -148,7 +148,7 @@ function HeaderDeslogado() {
         </div>
       </nav>
 
-      <div class="col-10 align-self-center left">
+      <div class="col-11 align-self-center left">
         <a href="/">
           <img src="../public/imagens/FPFV.png" alt="some text" class="img" />
         </a>
