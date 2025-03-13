@@ -1,10 +1,10 @@
 import '../styles/home.css'
-import Login from './auth/login.jsx';
-import Registro from './auth/registro.jsx';
-import { Link } from 'react-router';
+import { Link } from 'react-router'
+import { AuthContext } from '../services/AuthContext.jsx'
+import { useContext } from 'react'
 
 export default function Home() {
-
+  const { userLogado } = useContext(AuthContext)
 
   return (
     <>
@@ -17,7 +17,7 @@ export default function Home() {
       <link rel="stylesheet" href="../styles/home.css" />
       <head>
         <meta charset="UTF-8" />
-        <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+        <link rel="icon" type="image/svg+xml" href="/FPFV.svg" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>Home</title>
       </head>
@@ -28,65 +28,7 @@ export default function Home() {
           crossorigin="anonymous"
         ></script>
 
-        <header>
-          <nav class="navbar d-flex justify-content-between bg-transparent">
-            <div class="container-fluid">
-              <button
-                class="navbar-toggler"
-                type="button"
-                data-bs-toggle="offcanvas"
-                data-bs-target="#offcanvasNavbar"
-                aria-controls="offcanvasNavbar"
-                aria-label="Toggle navigation"
-              >
-                <span class="navbar-toggler-icon"></span>
-              </button>
-              <div
-                class="offcanvas offcanvas-start bg-dark text-white"
-                tabindex="-1"
-                id="offcanvasNavbar"
-                aria-labelledby="offcanvasNavbarLabel"
-              >
-                <div class="offcanvas-header" id="MenuLateral">
-                  <h5 class="offcanvas-title title-white" id="offcanvasNavbarLabel">
-                    Teste
-                  </h5>
-                  <button
-                    type="button"
-                    class="btn-close"
-                    data-bs-dismiss="offcanvas"
-                    aria-label="Close"
-                  ></button>
-                </div>
-                <div class="offcanvas-body">
-                  <ul class="navbar-nav justify-content-end flex-grow-1 pe-3">
-                    <li class="nav-item">
-                      <a class="nav-link active text-white" aria-current="page" href="#">
-                        teste
-                      </a>
-                    </li>
-                    <li class="nav-item">
-                      <a class="nav-link text-white" href="#">
-                        teste
-                      </a>
-                    </li>
-                  </ul>
-                </div>
-              </div>
-            </div>
-          </nav>
-
-          <div class="col-10 align-self-center left">
-            <img src="../../public/imagens/FPFV.png" alt="some text" class="img" />
-          </div>
-
-          <div class="col align-self-end right">
-            <Link to="/login" class="btn btn-outline-dark me-2" type="button">
-              ENTRAR
-            </Link>
-            <Link to="/register" class="btn btn-dark" type="button">REGISTRAR</Link>
-          </div>
-        </header>
+        {userLogado ? <HeaderDeslogado /> : <HeaderLogado />}
 
         <div class="my-container bg-transparent">
           <div class="row align-items-center py-4">
@@ -147,5 +89,142 @@ export default function Home() {
         </div>
       </body>
     </>
+  )
+}
+
+function HeaderDeslogado() {
+  const { logout } = useContext(AuthContext)
+
+  return (
+    <header>
+      <nav class="navbar d-flex justify-content-between bg-transparent">
+        <div class="container-fluid">
+          <button
+            class="navbar-toggler"
+            type="button"
+            data-bs-toggle="offcanvas"
+            data-bs-target="#offcanvasNavbar"
+            aria-controls="offcanvasNavbar"
+            aria-label="Toggle navigation"
+          >
+            <span class="navbar-toggler-icon"></span>
+          </button>
+          <div
+            class="offcanvas offcanvas-start bg-dark text-white esquerda"
+            tabindex="-1"
+            id="offcanvasNavbar"
+            aria-labelledby="offcanvasNavbarLabel"
+          >
+            <div class="offcanvas-header" id="MenuLateral">
+              <h5 class="offcanvas-title title-white" id="offcanvasNavbarLabel">
+                Teste
+              </h5>
+              <button
+                type="button"
+                class="btn-close"
+                data-bs-dismiss="offcanvas"
+                aria-label="Close"
+              ></button>
+            </div>
+            <div class="offcanvas-body">
+              <ul class="navbar-nav justify-content-end flex-grow-1 pe-3">
+                <li class="nav-item">
+                  <a
+                    class="nav-link active text-white"
+                    aria-current="page"
+                    href="#"
+                  >
+                    teste
+                  </a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link text-white" href="#">
+                    teste
+                  </a>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </nav>
+
+      <div class="col-10 align-self-center left">
+        <a href="/">
+          <img src="../public/imagens/FPFV.png" alt="some text" class="img" />
+        </a>
+      </div>
+
+      <div class="col align-self-end right">
+        <Link to="/login" class="btn btn-outline-dark me-2" type="button">
+          ENTRAR
+        </Link>
+        <Link to="/register" class="btn btn-dark" type="button">
+          REGISTRAR
+        </Link>
+      </div>
+    </header>
+  )
+}
+
+function HeaderLogado() {
+  return (
+    <header>
+      <nav class="navbar d-flex justify-content-between bg-transparent">
+        <div class="container-fluid">
+          <button
+            class="navbar-toggler"
+            type="button"
+            data-bs-toggle="offcanvas"
+            data-bs-target="#offcanvasNavbar"
+            aria-controls="offcanvasNavbar"
+            aria-label="Toggle navigation"
+          >
+            <span class="navbar-toggler-icon"></span>
+          </button>
+          <div
+            class="offcanvas offcanvas-start bg-dark text-white esquerda"
+            tabindex="-1"
+            id="offcanvasNavbar"
+            aria-labelledby="offcanvasNavbarLabel"
+          >
+            <div class="offcanvas-header" id="MenuLateral">
+              <h5 class="offcanvas-title title-white" id="offcanvasNavbarLabel">
+                Teste
+              </h5>
+              <button
+                type="button"
+                class="btn-close"
+                data-bs-dismiss="offcanvas"
+                aria-label="Close"
+              ></button>
+            </div>
+            <div class="offcanvas-body">
+              <ul class="navbar-nav justify-content-end flex-grow-1 pe-3">
+                <li class="nav-item">
+                  <a
+                    class="nav-link active text-white"
+                    aria-current="page"
+                    href="#"
+                  >
+                    teste
+                  </a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link text-white" href="#">
+                    teste
+                  </a>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </nav>
+
+      <div class="col-10 align-self-center left">
+        <a href="/">
+          <img src="../public/imagens/FPFV.png" alt="some text" class="img" />
+        </a>
+      </div>
+    </header>
   )
 }
