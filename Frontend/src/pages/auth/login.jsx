@@ -11,7 +11,7 @@ export default function Login() {
       <link rel="stylesheet" href="../../styles/home.css" />
       <head>
         <meta charset="UTF-8" />
-        <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+        <link rel="icon" type="image/svg+xml" href="/FPFV.svg" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>Home</title>
       </head>
@@ -54,7 +54,7 @@ export default function Login() {
             />
             <label for="floatingPassword">Senha</label>
           </div>
-          <button type="button" class="btn btn-success btnVerde">
+          <button type="submit" class="btn btn-success btnVerde">
             ENTRAR
           </button>
           <p>
