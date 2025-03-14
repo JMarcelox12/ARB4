@@ -1,46 +1,26 @@
 import '../../styles/home.css'
-import { useState } from "react"
+import { useRef } from "react"
 import { useNavigate } from "react-router-dom" 
+
 export default function Login() {
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState("")
-  const navigate = useNavigate()
+const navigate = useNavigate()
+  const emailRef = useRef()
+  const passwordRef = useRef()
 
-  const handleSignUp = async (e) => {
+  async function handleSignUp(e) {
     e.preventDefault()
-
-    const email = e.target.elements.email.value
-    const password = e.target.elements.password.value
-
-    if (!email || !password) {
-      setError("Preencha todos os campos.")
-      return
-    }
-
-    setLoading(true)
-    setError("")
-
+    
     try {
-      const response = await fetch("http://localhost:5000/api/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
-      })
-
-      const data = await response.json()
-
-      if (!response.ok) {
-        throw new Error(data.message || "Erro ao fazer login")
-      }
-
-      localStorage.setItem("token", data.token) 
-      navigate("/") 
-
-    } catch (err) {
-      setError(err.message)
-    } finally {
-      setLoading(false)
-    }
+    const data = await api.post("/login", {
+      email:emailRef.current.value,
+      password:passwordRef.current.value,
+    })
+    console.log(data)
+    alert("Login!")
+    navigate("/")
+  } catch (err) {
+    alert("Senha ou email incorretos")
+  }
   }
 
   return (

@@ -4,9 +4,8 @@ header {
   height: 120px;
   max-height: 19%;
   flex-direction: row;
-  padding: 30px;
-  padding-right: 10%;
-  padding-left: 10dvh;
+  padding-right: 25dvh;
+  padding-left: 8dvh;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -35,7 +34,7 @@ header {
   display: flex;
   align-items: center;
   justify-content: center;
-  position: fixed end;
+  position: static;
   padding-bottom: 20px;
 }
 

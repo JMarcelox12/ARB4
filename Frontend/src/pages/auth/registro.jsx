@@ -1,35 +1,29 @@
 import api from '../../services/api'
-import { useState } from 'react'
+import { useRef } from 'react'
 import { useNavigate } from "react-router-dom"
 
 export default function Registro() {
   const navigate = useNavigate()
+  const nameRef = useRef()
+  const ageRef = useRef()
+  const emailRef = useRef()
+  const passwordRef = useRef()
 
-  const handleSubmit = (e) => {
+  async function handleSubmit(e) {
     e.preventDefault()
-    const { name, age, email, password, confirPassword } = e.target
-    var userCreate = {
-      name: name.value,
-      age: age.value,
-      email: email.value,
-      password: password.value,
-      confirPassword: confirPassword.value,
-    }
-
-    if (password.value === confirPassword.value) {
-      api
-        .post('/register', userCreate)
-        .then((res) => {
-          alert('Usuário criado com sucesso!')
-          navigate("/")
-        })
-        .catch((err) => {
-          alert('Erro ao registrar usuário!')
-          alert(err?.response?.data?.message ?? err.message)
-        })
-    } else {
-      alert('Erro, senhas não coincidem!')
-    }
+    
+    try {
+    await api.post("/register", {
+      name:nameRef.current.value,
+      age:ageRef.current.valeu,
+      email:emailRef.current.value,
+      password:passwordRef.current.value,
+    })
+    alert("Usuário registrado com sucesso!")
+    navigate("/")
+  } catch (err) {
+    alert("Erro ao cadastrar usuário")
+  }
   }
 
   return (
@@ -75,7 +69,7 @@ export default function Registro() {
                 class="form-control bg-transparent border-success rounded py-2 text-white"
                 id="nameInput"
                 placeholder="Text"
-                name="name"
+                rel={nameRef}
                 required
               />
               <label for="floatingInput">Nome</label>
@@ -86,7 +80,7 @@ export default function Registro() {
                 class="form-control bg-transparent border-success rounded py-2 text-white"
                 id="ageInput"
                 placeholder="Text"
-                name="age"
+                rel={ageRef}
                 required
               />
               <label for="floatingInput">Idade</label>
@@ -97,7 +91,7 @@ export default function Registro() {
                 class="form-control bg-transparent border-success rounded py-2 text-white"
                 id="emailInput"
                 placeholder="name@example.com"
-                name="email"
+                rel={emailRef}
                 required
               />
               <label for="floatingInput">Email</label>
@@ -108,22 +102,12 @@ export default function Registro() {
                 class="form-control bg-transparent border-success rounded py-2 text-white"
                 id="passwordInput"
                 placeholder="Password"
-                name="password"
+                rel={passwordRef}
                 required
               />
               <label for="floatingPassword">Senha</label>
             </div>
-            <div class="form-floating">
-              <input
-                type="password"
-                class="form-control bg-transparent border-success rounded py-2 text-white"
-                id="confirmInput"
-                placeholder="Password"
-                name="confirmPassword"
-                required
-              />
-              <label for="floatingInput">Confirmar senha</label>
-            </div>
+            
             <button type="submit" class="btn btn-success btnVerde">
               REGISTRAR-SE
             </button>

@@ -7,7 +7,7 @@ import dotenv from 'dotenv'
 dotenv.config()
 
 const prisma = new PrismaClient()
-const SECRET_KEY = 'sua_chave_secreta'
+const SECRET_KEY = process.env.JWT_SECRET
 
 //cria usuário
 export async function registerUser(name, age, email, password) {
