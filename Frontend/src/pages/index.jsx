@@ -33,10 +33,10 @@ export default function Home() {
         <div class="my-container bg-transparent">
           <div class="row align-items-center py-4">
             <div class="col-auto me-auto">
-              <p class="fs-1 fw-bold">Populares</p>
+              <p class="fs-2 fw-bold">Populares</p>
             </div>
             <div class="col-auto">
-              <button type="button" class="btn btn-dark fs-1 fw-bold bg-sucess">
+              <button type="button" class="btn btn-dark fs-2 fw-bold bg-sucess">
                 <p class="textVerde">Mostrar tudo</p>
               </button>
             </div>
@@ -44,10 +44,10 @@ export default function Home() {
           <ul id="lista-salas"></ul>
           <div class="row align-items-center py-4">
             <div class="col-auto me-auto">
-              <p class="fs-1 fw-bold">Destaques</p>
+              <p class="fs-2 fw-bold">Destaques</p>
             </div>
             <div class="col-auto">
-              <button type="button" class="btn btn-dark fs-1 fw-bold">
+              <button type="button" class="btn btn-dark fs-2 fw-bold">
                 <p class="textVerde">Mostrar tudo</p>
               </button>
             </div>
@@ -55,10 +55,10 @@ export default function Home() {
           <ul id="lista-salas"></ul>
           <div class="row align-items-center py-4">
             <div class="col-auto me-auto">
-              <p class="fs-1 fw-bold">Formigas coloridas</p>
+              <p class="fs-2 fw-bold">Formigas coloridas</p>
             </div>
             <div class="col-auto">
-              <button type="button" class="btn btnlogin-dark fs-1 fw-bold">
+              <button type="button" class="btn btnlogin-dark fs-2 fw-bold">
                 <p class="textVerde">Mostrar tudo</p>
               </button>
             </div>
@@ -66,10 +66,10 @@ export default function Home() {
           <ul id="lista-salas"></ul>
           <div class="row align-items-center py-4">
             <div class="col-auto me-auto">
-              <p class="fs-1 fw-bold">Formigas patriotas</p>
+              <p class="fs-2 fw-bold">Formigas patriotas</p>
             </div>
             <div class="col-auto">
-              <button type="button" class="btn btn-dark fs-1 fw-bold">
+              <button type="button" class="btn btn-dark fs-2 fw-bold">
                 <p class="textVerde">Mostrar tudo</p>
               </button>
             </div>
@@ -77,10 +77,10 @@ export default function Home() {
           <ul id="lista-salas"></ul>
           <div class="row align-items-center py-4">
             <div class="col-auto me-auto">
-              <p class="fs-1 fw-bold">Ao vivo</p>
+              <p class="fs-2 fw-bold">Ao vivo</p>
             </div>
             <div class="col-auto">
-              <button type="button" class="btn btn-dark fs-1 fw-bold">
+              <button type="button" class="btn btn-dark fs-2 fw-bold">
                 <p class="textVerde">Mostrar tudo</p>
               </button>
             </div>
@@ -97,15 +97,74 @@ function HeaderDeslogado() {
 
   return (
     <header>
-      <offCanvas/>
+          <nav class="navbar d-flex justify-content-between bg-transparent">
+        <div class="container-fluid col-md-4">
+          <button
+            class="navbar-toggler"
+            type="button"
+            data-bs-toggle="offcanvas"
+            data-bs-target="#offcanvasNavbar"
+            aria-controls="offcanvasNavbar"
+            aria-label="Toggle navigation"
+          >
+            <span class="navbar-toggler-icon"></span>
+          </button>
+          <div
+            class="offcanvas offcanvas-start bg-dark text-white esquerda"
+            tabindex="-1"
+            id="offcanvasNavbar"
+            aria-labelledby="offcanvasNavbarLabel"
+          >
+            <div class="offcanvas-header" id="MenuLateral">
+              <h5 class="offcanvas-title title-white" id="offcanvasNavbarLabel">
+                ARB
+              </h5>
+              <button
+                type="button"
+                class="btn-close"
+                data-bs-dismiss="offcanvas"
+                aria-label="Close"
+              ></button>
+            </div>
+            <div class="offcanvas-body">
+              <ul class="navbar-nav justify-content-end flex-grow-1 pe-3">
+                <li class="nav-item">
+                  <a
+                    class="nav-link active text-white"
+                    aria-current="page"
+                    href="/register"
+                  >
+                    Registre-se
+                  </a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link text-white" href="#">
+                    Formigas
+                  </a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link text-white" href="#">
+                    Salas
+                  </a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link text-white" href="#">
+                    Quem somos
+                  </a>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </nav>
       
-      <div class="col-10 align-self-center left">
+      <div class="col-md-4 offset-md-3 align-self-center left">
         <a href="/">
           <img src="../public/imagens/FPFV.png" alt="some text" class="img" />
         </a>
       </div>
 
-      <div class="col align-self-end right">
+      <div class="col-md-6 align-self-end right">
         <Link to="/login" class="btn btn-outline-dark me-2" type="button">
           ENTRAR
         </Link>
@@ -120,20 +179,7 @@ function HeaderDeslogado() {
 function HeaderLogado() {
   return (
     <header>
-      <offCanvas/>
-
-      <div class="col-10 align-self-center left">
-        <a href="/">
-          <img src="../public/imagens/FPFV.png" alt="some text" class="img" />
-        </a>
-      </div>
-    </header>
-  )
-}
-
-function offCanvas() {
-  return(
-    <nav class="navbar d-flex justify-content-between bg-transparent">
+          <nav class="navbar d-flex justify-content-between bg-transparent">
         <div class="container-fluid">
           <button
             class="navbar-toggler"
@@ -183,5 +229,12 @@ function offCanvas() {
           </div>
         </div>
       </nav>
+
+      <div class="col-10 align-self-center left">
+        <a href="/">
+          <img src="../public/imagens/FPFV.png" alt="some text" class="img" />
+        </a>
+      </div>
+    </header>
   )
 }
