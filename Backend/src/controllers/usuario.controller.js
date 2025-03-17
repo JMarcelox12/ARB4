@@ -27,7 +27,10 @@ export const register = async (req, res) => {
     res.status(201).json(result)
   } catch (error) {
     console.error('Erro ao registrar usuário:', error)
-    res.status(500).json({ error: 'Erro interno do servidor' })
+    
+    if (!res.headersSent) {
+      res.status(500).json({ error: "Erro ao registrar usuário" });
+    }
   }
 }
 
@@ -51,6 +54,10 @@ export const findOne = async (req, res) => {
     res.status(200).json(user)
   } catch (error) {
     res.status(500).json({ error: error.message })
+
+    if (!res.headersSent) {
+      res.status(500).json({ error: "Erro ao registrar usuário" });
+    }
   }
 }
 
@@ -64,6 +71,10 @@ export const update = async (req, res) => {
     res.status(200).json(updatedUser)
   } catch (error) {
     res.status(500).json({ error: error.message })
+
+    if (!res.headersSent) {
+      res.status(500).json({ error: "Erro ao registrar usuário" });
+    }
   }
 }
 
@@ -76,6 +87,10 @@ export const deleteUser = async (req, res) => {
     res.json({ message: 'Usuário deletado com sucesso!' })
   } catch (error) {
     res.status(500).json({ error: error.message })
+
+    if (!res.headersSent) {
+      res.status(500).json({ error: "Erro ao registrar usuário" });
+    }
   }
 }
 
@@ -87,6 +102,10 @@ export const login = async (req, res) => {
     res.status(200).json(user)
   } catch (error) {
     res.status(400).json({ error: error.message })
+
+    if (!res.headersSent) {
+      res.status(500).json({ error: "Erro ao registrar usuário" });
+    }
   }
 }
 
@@ -97,6 +116,10 @@ export const requestPasswordResetController = async (req, res) => {
     res.json({ message })
   } catch (error) {
     res.status(400).json({ error: error.message })
+
+    if (!res.headersSent) {
+      res.status(500).json({ error: "Erro ao registrar usuário" });
+    }
   }
 }
 
@@ -107,5 +130,9 @@ export const resetPasswordController = async (req, res) => {
     res.json({ message })
   } catch (error) {
     res.status(400).json({ error: error.message })
+
+    if (!res.headersSent) {
+      res.status(500).json({ error: "Erro ao registrar usuário" });
+    }
   }
 }
