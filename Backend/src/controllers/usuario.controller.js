@@ -27,7 +27,7 @@ export const register = async (req, res) => {
     res.status(201).json(result)
   } catch (error) {
     console.error('Erro ao registrar usuário:', error)
-    
+
     if (!res.headersSent) {
       res.status(500).json({ error: "Erro ao registrar usuário" });
     }
@@ -56,7 +56,7 @@ export const findOne = async (req, res) => {
     res.status(500).json({ error: error.message })
 
     if (!res.headersSent) {
-      res.status(500).json({ error: "Erro ao registrar usuário" });
+      res.status(500).json({ error: "Erro ao listar usuário" });
     }
   }
 }
@@ -70,10 +70,11 @@ export const update = async (req, res) => {
     })
     res.status(200).json(updatedUser)
   } catch (error) {
+    registrar
     res.status(500).json({ error: error.message })
 
     if (!res.headersSent) {
-      res.status(500).json({ error: "Erro ao registrar usuário" });
+      res.status(500).json({ error: "Erro ao editar usuário" });
     }
   }
 }
@@ -89,7 +90,7 @@ export const deleteUser = async (req, res) => {
     res.status(500).json({ error: error.message })
 
     if (!res.headersSent) {
-      res.status(500).json({ error: "Erro ao registrar usuário" });
+      res.status(500).json({ error: "Erro ao deletar usuário" });
     }
   }
 }
@@ -104,7 +105,7 @@ export const login = async (req, res) => {
     res.status(400).json({ error: error.message })
 
     if (!res.headersSent) {
-      res.status(500).json({ error: "Erro ao registrar usuário" });
+      res.status(500).json({ error: "Erro ao logar usuário" });
     }
   }
 }
@@ -118,7 +119,7 @@ export const requestPasswordResetController = async (req, res) => {
     res.status(400).json({ error: error.message })
 
     if (!res.headersSent) {
-      res.status(500).json({ error: "Erro ao registrar usuário" });
+      res.status(500).json({ error: "Erro ao redefinir senha" });
     }
   }
 }
@@ -132,7 +133,7 @@ export const resetPasswordController = async (req, res) => {
     res.status(400).json({ error: error.message })
 
     if (!res.headersSent) {
-      res.status(500).json({ error: "Erro ao registrar usuário" });
+      res.status(500).json({ error: "Erro ao redefinir senha" });
     }
   }
 }

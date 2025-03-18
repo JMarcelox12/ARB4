@@ -1,16 +1,16 @@
 import '../styles/home.css'
 import { Link } from 'react-router'
-import { AuthContext } from '../services/AuthContext.jsx'
+import { AuthContext, } from '../services/AuthContext.jsx'
 import { useContext, useState } from 'react'
 
 export default function Home() {
   const { userLogado } = useContext(AuthContext)
 
   return (
-      <div class="bg-dark text-white">
+      <div class="bg-dark text-white" style={{ height: "120dvh", margin: "0%"}}>
         
 
-        {userLogado ? <HeaderDeslogado /> : <HeaderLogado />}
+        {userLogado ? <HeaderLogado /> : <HeaderDeslogado />}
 
         <div class="my-container bg-transparent">
           <div class="row align-items-center py-4">
@@ -139,13 +139,13 @@ function HeaderDeslogado() {
         </div>
       </nav>
 
-      <div class="col-md-4 offset-md-3 align-self-center left">
+      <div class="col-md-5 offset-md-3 align-self-center left">
         <a href="/">
           <img src="../public/imagens/FPFV.png" alt="some text" class="img" />
         </a>
       </div>
 
-      <div class="col-md-6 align-self-end right">
+      <div class="col-md-5 align-self-end right">
         <Link to="/login" class="btn btn-outline-dark me-2" type="button">
           ENTRAR
         </Link>
@@ -160,8 +160,8 @@ function HeaderDeslogado() {
 function HeaderLogado() {
   return (
     <header>
-      <nav class="navbar d-flex justify-content-between bg-transparent">
-        <div class="container-fluid">
+     <nav class="navbar d-flex justify-content-between bg-transparent">
+     <div class="container-fluid col-md-4">
           <button
             class="navbar-toggler"
             type="button"
@@ -200,21 +200,31 @@ function HeaderLogado() {
                     teste
                   </a>
                 </li>
-                <li class="nav-item">
-                  <a class="nav-link text-white" href="#">
-                    teste
-                  </a>
-                </li>
               </ul>
             </div>
           </div>
         </div>
       </nav>
 
-      <div class="col-10 align-self-center left">
+      <div class="col-md-5 offset-md-3 align-self-center left">
         <a href="/">
           <img src="../public/imagens/FPFV.png" alt="some text" class="img" />
         </a>
+      </div>
+
+      <div class="col-md-5 align-self-end right">
+      <div class="dropdown me-2">
+        <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+        </button>
+        <ul class="dropdown-menu">
+          <li><button class="dropdown-item" type="button">Action</button></li>
+          <li><button class="dropdown-item" type="button">Another action</button></li>
+          <li><button class="dropdown-item" type="button">Something else here</button></li>
+        </ul>
+      </div>
+        <Link to="/register" class="btn btn-dark" type="button">
+          DEPÓSITO
+        </Link>
       </div>
     </header>
   )

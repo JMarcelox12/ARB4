@@ -11,14 +11,16 @@ export default function Login() {
   async function handleSignIn(e) {
     e.preventDefault()
 
+    alert("funciona!")
+
     try {
-      const data = await api.post("/app/user/login", {
+      const response = await api.post("/app/user/login", {
         email: emailRef.current.value,
         password: passwordRef.current.value,
       })
-      console.log(data)
-      if (data.data?.token) {
-        localStorage.setItem('authToken', data.data.token);
+      console.log(response)
+      if (response.data?.token) {
+        localStorage.setItem('authToken', response.data.token);
         alert("Login realizado com sucesso!");
         navigate("/")
       } else {
