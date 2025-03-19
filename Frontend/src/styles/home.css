@@ -12,6 +12,7 @@ header {
   padding-top: 2rem;
   padding-bottom: 1rem;
   border-bottom: 1px solid #1b1c1b;
+  font-weight: bold;
 }
 
 .left {
@@ -59,6 +60,7 @@ header {
 
 .textVerde {
   color: #02ad21;
+  font-weight: bold;
 }
 
 .btnVerde {
@@ -66,6 +68,26 @@ header {
   width: 100%;
   padding-block: 12px;
   margin-block: 2dvh;
+}
+
+.btnVerdeCanvas {
+  background-color: #02ad21;
+  padding: 4% 20% 4% 20%;
+  border-radius: 7px;
+  border: #1b1c1b 1px solid;
+  text-decoration: none;
+  color: #1b1c1b;
+  margin-inline: 10%;
+}
+
+.btnCanvas {
+  background-color: #1b1c1b;
+  padding: 4% 20% 4% 20%;
+  border-radius: 7px;
+  border: white 1px solid;
+  text-decoration: none;
+  color: white;
+  margin-inline: 10%;
 }
 
 .input {
@@ -80,4 +102,14 @@ header {
 .img {
   height: 100%;
   width: 180px;
+}
+
+.imgLogoCanvas {
+  height: 100%;
+  width: 15dvh;
+}
+
+.canvas {
+  background-color: #1b1c1b;
+  font-weight: bold;
 }

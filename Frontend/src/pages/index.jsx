@@ -91,32 +91,25 @@ function HeaderDeslogado() {
             <span class="navbar-toggler-icon"></span>
           </button>
           <div
-            class="offcanvas offcanvas-start bg-dark text-white esquerda"
+            class="offcanvas offcanvas-start text-white esquerda canvas"
             tabindex="-1"
             id="offcanvasNavbar"
             aria-labelledby="offcanvasNavbarLabel"
           >
-            <div class="offcanvas-header" id="MenuLateral">
-              <h5 class="offcanvas-title title-white" id="offcanvasNavbarLabel">
-                ARB
-              </h5>
-              <button
-                type="button"
-                class="btn-close"
-                data-bs-dismiss="offcanvas"
-                aria-label="Close"
-              ></button>
+            <div class="offcanvas-header align-self-center" id="MenuLateral">
+              <button type="button" class="btn" data-bs-dismiss="offcanvas">
+                <img src="../public/imagens/FVFC.png" class="imgLogoCanvas"/>
+              </button> 
             </div>
             <div class="offcanvas-body">
               <ul class="navbar-nav justify-content-end flex-grow-1 pe-3">
-                <li class="nav-item">
-                  <a
-                    class="nav-link active text-white"
-                    aria-current="page"
-                    href="/register"
-                  >
-                    Registre-se
-                  </a>
+                <li class="nav-item align-self-center right">
+                  <Link to="/login" class="btnVerdeCanvas" type="button">
+                     ENTRAR
+                  </Link>
+                  <Link to="/register" class="btnCanvas" type="button">
+                      REGISTRAR
+                  </Link>
                 </li>
                 <li class="nav-item">
                   <a class="nav-link text-white" href="#">

@@ -11,8 +11,6 @@ export default function Login() {
   async function handleSignIn(e) {
     e.preventDefault()
 
-    alert("funciona!")
-
     try {
       const response = await api.post("/app/user/login", {
         email: emailRef.current.value,

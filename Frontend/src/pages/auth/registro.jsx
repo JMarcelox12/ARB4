@@ -13,7 +13,7 @@ export default function Registro() {
     e.preventDefault()
 
     try {
-      await api.post("/user/register", {
+      await api.post("/app/user/register", {
         name: nameRef.current.value,
         age: parseInt(ageRef.current.value, 10),
         email: emailRef.current.value,
