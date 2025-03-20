@@ -10,7 +10,7 @@ export default function Login() {
 
   async function handleSignIn(e) {
     e.preventDefault()
-
+    
     try {
       const response = await api.post("/app/user/login", {
         email: emailRef.current.value,

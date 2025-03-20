@@ -74,7 +74,6 @@ export default function Home() {
 }
 
 function HeaderDeslogado() {
-  const { logout } = useContext(AuthContext)
 
   return (
     <header>
@@ -151,6 +150,8 @@ function HeaderDeslogado() {
 }
 
 function HeaderLogado() {
+  const { logout } = useContext(AuthContext)
+
   return (
     <header>
      <nav class="navbar d-flex justify-content-between bg-transparent">
@@ -185,13 +186,9 @@ function HeaderLogado() {
             <div class="offcanvas-body">
               <ul class="navbar-nav justify-content-end flex-grow-1 pe-3">
                 <li class="nav-item">
-                  <a
-                    class="nav-link active text-white"
-                    aria-current="page"
-                    href="#"
-                  >
-                    teste
-                  </a>
+                  <Link onClick={logout} class="btnCanvas" type="button">
+                    Deslogar
+                  </Link>
                 </li>
               </ul>
             </div>

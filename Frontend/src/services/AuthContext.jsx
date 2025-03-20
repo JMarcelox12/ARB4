@@ -18,7 +18,7 @@ export function AuthProvider({ children }) {
   }
 
   const logout = () => {
-    console.log('Deslogando...') // Debug do logout
+    console.log('Deslogando...')
     localStorage.removeItem('token')
     setUserLogado(false)
   }
