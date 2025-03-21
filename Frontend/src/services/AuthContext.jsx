@@ -6,20 +6,19 @@ export function AuthProvider({ children }) {
   const [userLogado, setUserLogado] = useState(false)
 
   useEffect(() => {
-    const token = localStorage.getItem('token')
+    const token = localStorage.getItem('authToken')
     console.log('Token no localStorage:', token) // Verifica se o token está correto
     setUserLogado(!!token && token !== 'null') // Garante que userLogado seja booleano correto
   }, [])
 
   const login = (token) => {
     console.log('Logando com token:', token) // Debug do login
-    localStorage.setItem('token', token)
     setUserLogado(true)
   }
 
   const logout = () => {
     console.log('Deslogando...')
-    localStorage.removeItem('token')
+    localStorage.removeItem('authToken')
     setUserLogado(false)
   }
   

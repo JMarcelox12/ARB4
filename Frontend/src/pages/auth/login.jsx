@@ -16,9 +16,9 @@ export default function Login() {
         email: emailRef.current.value,
         password: passwordRef.current.value,
       })
-      console.log(response)
       if (response.data?.token) {
         localStorage.setItem('authToken', response.data.token);
+        console.log(localStorage.getItem("authToken"));
         alert("Login realizado com sucesso!");
         navigate("/")
       } else {
