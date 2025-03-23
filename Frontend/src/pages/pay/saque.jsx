@@ -3,33 +3,10 @@ import { useRef } from "react"
 import { useNavigate } from 'react-router'
 import api from "../../services/api"
 
-export default function Login() {
+export default function Saque() {
   const navigate = useNavigate()
-  const emailRef = useRef()
+  const valueRef = useRef()
   const passwordRef = useRef()
-
-  async function handleSignIn(e) {
-    e.preventDefault()
-    
-    try {
-      const response = await api.post("/app/user/login", {
-        email: emailRef.current.value,
-        password: passwordRef.current.value,
-      })
-      if (response.data?.token) {
-        localStorage.setItem('authToken', response.data.token);
-        console.log(localStorage.getItem("authToken"));
-        alert("Login realizado com sucesso!");
-        navigate("/")
-      } else {
-        alert("Erro ao realizar login, tente novamente.");
-      }
-
-    } catch (err) {
-      console.error("Erro ao tentar fazer login:", err);
-      alert("Senha ou email incorretos");
-    }
-  }
 
   return (
     <div className="bg-dark text-white" style={{ height: "100vh" }}>
@@ -52,15 +29,15 @@ export default function Login() {
       </header>
 
       <div className="input flex-column align-items-center rounded">
-        <form onSubmit={handleSignIn}>
+        <form>
           <p className="fw-bold fs-3 left">Faça o login em sua conta.</p>
           <div className="form-floating mb-3">
             <input
               type="email"
               className="form-control bg-transparent border-success rounded py-2 text-white"
-              id="email"
+              id="floatingInput"
               placeholder="name@example.com"
-              ref={emailRef}
+              ref={valueRef}
               required
             />
             <label htmlFor="floatingInput">Email</label>
@@ -69,7 +46,7 @@ export default function Login() {
             <input
               type="password"
               className="form-control bg-transparent border-success rounded py-2 text-white"
-              id="password"
+              id="floatingPassword"
               placeholder="Password"
               ref={passwordRef}
               required
@@ -79,26 +56,6 @@ export default function Login() {
           <button type="submit" className="btn btn-success btnVerde" onClick={() => (handleSignIn)}>
             ENTRAR
           </button>
-          <p>
-            <a
-              href="#"
-              className="left link-light link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover"
-            >
-              Esqueceu a senha?
-
-            </a>
-          </p>
-          <div className="row-column">
-            <p className="left">
-              Não tem uma conta?
-              <a
-                href="/register"
-                className="left link-success link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover ms-1 textVerde"
-              >
-                Registre-se
-              </a>
-            </p>
-          </div>
         </form>
       </div>
     </div>

@@ -43,6 +43,13 @@ header {
   padding-inline: 0dvh;
 }
 
+.space-betwen {
+  display: flex;
+  justify-content: space-between; 
+  align-items: center; 
+  width: 100%; 
+}
+
 .my-container {
   background-color: #1b1c1b;
   height: 100%;

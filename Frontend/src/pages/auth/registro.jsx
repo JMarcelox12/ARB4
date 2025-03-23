@@ -47,7 +47,7 @@ export default function Registro() {
             <input
               type="text"
               className="form-control bg-transparent border-success rounded py-2 text-white"
-              id="nameInput"
+              id="name"
               placeholder="Text"
               ref={nameRef}
               required
@@ -58,7 +58,7 @@ export default function Registro() {
             <input
               type="text"
               className="form-control bg-transparent border-success rounded py-2 text-white"
-              id="ageInput"
+              id="age"
               placeholder="Text"
               ref={ageRef}
               required
@@ -69,7 +69,7 @@ export default function Registro() {
             <input
               type="email"
               className="form-control bg-transparent border-success rounded py-2 text-white"
-              id="emailInput"
+              id="email"
               placeholder="name@example.com"
               ref={emailRef}
               required
@@ -80,7 +80,7 @@ export default function Registro() {
             <input
               type="password"
               className="form-control bg-transparent border-success rounded py-2 text-white"
-              id="passwordInput"
+              id="password"
               placeholder="Password"
               ref={passwordRef}
               required
