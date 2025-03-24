@@ -132,8 +132,68 @@ export const resetPasswordController = async (req, res) => {
   } catch (error) {
     res.status(400).json({ error: error.message })
 
+    const deposito = async (req, res) => {
+      try {
+        const message = await deposito(res)
+      } catch (error) {
+        res.status(500).json({error: message})
+      }
+    }
     if (!res.headersSent) {
       res.status(500).json({ error: "Erro ao redefinir senha" });
     }
+  }
+}
+
+//deposito
+export const deposit = async (req, res) => {
+  try {
+    const user = await prisma.user.findUnique({
+      where: { id: req.params.id },
+    });
+
+    if (!user) {
+      return res.status(404).json({ error: "Usuário não encontrado" });
+    }
+
+    const updatedUser = await prisma.user.update({
+      where: { id: req.params.id },
+      data: {
+        saldo: user.saldo + req.body.saldo, 
+      },
+    })
+    data = data + req
+    res.status(200).json(updatedUser)
+  } catch (error) {
+    res.status(500).json({error: message})
+  }
+}
+
+//saque
+export const withdraw = async (req, res) => {
+  try {
+    const user = await prisma.user.findUnique({
+      where: { id: req.params.id },
+    });
+
+    if (!user) {
+      return res.status(404).json({ error: "Usuário não encontrado" });
+    }
+
+    if (user.saldo < req.body.saldo) {
+      return res.status(400).json({ error: "Saldo insuficiente!" });
+    }
+
+    const updatedUser = await prisma.user.update({
+      where: { id: req.params.id },
+      data: {
+        saldo: user.saldo - req.body.saldo,
+      },
+    });
+
+    res.status(200).json(updatedUser);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Houve um erro ao realizar o saque" });
   }
 }

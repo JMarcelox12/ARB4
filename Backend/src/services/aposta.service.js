@@ -17,8 +17,8 @@ export async function placeBet(userId, antId, amount) {
   if (!ant) throw new Error('Formiga não encontrada.')
 
   //cria aposta
-  return await prisma.$transaction(async (x) => {
-    const bet = await x.bet.create({
+  return await prisma.$transaction(async () => {
+    const bet = await prisma.bet.create({
       data: {
         userId,
         antId,
@@ -29,12 +29,12 @@ export async function placeBet(userId, antId, amount) {
     })
 
     //saque
-    await x.user.update({
+    await prisma.user.update({
       where: { id: userId },
       data: { saldo: { decrement: amount } },
     })
 
-    await x.transaction.create({
+    await prisma.transaction.create({
       data: {
         userId,
         amount: -amount,
@@ -56,12 +56,12 @@ export async function checkBetResults(winningAntId) {
     return { message: 'Nenhuma aposta pendente encontrada.' }
   }
 
-  return await prisma.$transaction(async (x) => {
+  return await prisma.$transaction(async () => {
     for (const bet of pendingBets) {
       const isWinner = bet.antId === winningAntId
       const newStatus = isWinner ? 'WON' : 'LOST'
 
-      await x.bet.update({
+      await prisma.bet.update({
         where: { id: bet.id },
         data: { status: newStatus },
       })
@@ -70,12 +70,12 @@ export async function checkBetResults(winningAntId) {
         const payout = bet.amount * bet.odd
 
         //deposito
-        await x.user.update({
+        await prisma.user.update({
           where: { id: bet.userId },
           data: { saldo: { increment: payout } },
         })
 
-        await x.transaction.create({
+        await prisma.transaction.create({
           data: {
             userId: bet.userId,
             amount: payout,

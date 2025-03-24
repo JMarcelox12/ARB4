@@ -63,6 +63,7 @@ header {
   color: white;
   font-size: 20px;
   font-weight: bold;
+  text-decoration: none;
 }
 
 .textVerde {
@@ -75,6 +76,8 @@ header {
   width: 100%;
   padding-block: 12px;
   margin-block: 2dvh;
+  font-weight: bold;
+  color: white;
 }
 
 .btnVerdeCanvas {
@@ -118,5 +121,17 @@ header {
 
 .canvas {
   background-color: #1b1c1b;
+  font-weight: bold;
+}
+
+
+.btnVerdePay {
+  background-color: #02ad21;
+  padding: 7% 30% 7% 30%;
+  border-radius: 7px;
+  border: #1b1c1b 1px solid;
+  text-decoration: none;
+  color: white;
+  margin-block: 10%;
   font-weight: bold;
 }

@@ -21,6 +21,7 @@ export default function Login() {
         console.log(localStorage.getItem("authToken"));
         alert("Login realizado com sucesso!");
         navigate("/")
+        window.location.reload();
       } else {
         alert("Erro ao realizar login, tente novamente.");
       }

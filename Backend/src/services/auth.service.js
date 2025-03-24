@@ -45,7 +45,7 @@ export async function requestPasswordReset(email) {
   }
 
   const resetToken = jwt.sign({ userId: user.id }, SECRET_KEY, {
-    expiresIn: '1h',
+    expiresIn: '10m',
   })
 
   await prisma.user.update({

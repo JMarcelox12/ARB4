@@ -23,12 +23,12 @@ const handlePresetValue = (preset) => {
   setValue(formatMoney(String(preset * 100)));
 };
 
-const fazerDeposito = (e) => {
+async function fazerDeposito(e) {
   e.preventDefault();
 
   try {
-    let numericValue = value.replace(/\./g, "").replace(",", "."); // Remove pontos e substitui vírgula por ponto
-    numericValue = parseFloat(numericValue); // Converte para número
+    let numericValue = value.replace(/\./g, "").replace(",", ".");
+    numericValue = parseFloat(numericValue);
 
     if (isNaN(numericValue)) {
       alert("Erro: valor inválido!");
@@ -36,7 +36,12 @@ const fazerDeposito = (e) => {
     }
 
     if (numericValue < 3000.01 && numericValue > 9.99) {
-      console.log("Tá funcionando:", numericValue);
+       console.log("Tá funcionando:", numericValue);
+       alert("Depósito realizado com sucesso!")
+       const response = await api.post("/app/user/login", {
+        saldo: value.current.value,
+      })
+      window.location.reload();
     } else {
       alert(" Valor inválido! O valor precisa estar entre R$ 10,00 e R$ 3.000,00");
     }
@@ -70,7 +75,7 @@ const fazerDeposito = (e) => {
         <form>
           <p className="fw-bold fs-3 left">Informe ou selecione um valor.</p>
           <div className="form-floating mb-3">
-            <span className="position-absolute top-50 start-0 translate-middle-y ps-3 text-white">R$</span>
+            <span className="position-absolute top-50 start-0 translate-middle-y ps-3 text-white title">R$</span>
             <input
               type="text" step="1" min="20"
               className="form-control bg-transparent border-success rounded py-2 ps-5 text-white"
@@ -85,17 +90,20 @@ const fazerDeposito = (e) => {
 
           <div className="row">
             <div className='col'>
-                <button type='button' className="btnVerdeCanvas" onClick={() => handlePresetValue(50)}>R$ 50</button>
+                <button type='button' className="btnVerdePay" onClick={() => handlePresetValue(50)}>R$ 50</button>
             </div>
             <div className='col'>
-                <button type='button' className="btnVerdeCanvas" onClick={() => handlePresetValue(100)}>R$ 100</button>
+                <button type='button' className="btnVerdePay" onClick={() => handlePresetValue(100)}>R$ 100</button>
             </div>
             <div className='col'>
-                <button type='button' className="btnVerdeCanvas" onClick={() => handlePresetValue(200)}>R$ 200</button>
+                <button type='button' className="btnVerdePay" onClick={() => handlePresetValue(200)}>R$ 200</button>
+            </div> 
+            <div className='col'>
+                <button type='button' className="btnVerdePay" onClick={() => handlePresetValue(1000)}>R$ 1000</button>
             </div> 
             <div className='space-betwen'>
-              <a>MIN 10</a>
-              <a>MAX 3000</a>
+              <a className='title'>MIN 10</a>
+              <a className='title'>MAX 3000</a>
             </div>
           </div>
         

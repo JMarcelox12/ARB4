@@ -4,7 +4,7 @@ import { AuthContext, } from '../services/AuthContext.jsx'
 import { useContext, useState } from 'react'
 
 export default function Home() {
-  const { userLogado } = useContext(AuthContext)
+  const { userLogado } = useContext(AuthContext)  
 
   return (
       <div className="bg-dark text-white" style={{ height: "120dvh", margin: "0%"}}>
