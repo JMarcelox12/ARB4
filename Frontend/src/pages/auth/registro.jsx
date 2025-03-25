@@ -19,8 +19,11 @@ export default function Registro() {
         email: emailRef.current.value,
         password: passwordRef.current.value,
       })
+      localStorage.setItem('authToken', response.data.token);
+      console.log(localStorage.getItem("authToken"));
       alert("Usuário registrado com sucesso!")
       navigate("/")
+      window.location.reload();
     } catch (err) {
       alert("Erro ao cadastrar usuário")
     }

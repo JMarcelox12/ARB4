@@ -163,6 +163,7 @@ export const deposit = async (req, res) => {
       },
     })
     data = data + req
+    console.log('Tá depositando: ', user.saldo)
     res.status(200).json(updatedUser)
   } catch (error) {
     res.status(500).json({error: message})

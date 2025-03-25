@@ -38,8 +38,8 @@ async function fazerDeposito(e) {
     if (numericValue < 3000.01 && numericValue > 9.99) {
        console.log("Tá funcionando:", numericValue);
        alert("Depósito realizado com sucesso!")
-       const response = await api.post("/app/user/login", {
-        saldo: value.current.value,
+       await api.post("/app/user/deposit", {
+        saldo: numericValue.current.value,
       })
       window.location.reload();
     } else {
