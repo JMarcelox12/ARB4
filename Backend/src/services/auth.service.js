@@ -31,7 +31,7 @@ export async function loginUser(email, password) {
   const isValidPassword = await bcrypt.compare(password, user.password)
   if (!isValidPassword) throw new Error('Senha incorreta.')
 
-  const token = jwt.sign({ userId: user.id }, SECRET_KEY, { expiresIn: '20m' })
+  const token = jwt.sign({ userId: user.id }, SECRET_KEY, { expiresIn: '10m' })
 
   return { token, userId: user.id, saldo: user.saldo }
 }

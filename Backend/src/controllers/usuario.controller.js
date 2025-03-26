@@ -70,7 +70,7 @@ export const update = async (req, res) => {
     })
     res.status(200).json(updatedUser)
   } catch (error) {
-    registrar
+    // registrar
     res.status(500).json({ error: error.message })
 
     if (!res.headersSent) {
@@ -136,7 +136,7 @@ export const resetPasswordController = async (req, res) => {
       try {
         const message = await deposito(res)
       } catch (error) {
-        res.status(500).json({error: message})
+        res.status(500).json({ error: message })
       }
     }
     if (!res.headersSent) {
@@ -147,6 +147,9 @@ export const resetPasswordController = async (req, res) => {
 
 //deposito
 export const deposit = async (req, res) => {
+  // req.params.id é undefined
+  console.log(req.params)
+
   try {
     const user = await prisma.user.findUnique({
       where: { id: req.params.id },
@@ -159,14 +162,14 @@ export const deposit = async (req, res) => {
     const updatedUser = await prisma.user.update({
       where: { id: req.params.id },
       data: {
-        saldo: user.saldo + req.body.saldo, 
+        saldo: user.saldo + req.body.saldo,
       },
     })
     data = data + req
     console.log('Tá depositando: ', user.saldo)
     res.status(200).json(updatedUser)
   } catch (error) {
-    res.status(500).json({error: message})
+    res.status(500).json({ error: error })
   }
 }
 

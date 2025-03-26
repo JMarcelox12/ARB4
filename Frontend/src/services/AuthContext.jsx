@@ -7,12 +7,11 @@ export function AuthProvider({ children }) {
 
   useEffect(() => {
     const token = localStorage.getItem('authToken')
-    console.log('Token no localStorage:', token) // Verifica se o token está correto
     setUserLogado(!!token && token !== 'null') // Garante que userLogado seja booleano correto
   }, [])
 
   const login = (token) => {
-    console.log('Logando com token:', token) // Debug do login
+    console.log('Logando com token:', token) // Debug do 
     setUserLogado(true)
   }
 

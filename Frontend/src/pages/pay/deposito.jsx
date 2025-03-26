@@ -2,11 +2,12 @@ import '../../styles/home.css'
 import { useState } from "react"
 import { useNavigate } from 'react-router'
 import api from "../../services/api"
+import { jwtDecode } from "jwt-decode"
 
 export default function Deposito() {
   const navigate = useNavigate()
   const [ value, setValue ] = useState("10,00")
-
+  
 const formatMoney = (val) => {
   val = val.replace(/\D/g, "");
   if (!val) return "0,00";
@@ -23,6 +24,16 @@ const handlePresetValue = (preset) => {
   setValue(formatMoney(String(preset * 100)));
 };
 
+const getUserIdFromToken = () => {
+  const token = localStorage.getItem("authToken"); // Pegue o token do localStorage
+  if (!token) {
+    console.log("Token não encontrado");
+    return;
+  }
+  const decodedToken = jwtDecode(token); // Decodifica o token
+  return decodedToken.userId; // Retorna o userId do token
+};
+
 async function fazerDeposito(e) {
   e.preventDefault();
 
@@ -35,13 +46,28 @@ async function fazerDeposito(e) {
       return;
     }
 
-    if (numericValue < 3000.01 && numericValue > 9.99) {
-       console.log("Tá funcionando:", numericValue);
-       alert("Depósito realizado com sucesso!")
-       await api.post("/app/user/deposit", {
-        saldo: numericValue.current.value,
-      })
-      window.location.reload();
+    const userId = getUserIdFromToken();
+
+    if (!userId) {
+      alert("Erro: usuário não encontrado.");
+      return;
+    }
+
+
+    if (numericValue >= 10 && numericValue <= 3000) {
+      console.log("Tá funcionando:", numericValue);
+
+      const response = await api.put("/app/user/deposit/${userId}", {
+        saldo: numericValue,
+      });
+
+
+      if (response.data?.saldo) {
+        alert("Depósito realizado com sucesso!");
+        window.location.reload();
+      } else {
+        alert("Erro ao realizar login, tente novamente.");
+      }
     } else {
       alert(" Valor inválido! O valor precisa estar entre R$ 10,00 e R$ 3.000,00");
     }
