@@ -20,7 +20,7 @@ UserRoutes.delete('/delete/:id', deleteUser)
 UserRoutes.post('/login', login)
 UserRoutes.post('/request-reset', requestPasswordResetController)
 UserRoutes.post('/reset-password', resetPasswordController)
-UserRoutes.put("/deposit/:id", deposit)
-UserRoutes.put("/withdraw/:id", withdraw)
+UserRoutes.post("/deposit", deposit)
+UserRoutes.post("/withdraw", withdraw)
 
 export default UserRoutes

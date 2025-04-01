@@ -151,26 +151,22 @@ export const deposit = async (req, res) => {
   console.log(req.params)
 
   try {
-    const user = await prisma.user.findUnique({
-      where: { id: req.params.id },
+    const { valor } = req.body; // Valor para adicionar ou remover
+    
+    const user = await prisma.user.update({
+       where: { id: req.id },
+       data: { saldo: { increment: valor } }, // Pode usar decrement também
     });
 
+    console.log("aqui")
     if (!user) {
       return res.status(404).json({ error: "Usuário não encontrado" });
     }
 
-    const updatedUser = await prisma.user.update({
-      where: { id: req.params.id },
-      data: {
-        saldo: user.saldo + req.body.saldo,
-      },
-    })
-    data = data + req
-    console.log('Tá depositando: ', user.saldo)
-    res.status(200).json(updatedUser)
-  } catch (error) {
-    res.status(500).json({ error: error })
-  }
+    res.json({ message: "Saldo atualizado", saldo: user.saldo });
+ } catch (error) {
+    res.status(500).json({ error: "Erro ao atualizar saldo" });
+ }
 }
 
 //saque

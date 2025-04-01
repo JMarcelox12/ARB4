@@ -1,80 +1,77 @@
-import '../../styles/home.css'
-import { useState } from "react"
-import { useNavigate } from 'react-router'
-import api from "../../services/api"
-import { jwtDecode } from "jwt-decode"
+import '../../styles/home.css';
+import { useState } from "react";
+import { useNavigate } from 'react-router-dom';
+import { jwtDecode } from "jwt-decode";
+import api from "../../services/api";
 
 export default function Deposito() {
-  const navigate = useNavigate()
-  const [ value, setValue ] = useState("10,00")
+  const navigate = useNavigate();
+  const [value, setValue] = useState("10,00");
   
-const formatMoney = (val) => {
-  val = val.replace(/\D/g, "");
-  if (!val) return "0,00";
+  const formatMoney = (val) => {
+    val = val.replace(/\D/g, "");
+    if (!val) return "0,00";
+    val = (parseFloat(val) / 100).toFixed(2);
+    return val.replace(".", ",");
+  };
 
-  val = (parseFloat(val) / 100).toFixed(2);
-  return val.replace(".", ",");
-};
+  const handleChange = (e) => {
+    setValue(formatMoney(e.target.value));
+  };
 
-const handleChange = (e) => {
-  setValue(formatMoney(e.target.value));
-};
+  const handlePresetValue = (preset) => {
+    setValue(formatMoney(String(preset * 100)));
+  };
 
-const handlePresetValue = (preset) => {
-  setValue(formatMoney(String(preset * 100)));
-};
-
-const getUserIdFromToken = () => {
-  const token = localStorage.getItem("authToken"); // Pegue o token do localStorage
-  if (!token) {
-    console.log("Token não encontrado");
-    return;
-  }
-  const decodedToken = jwtDecode(token); // Decodifica o token
-  return decodedToken.userId; // Retorna o userId do token
-};
-
-async function fazerDeposito(e) {
-  e.preventDefault();
-
-  try {
-    let numericValue = value.replace(/\./g, "").replace(",", ".");
-    numericValue = parseFloat(numericValue);
-
-    if (isNaN(numericValue)) {
-      alert("Erro: valor inválido!");
-      return;
+  const getUserIdFromToken = () => {
+    const token = localStorage.getItem("authToken");
+    if (!token) return null;
+    try {
+      const decodedToken = jwtDecode(token);
+      return decodedToken.userId;
+    } catch (error) {
+      console.error("Erro ao decodificar o token:", error);
+      return null;
     }
+  };
 
-    const userId = getUserIdFromToken();
+  async function fazerDeposito(e) {
+    e.preventDefault();
+    try {
+      let numericValue = value.replace(/\./g, "").replace(",", ".");
+      numericValue = parseFloat(numericValue);
 
-    if (!userId) {
-      alert("Erro: usuário não encontrado.");
-      return;
-    }
-
-
-    if (numericValue >= 10 && numericValue <= 3000) {
-      console.log("Tá funcionando:", numericValue);
-
-      const response = await api.put("/app/user/deposit/${userId}", {
-        saldo: numericValue,
-      });
-
-
-      if (response.data?.saldo) {
-        alert("Depósito realizado com sucesso!");
-        window.location.reload();
-      } else {
-        alert("Erro ao realizar login, tente novamente.");
+      if (isNaN(numericValue)) {
+        alert("Erro: valor inválido!");
+        return;
       }
-    } else {
-      alert(" Valor inválido! O valor precisa estar entre R$ 10,00 e R$ 3.000,00");
+
+      const id = getUserIdFromToken();
+      if (!id) {
+        alert("Erro: usuário não autenticado.");
+        return;
+      }
+
+      if (numericValue >= 10 && numericValue <= 3000) {
+        const response = await api.post("/app/user/deposit", {
+          id,
+          saldo: numericValue,
+        });
+
+        if (response.data?.saldo) {
+          alert("Depósito realizado com sucesso!");
+          window.location.reload();
+        } else {
+          alert("Erro ao realizar depósito, tente novamente.");
+        }
+      } else {
+        alert("Valor inválido! O valor precisa estar entre R$ 10,00 e R$ 3.000,00");
+      }
+    } catch (err) {
+      console.error("Erro ao processar o depósito:", err.message);
     }
-  } catch (err) {
-    console.error("Erro ao processar o depósito:", err.message);
   }
-};
+
 
 
   return (
