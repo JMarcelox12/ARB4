@@ -1,10 +1,12 @@
 import '../styles/home.css'
-import { Link } from 'react-router'
+import { Link, useNavigate } from 'react-router'
 import { AuthContext, } from '../services/AuthContext.jsx'
-import { useContext, useState } from 'react'
+import { useContext, useEffect, useState } from 'react'
+import { jwtDecode } from "jwt-decode";
+import api from '../services/api'
 
 export default function Home() {
-  const { userLogado } = useContext(AuthContext)  
+  const { userLogado } = useContext(AuthContext)
 
   return (
       <div className="bg-dark text-white" style={{ height: "120dvh", margin: "0%"}}>
@@ -151,6 +153,37 @@ function HeaderDeslogado() {
 
 function HeaderLogado() {
   const { logout } = useContext(AuthContext)
+  const navigate = useNavigate()
+  const [saldo, setSaldo] = useState(0)
+
+  const irParaSaque = () => {
+    navigate("/saque")
+  }
+
+  useEffect(() => {
+    const token = localStorage.getItem("authToken")
+    if (token) {
+      try {
+        const decoded = jwtDecode(token)
+        const userId = decoded.userId
+        buscarSaldo(userId)
+      } catch (err) {
+        console.error("Erro ao decodificar:", err)
+      }
+    } else {
+      console.warn("Token não encontrado no localStorage")
+    }
+  }, [])
+
+  const buscarSaldo = async (userId) => {
+    try {
+      const response = await api.get(`app/user/${userId}`)
+      const saldoAtual = response.data.saldo
+      setSaldo(saldoAtual)
+    } catch (error) {
+      console.error("Erro ao buscar saldo:", error)
+    }
+  }
 
   return (
     <header>
@@ -181,6 +214,16 @@ function HeaderLogado() {
               <ul className="navbar-nav justify-content-end flex-grow-1 pe-3">
                 <li className="nav-item">
                   <a className="nav-link text-white" href="/deposito">
+                    Perfil
+                  </a>
+                </li>
+                <li className="nav-item">
+                  <a className="nav-link text-white" href="/deposito">
+                    Minhas Apostas
+                  </a>
+                </li>
+                <li className="nav-item">
+                  <a className="nav-link text-white" href="/deposito">
                     Depósito
                   </a>
                 </li>
@@ -207,12 +250,14 @@ function HeaderLogado() {
       </div>
 
       <div className="col-md-5 align-self-end right">
+          <div className="text-white fw-bold">
+            R$ {Number(saldo).toFixed(2).replace('.', ',')}
+          </div>
       <div className="dropdown me-2">
-        <button className="btn dropdown-toggle bg-transparent" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-        </button>
+        <button className="btn dropdown-toggle bg-transparent" type="button" data-bs-toggle="dropdown" aria-expanded="false"></button>
         <ul className="dropdown-menu">
           <li><button className="dropdown-item" type="button">Perfil</button></li>
-          <li><button className="dropdown-item" type="button" href="/sacar" >Sacar</button></li>
+          <li><button className="dropdown-item" type="button" onClick={irParaSaque}>Sacar</button></li>
           <li><button className="dropdown-item" type="button" onClick={logout}>Deslogar</button></li>
         </ul>
       </div>

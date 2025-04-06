@@ -105,7 +105,7 @@ header {
   align-items: center;
   justify-content: center;
   margin: 5dvh;
-  margin-inline: 60dvh;
+  margin-inline: 50dvh;
   padding: 4dvh 4dvh 4dvh 4vh;
 }
 
@@ -124,7 +124,6 @@ header {
   font-weight: bold;
 }
 
-
 .btnVerdePay {
   background-color: #02ad21;
   padding: 7% 30% 7% 30%;
@@ -134,4 +133,14 @@ header {
   color: white;
   margin-block: 10%;
   font-weight: bold;
+}
+
+.tituloPaginas {
+  background-color: #02ad21;
+  width: 20%;
+  margin-inline: 40%;
+  margin-top: 2%;
+  margin-bottom: 10%;
+  border-radius: 5px;
+  padding: 1% 4% 0.5% 4%;
 }

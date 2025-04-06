@@ -4,14 +4,16 @@ import {
   getAnts,
   updateAnt,
   deleteAnt,
+  upload,
 } from '../controllers/formiga.controller.js'
+import { upload } from '../middlewares/upload.js'
 
 var AntRoutes = Router()
 
-AntRoutes.post('/', createAnt)
-AntRoutes.get('/:id', getAnts)
-AntRoutes.put('/:id', updateAnt)
-AntRoutes.delete('/:id', deleteAnt)
+AntRoutes.post('/', upload.single('imagem'), createAnt)
+AntRoutes.get('/list', getAnts)
+AntRoutes.put('/update/:id', updateAnt)
+AntRoutes.delete('/delete/:id', deleteAnt)
 
 AntRoutes.use('/ant', AntRoutes)
 

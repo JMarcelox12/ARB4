@@ -53,7 +53,7 @@ export default function Deposito() {
       }
 
       if (numericValue >= 10 && numericValue <= 3000) {
-        const response = await api.post("/app/user/deposit", {
+        const response = await api.post(`/app/user/deposit/${id}`,{
           id,
           saldo: numericValue,
         });
@@ -95,6 +95,9 @@ export default function Deposito() {
       </header>
 
       <div className="input flex-column align-items-center rounded">
+        <div className='tituloPaginas'>
+          <p className="fw-bold fs-3 left">Depósito</p>
+        </div>
         <form>
           <p className="fw-bold fs-3 left">Informe ou selecione um valor.</p>
           <div className="form-floating mb-3">

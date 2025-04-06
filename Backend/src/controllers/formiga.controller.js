@@ -1,6 +1,22 @@
 import { PrismaClient } from '@prisma/client'
+import multer from 'multer'
+import path from 'path'
 
 const prisma = new PrismaClient()
+
+// Define onde as imagens serão salvas
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, 'uploads/') // cria uma pasta chamada 'uploads'
+  },
+  filename: (req, file, cb) => {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9)
+    const ext = path.extname(file.originalname)
+    cb(null, `${file.fieldname}-${uniqueSuffix}${ext}`)
+  },
+})
+
+export const upload = multer({ storage })
 
 // Sorteia o número de partidas
 async function sortGame() {
@@ -46,20 +62,28 @@ async function calculateODDAnt(win, game) {
 
 // Função para criar uma nova formiga
 export const createAnt = async (req, res) => {
-  let sg = await sortGame(),
-    sw = await sortWin(sg)
+  try {
+    const { name } = req.body
+    const imagePath = req.file ? req.file.path : null
 
-  await prisma.ant.create({
-    data: {
-      image: req.body.image,
-      name: req.body.name,
-      win: sw,
-      game: sg,
-      odd: await calculateODDAnt(sw, sg),
-    },
-  })
+    let sg = await sortGame(),
+      sw = await sortWin(sg)
 
-  res.send('OK! ta funfando!')
+    await prisma.ant.create({
+      data: {
+        image: imagePath, // salva o caminho do arquivo
+        name,
+        win: sw,
+        game: sg,
+        odd: await calculateODDAnt(sw, sg),
+      },
+    })
+
+    res.send('OK! ta funfando!')
+  } catch (error) {
+    console.error(error)
+    res.status(500).send('Erro ao registrar formiga')
+  }
 }
 
 // Função para listar as formigas

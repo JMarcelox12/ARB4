@@ -14,13 +14,13 @@ import {
 var UserRoutes = Router()
 
 UserRoutes.post('/register', register)
-UserRoutes.get('/search/:id', findOne)
+UserRoutes.get('/:id', findOne)
 UserRoutes.put('/update/:id', update)
 UserRoutes.delete('/delete/:id', deleteUser)
 UserRoutes.post('/login', login)
 UserRoutes.post('/request-reset', requestPasswordResetController)
 UserRoutes.post('/reset-password', resetPasswordController)
-UserRoutes.post("/deposit", deposit)
-UserRoutes.post("/withdraw", withdraw)
+UserRoutes.post('/deposit/:id', deposit)
+UserRoutes.post('/withdraw/:id', withdraw)
 
 export default UserRoutes

@@ -19,7 +19,6 @@ export default function Login() {
       if (response.data?.token) {
         localStorage.setItem('authToken', response.data.token);
         console.log(localStorage.getItem("authToken"));
-        alert("Login realizado com sucesso!");
         navigate("/")
         window.location.reload();
       } else {
