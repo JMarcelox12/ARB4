@@ -1,8 +1,14 @@
 import { PrismaClient } from '@prisma/client'
 import multer from 'multer'
 import path from 'path'
+import fs from 'fs'
 
 const prisma = new PrismaClient()
+
+const uploadDir = 'uploads/'
+if (!fs.existsSync(uploadDir)) {
+  fs.mkdirSync(uploadDir)
+}
 
 // Define onde as imagens serão salvas
 const storage = multer.diskStorage({
@@ -66,6 +72,8 @@ export const createAnt = async (req, res) => {
     const { name } = req.body
     const imagePath = req.file ? req.file.path : null
 
+    if (!name) return res.status(400).send('Nome da formiga é obrigatório')
+
     let sg = await sortGame(),
       sw = await sortWin(sg)
 
@@ -91,7 +99,14 @@ export const getAnts = async (req, res) => {
   let ant = []
 
   if (req.query.name) {
-    ant = await prisma.ant.findMany()
+    ant = await prisma.ant.findMany({
+      where: {
+        name: {
+          contains: req.query.name,
+          mode: 'insensitive', // busca case-insensitive
+        },
+      },
+    })
   } else {
     ant = await prisma.ant.findMany()
   }
@@ -101,24 +116,46 @@ export const getAnts = async (req, res) => {
 
 // Função para editar uma formiga
 export const updateAnt = async (req, res) => {
-  await prisma.ant.update({
-    where: {
-      id: req.params.id,
-    },
-    data: {
-      image: req.body.image,
-      name: req.body.name,
-    },
-  })
-  res.send('OK! ta funfando!')
+  try {
+    const ant = await prisma.ant.findUnique({ where: { id: req.params.id } })
+
+    if (!ant) {
+      return res.status(404).send('Formiga não encontrada')
+    }
+
+    await prisma.ant.update({
+      where: {
+        id: req.params.id,
+      },
+      data: {
+        image: req.body.image,
+        name: req.body.name,
+      },
+    })
+    res.send('OK! ta funfando!')
+  } catch (err) {
+    console.error(err)
+    res.status(500).send('Erro ao editar formiga')
+  }
 }
 
 // Função para deletar uma formiga
 export const deleteAnt = async (req, res) => {
-  await prisma.ant.delete({
-    where: {
-      id: req.params.id,
-    },
-  })
-  res.send('OK, tá deletando!')
+  try {
+    const ant = await prisma.ant.findUnique({ where: { id: req.params.id } })
+
+    if (!ant) {
+      return res.status(404).send('Formiga não encontrada')
+    }
+
+    await prisma.ant.delete({
+      where: {
+        id: req.params.id,
+      },
+    })
+    res.send('OK, tá deletando!')
+  } catch (err) {
+    console.error(err)
+    res.status(500).send('Erro ao deletar formiga')
+  }
 }

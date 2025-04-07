@@ -1,6 +1,7 @@
 import api from '../../services/api'
 import { useRef } from 'react'
 import { useNavigate } from "react-router-dom"
+import { Header } from "../cabecalho.jsx"
 
 export default function Registro() {
   const navigate = useNavigate()
@@ -31,18 +32,9 @@ export default function Registro() {
 
   return (
     <div className="bg-dark text-white" style={{ height: "100vh" }}>
-      <header>
-        <div className="col align-self-center left">
-          <a href="/">
-            <img
-              src="../../public/imagens/FPFV.png"
-              alt="some text"
-              className="img"
-            />
-          </a>
-        </div>
-      </header>
 
+      <Header/>
+      
       <div className="input  flex-column align-items-center rounded">
         <form onSubmit={handleSubmit}>
           <p className="fw-bold fs-3 left">Faça seu registro.</p>

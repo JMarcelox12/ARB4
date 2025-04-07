@@ -5,7 +5,10 @@ import AntRoutes from './formiga.routes.js'
 import RoomRoutes from './sala.routes.js'
 import BetRoutes from './aposta.routes.js'
 
+const app = express()
 const route = Router()
+
+app.use('/uploads', express.static('uploads')) // serve as imagens
 
 route.use(express.json())
 

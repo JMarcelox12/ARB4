@@ -1,6 +1,7 @@
 import api from '../../services/api'
 import { useRef, useState } from 'react'
 import { useNavigate } from "react-router-dom"
+import { Header } from '../cabecalho'
 
 export default function CadastroFormiga() {
   const navigate = useNavigate()
@@ -29,19 +30,10 @@ export default function CadastroFormiga() {
         console.error(err)
       }
     }
+  
   return (
     <div className="bg-dark text-white" style={{ height: "100vh" }}>
-      <header>
-        <div className="col align-self-center left">
-          <a href="/">
-            <img
-              src="../../public/imagens/FPFV.png"
-              alt="some text"
-              className="img"
-            />
-          </a>
-        </div>
-      </header>
+      <Header/>
 
       <div className="input  flex-column align-items-center rounded">
 

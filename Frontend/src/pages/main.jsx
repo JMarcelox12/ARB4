@@ -7,7 +7,9 @@ import Login from './auth/login.jsx'
 import Registro from './auth/registro.jsx'
 import Deposito from './pay/deposito.jsx'
 import Saque from "./pay/saque.jsx"
-import CadastroFormiga from './ants/cadastro.js'
+import CadastroFormiga from './ants/cadastro.jsx'
+import AntList from './ants/listagem.jsx'
+import AntEdit from './ants/editar.jsx'
 import { AuthProvider } from '../services/AuthContext.jsx'
 
 createRoot(document.getElementById('root')).render(
@@ -21,6 +23,8 @@ createRoot(document.getElementById('root')).render(
           <Route Component={Deposito} path="/deposito"></Route>
           <Route Component={Saque} path="/saque"></Route>
           <Route Component={CadastroFormiga} path="/cadastroFormiga"></Route>
+          <Route Component={AntList} path="/formigas"></Route>          
+          <Route Component={AntEdit} path="/editarFormiga"></Route>
         </Routes>
       </BrowserRouter>
     </AuthProvider>

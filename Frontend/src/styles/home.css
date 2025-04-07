@@ -144,3 +144,23 @@ header {
   border-radius: 5px;
   padding: 1% 4% 0.5% 4%;
 }
+
+.btnDelete {
+  background-color: red;
+  padding: 2% 4% 2% 4%;
+  border-radius: 7px;
+  border: #1b1c1b 1px solid;
+  text-decoration: none;
+  color: white;
+  font-weight: bold;
+}
+
+.btnEdit {
+  background-color: blue;
+  padding: 2% 4% 2% 4%;
+  border-radius: 7px;
+  border: #1b1c1b 1px solid;
+  text-decoration: none;
+  color: white;
+  font-weight: bold;
+}

@@ -1,12 +1,11 @@
 import { Router } from 'express'
+import { upload } from '../controllers/formiga.controller.js'
 import {
   createAnt,
   getAnts,
   updateAnt,
   deleteAnt,
-  upload,
 } from '../controllers/formiga.controller.js'
-import { upload } from '../middlewares/upload.js'
 
 var AntRoutes = Router()
 

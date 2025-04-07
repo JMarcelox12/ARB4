@@ -2,6 +2,7 @@ import '../../styles/home.css'
 import { useRef } from "react"
 import { useNavigate } from 'react-router'
 import api from "../../services/api"
+import { Header } from '../cabecalho'
 
 export default function Login() {
   const navigate = useNavigate()
@@ -33,23 +34,8 @@ export default function Login() {
 
   return (
     <div className="bg-dark text-white" style={{ height: "100vh" }}>
-      <script
-        src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
-        integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
-        crossOrigin="anonymous"
-      ></script>
 
-      <header>
-        <div className="col align-self-center left">
-          <a href="/">
-            <img
-              src="../../public/imagens/FPFV.png"
-              alt="some text"
-              className="img"
-            />
-          </a>
-        </div>
-      </header>
+      <Header/>
 
       <div className="input flex-column align-items-center rounded">
         <form onSubmit={handleSignIn}>

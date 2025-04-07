@@ -1,0 +1,17 @@
+.ant-container {
+    padding: 40px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+  
+.title {
+    text-align: center;
+    font-size: 32px;
+    margin-bottom: 32px;
+}
+  
+.ant-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 24px;
+}
