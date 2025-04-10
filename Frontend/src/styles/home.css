@@ -146,7 +146,7 @@ header {
 }
 
 .btnDelete {
-  background-color: red;
+  background-color: #ba0000;
   padding: 2% 4% 2% 4%;
   border-radius: 7px;
   border: #1b1c1b 1px solid;
@@ -156,7 +156,7 @@ header {
 }
 
 .btnEdit {
-  background-color: blue;
+  background-color: #02ad21;
   padding: 2% 4% 2% 4%;
   border-radius: 7px;
   border: #1b1c1b 1px solid;

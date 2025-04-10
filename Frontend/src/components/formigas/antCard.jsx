@@ -1,5 +1,5 @@
 import React from 'react'
-import './AntCard.css'
+import './antCard.css'
 
 export const AntCard = ({ name, odd, image }) => {
   return (

@@ -26,8 +26,18 @@ const handleImageChange = (e) => {
   setImagem(e.target.files[0])
 }
   
-const btnDelete = (id) => {
-  //
+async function btnDelete(e){
+  e.preventDefault()
+
+  try {
+    await api.post("/app/ant/delete/${id}", {
+    })
+        alert("Formiga excluida com sucesso!")
+        window.location.reload()
+    } catch (err) {
+        alert("Erro ao excluir formiga")
+        console.error(err)
+    }
 }
 
 async function handleSubmit(e) {
@@ -41,10 +51,10 @@ async function handleSubmit(e) {
           'Content-Type': 'multipart/form-data',
         },
     })
-        alert("Formiga registrada com sucesso!")
+        alert("Formiga editada com sucesso!")
         window.location.reload()
     } catch (err) {
-        alert("Erro ao cadastrar formiga")
+        alert("Erro ao editar formiga")
         console.error(err)
     }
 }
