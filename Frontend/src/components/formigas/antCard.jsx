@@ -1,11 +1,15 @@
 import React from 'react'
 import { useState } from 'react'
 
-export const AntCardListUser = ({ name, odd, image }) => {
+export const AntCardListUser = ({ name, odd, image, win, game }) => {
   const [showModal, setShowModal] = useState(false)
 
   const mudaModal = () => {
     setShowModal(!showModal)
+  }
+
+  const Probabilidade = () => {
+    return win/game
   }
 
   return (
@@ -34,8 +38,13 @@ export const AntCardListUser = ({ name, odd, image }) => {
           alt={`Imagem da formiga ${name}`}
           style={{ maxWidth: '100%', maxHeight: '300px', borderRadius: '10px' }}
         />
-        <h3 className="mt-3"><strong>{name}</strong></h3>
-        <h3 className="mt-3"><strong>Probabilidade: {odd}</strong></h3>
+        <div className='card-body'>
+        <h1 className="card-title mt-3"><strong>{name}</strong></h1>
+        <h3 className="mt-2 card-text">Partidas disputadas: <strong>{game}</strong></h3>
+        <h3 className="mt-2 card-text">Partidas vencidas: <strong>{win}</strong></h3>
+        <h3 className="mt-2 card-text">Porcentagem: <strong>{(Probabilidade() * 100).toFixed(2)}%</strong></h3>
+        <h3 className="mt-2 card-text">Probabilidade: <strong>{odd}</strong></h3>
+        </div>
       </div>
     </div>
   )}
@@ -87,7 +96,7 @@ const modalStyles = {
     color: 'white',
     width: '90%',
     maxWidth: '500px',
-    textAlign: 'center',
+    textAlign: 'left',
     margin: "0 auto",
     zIndex: 1060,
   },
@@ -101,5 +110,5 @@ const modalStyles = {
     fontSize: '1.5rem',
     color: 'white',
     cursor: 'pointer',
-  }
+  },
 }

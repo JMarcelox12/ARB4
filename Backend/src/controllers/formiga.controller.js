@@ -54,7 +54,7 @@ async function calculateODDAnt(win, game) {
   if (result > 92) {
     odd = 1.1
   } else if (result < 6) {
-    odd = 1.1
+    odd = 4.94
   } else {
     let aux = 5
     odd = 4.62
@@ -68,15 +68,18 @@ async function calculateODDAnt(win, game) {
 
 // Função para criar uma nova formiga
 export const createAnt = async (req, res) => {
+  const { name } = req.body
+  const imagePath = req.file ? req.file.path : null
+
+  if (!imagePath) {
+    return res.status(400).send('Imagem da formiga é obrigatória')
+  }
+
+  if (!name) {
+    return res.status(400).send('Nome da formiga é obrigatório')
+  }
+  
   try {
-    const { name } = req.body
-    const imagePath = req.file ? req.file.path : null
-
-    if (!imagePath)
-      return res.status(400).send('Imagem da formiga é obrigatória')
-
-    if (!name) return res.status(400).send('Nome da formiga é obrigatório')
-
     let sg = await sortGame(),
       sw = await sortWin(sg)
 

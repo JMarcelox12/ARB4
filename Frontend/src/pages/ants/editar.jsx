@@ -82,7 +82,7 @@ async function handleSubmit(e) {
 }
 
   return (
-    <div className="bg-dark text-white">
+    <div className="bg-dark text-white" style={{ height: "100%", margin: "0%", minHeight: "150dvh" }}>
       <Header/>
 
     <div className="input  flex-column align-items-center rounded">

@@ -31,7 +31,7 @@ export default function Registro() {
   }
 
   return (
-    <div className="bg-dark text-white" style={{ height: "100vh" }}>
+    <div className="bg-dark text-white" style={{ height: "100%", margin: "0%", minHeight: "150dvh" }}>
 
       <Header/>
       

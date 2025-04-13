@@ -21,7 +21,7 @@ const AntList = () => {
   }, [])
 
   return (
-    <div className="bg-dark text-white" style={{ height: "100vh", margin: "0%"}}>
+    <div className="bg-dark text-white" style={{ height: "100%", margin: "0%", minHeight: "150dvh" }}>
       <HeaderLogado/>
     <div className="ant-container">
       <h1 className="title">Formigas Cadastradas</h1>
@@ -33,6 +33,8 @@ const AntList = () => {
             name={ant.name}
             odd={ant.odd}
             image={ant.image}
+            win={ant.win}
+            game={ant.game}
           />
         ))
       ) : (

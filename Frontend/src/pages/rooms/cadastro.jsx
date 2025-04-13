@@ -3,9 +3,10 @@ import { useRef, useState } from 'react'
 import { useNavigate } from "react-router-dom"
 import { Header } from '../cabecalho'
 
-export default function CadastroFormiga() {
+export default function CadastroSala() {
   const navigate = useNavigate()
   const [name, setName] = useState("");
+  const [description, setDescription] = useState("");
   const [imagem, setImagem] = useState(null)
   const [preview, setPreview] = useState(null)
 
@@ -22,21 +23,26 @@ export default function CadastroFormiga() {
   async function handleSubmit(e) {
     e.preventDefault()
 
+    console.log("1")
+
     const formData = new FormData()
     formData.append('name', name)
+    formData.append('description', description)
     if (imagem) formData.append("image", imagem)
 
     try {
-        const response = await api.post("/app/ant/", formData, {
+      console.log("2")
+        const response = await api.post("/app/room/", formData, {
           headers: {
             'Content-Type': 'multipart/form-data',
           },
         })
+        console.log("3")
         console.log(response.data)
-        alert("Formiga registrada com sucesso!")
+        alert("Sala criada com sucesso!")
         window.location.reload()
       } catch (err) {
-        alert("Erro ao cadastrar formiga")
+        alert("Erro ao criar sala!")
         console.error(err)
       }
     }
@@ -79,8 +85,18 @@ export default function CadastroFormiga() {
             <label htmlFor="floatingInput">Nome</label>
           </div>
 
+          <div className="form-floating mb-3">
+            <input
+              type="text"
+              className="form-control bg-transparent border-success rounded py-2 text-white"
+              onChange={(e) => setDescription(e.target.value)}
+              required
+            />
+            <label htmlFor="floatingInput">Descrição</label>
+          </div>
+
           <button type="submit" className="btn btn-success btnVerde">
-            REGISTRAR
+            CRIAR
           </button>
 
         </form>
