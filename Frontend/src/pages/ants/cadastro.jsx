@@ -5,24 +5,38 @@ import { Header } from '../cabecalho'
 
 export default function CadastroFormiga() {
   const navigate = useNavigate()
-  const nameRef = useRef("")
+  const [name, setName] = useState("");
   const [imagem, setImagem] = useState(null)
+  const [preview, setPreview] = useState(null)
 
   const handleImageChange = (e) => {
-    setImagem(e.target.files[0])
+    const file = e.target.files[0]
+    setImagem(file)
+
+    if (file) {
+      const previewUrl = URL.createObjectURL(file)
+      setPreview(previewUrl)
+    }
   }
 
   async function handleSubmit(e) {
     e.preventDefault()
 
+    console.log("1")
+
+    const formData = new FormData()
+    formData.append('name', name)
+    if (imagem) formData.append("image", imagem)
+
     try {
-        await api.post("/app/ant/createAnt", {
-          image: imagem,
-          name: nameRef.current.value,
+      console.log("2")
+        const response = await api.post("/app/ant/", formData, {
           headers: {
             'Content-Type': 'multipart/form-data',
           },
         })
+        console.log("3")
+        console.log(response.data)
         alert("Formiga registrada com sucesso!")
         window.location.reload()
       } catch (err) {
@@ -32,7 +46,7 @@ export default function CadastroFormiga() {
     }
   
   return (
-    <div className="bg-dark text-white" style={{ height: "100vh" }}>
+    <div className="bg-dark text-white" style={{ height: "120dvh"}}>
       <Header/>
 
       <div className="input  flex-column align-items-center rounded">
@@ -40,12 +54,22 @@ export default function CadastroFormiga() {
         <form onSubmit={handleSubmit}  encType="multipart/form-data">
           <p className="fw-bold fs-3 left">Registrar Formiga</p>
 
+    <div className="mb-3 text-center">
+      {preview && (
+        <img
+        src={preview}
+        alt="Pré-visualização"
+        style={{ maxHeight: '200px', borderRadius: '10px' }}
+      />
+      )}
+    </div>
+
           <div className="form-floating mb-3">
             <input 
                 type="file" 
-                name="imagem" 
+                name="image" 
                 accept="image/*" 
-                onChange={handleImageChange} 
+                onChange={handleImageChange}
                 className="form-control bg-transparent border-success rounded py-2 text-white"/>
           </div>
 
@@ -53,9 +77,7 @@ export default function CadastroFormiga() {
             <input
               type="text"
               className="form-control bg-transparent border-success rounded py-2 text-white"
-              id="name"
-              placeholder="Text"
-              ref={nameRef}
+              onChange={(e) => setName(e.target.value)}
               required
             />
             <label htmlFor="floatingInput">Nome</label>

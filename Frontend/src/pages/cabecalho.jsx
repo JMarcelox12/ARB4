@@ -167,6 +167,16 @@ export function HeaderLogado() {
                     Saque
                   </a>
                 </li>
+                <li className="nav-item">
+                  <a className="nav-link text-white" href="/cadastroFormiga">
+                    Cadastrar Formiga
+                  </a>
+                </li>
+                <li className="nav-item">
+                  <a className="nav-link text-white" href="/editarFormiga">
+                    Editar Formiga
+                  </a>
+                </li>
                 <li className="nav-item align-self-center right">
                   <Link onClick={logout} className="btnCanvas" type="button">
                     Deslogar

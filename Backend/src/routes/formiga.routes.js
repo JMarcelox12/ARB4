@@ -9,7 +9,7 @@ import {
 
 var AntRoutes = Router()
 
-AntRoutes.post('/', upload.single('imagem'), createAnt)
+AntRoutes.post('/', upload.single('image'), createAnt)
 AntRoutes.get('/list', getAnts)
 AntRoutes.put('/update/:id', updateAnt)
 AntRoutes.delete('/delete/:id', deleteAnt)

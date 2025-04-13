@@ -22,7 +22,7 @@ model User {
 }
 
 model Bet {
-  id        Int        @id @default(autoincrement()) // Usando Int para chave primária
+  id        Int       @id @default(autoincrement()) // Usando Int para chave primária
   userId    Int
   antId     Int
   amount    Float
@@ -35,15 +35,15 @@ model Bet {
 
 enum BetStatus {
   PENDING // Aposta em andamento (corrida não finalizada)
-  WON     // Aposta ganha
-  LOST    // Aposta perdida
+  WON // Aposta ganha
+  LOST // Aposta perdida
   CANCELED // Aposta cancelada
 }
 
 model Ant {
-  id    Int    @id @default(autoincrement()) // Usando Int para chave primária
-  image String
-  name  String @unique
+  id    Int     @id @default(autoincrement()) // Usando Int para chave primária
+  image String?
+  name  String  @unique
   win   Int
   game  Int
   odd   Float
@@ -53,7 +53,7 @@ model Ant {
 }
 
 model Room {
-  id          Int         @id @default(autoincrement()) // Usando Int para chave primária
+  id          Int        @id @default(autoincrement()) // Usando Int para chave primária
   image       String
   name        String     @unique
   description String
@@ -63,8 +63,8 @@ model Room {
 }
 
 enum RoomStatus {
-  PENDING  // Sala em andamento
-  FINISH  // Sala finalizada
+  PENDING // Sala em andamento
+  FINISH // Sala finalizada
   PREPARING // Sala em preparo
 }
 

@@ -72,6 +72,9 @@ export const createAnt = async (req, res) => {
     const { name } = req.body
     const imagePath = req.file ? req.file.path : null
 
+    if (!imagePath)
+      return res.status(400).send('Imagem da formiga é obrigatória')
+
     if (!name) return res.status(400).send('Nome da formiga é obrigatório')
 
     let sg = await sortGame(),
@@ -80,14 +83,14 @@ export const createAnt = async (req, res) => {
     await prisma.ant.create({
       data: {
         image: imagePath, // salva o caminho do arquivo
-        name,
+        name: name,
         win: sw,
         game: sg,
         odd: await calculateODDAnt(sw, sg),
       },
     })
 
-    res.send('OK! ta funfando!')
+    res.status(200).send('Formiga criada com sucesso!')
   } catch (error) {
     console.error(error)
     res.status(500).send('Erro ao registrar formiga')
