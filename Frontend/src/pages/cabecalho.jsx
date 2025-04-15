@@ -154,7 +154,7 @@ export function HeaderLogado() {
                 </li>
                 <li className="nav-item">
                   <a className="nav-link text-white" href="/formigas">
-                    Formigas
+                    Listar Formigas
                   </a>
                 </li>
                 <li className="nav-item">
@@ -179,6 +179,16 @@ export function HeaderLogado() {
                 </li>
                 <li className="nav-item">
                   <a className="nav-link text-white" href="/criarSala">
+                    Criar Sala
+                  </a>
+                </li>
+                <li className="nav-item">
+                  <a className="nav-link text-white" href="/salas">
+                    Listar Salas
+                  </a>
+                </li>
+                <li className="nav-item">
+                  <a className="nav-link text-white" href="/">
                     Criar Sala
                   </a>
                 </li>

@@ -11,6 +11,7 @@ import CadastroFormiga from './ants/cadastro.jsx'
 import AntList from './ants/listagem.jsx'
 import AntEdit from './ants/editar.jsx'
 import CadastroSala from './rooms/cadastro.jsx'
+import RoomList from './rooms/listagem.jsx'
 import { AuthProvider } from '../services/AuthContext.jsx'
 
 createRoot(document.getElementById('root')).render(
@@ -27,6 +28,7 @@ createRoot(document.getElementById('root')).render(
           <Route Component={AntList} path="/formigas"></Route>          
           <Route Component={AntEdit} path="/editarFormiga"></Route>
           <Route Component={CadastroSala} path="/criarSala"></Route>
+          <Route Component={RoomList} path="/salas"></Route>
         </Routes>
       </BrowserRouter>
     </AuthProvider>

@@ -54,7 +54,7 @@ export default function CadastroSala() {
       <div className="input  flex-column align-items-center rounded">
 
         <form onSubmit={handleSubmit}  encType="multipart/form-data">
-          <p className="fw-bold fs-3 left">Registrar Formiga</p>
+          <p className="fw-bold fs-3 left">Registrar Sala</p>
 
     <div className="mb-3 text-center">
       {preview && (
@@ -96,7 +96,7 @@ export default function CadastroSala() {
           </div>
 
           <button type="submit" className="btn btn-success btnVerde">
-            CRIAR
+            CRIAR SALA
           </button>
 
         </form>

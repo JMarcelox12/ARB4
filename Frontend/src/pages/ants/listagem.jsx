@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
-import { AntCardListUser } from '../../components/formigas/antCard.jsx'
-import '../../styles/lstAnt.css'
+import { AntCardListUser } from '../../components/formigas/card.jsx'
+import '../../styles/lst.css'
 import api from "../../services/api.js"
 import { HeaderLogado } from '../cabecalho.jsx'
 
