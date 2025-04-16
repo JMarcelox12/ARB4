@@ -96,6 +96,7 @@ export default function Deposito() {
             <input
               type="text" step="1" min="50"
               className="form-control bg-transparent border-success rounded py-2 ps-5 text-white"
+              style={{paddingLeft: "3.75rem"}}
               id="value"
               placeholder="0,00"
               value={value}
