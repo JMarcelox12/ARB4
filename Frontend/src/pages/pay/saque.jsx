@@ -95,7 +95,7 @@ export default function Deposito() {
             <span className="position-absolute top-50 start-0 translate-middle-y ps-3 text-white title">R$</span>
             <input
               type="text" step="1" min="50"
-              className="form-control bg-transparent border-success rounded py-2 ps-5 text-white"
+              className="form-control bg-transparent border-success rounded py-2 text-white"
               style={{paddingLeft: "3.75rem"}}
               id="value"
               placeholder="0,00"

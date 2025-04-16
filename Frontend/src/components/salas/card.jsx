@@ -17,7 +17,7 @@ export const RoomCardListUser = ({ name, image, description}) => {
       <img 
         src={`http://localhost:1200/${image?.replace(/^uploads\//, '')}`} 
         className="card-img-top" 
-        alt={`Imagem da formiga ${name}`} 
+        alt={`Imagem da sala ${name}`} 
         style={{ height: '200px', objectFit: 'cover' }}
       />
       <div className="card-body">
@@ -35,7 +35,7 @@ export const RoomCardListUser = ({ name, image, description}) => {
         />
         <div className='card-body'>
         <h1 className="card-title mt-3"><strong>{name}</strong></h1>
-        <h3 className="mt-2 card-text">Partidas disputadas: <strong>{description}</strong></h3>
+        <h3 className="mt-2 card-text">Descrição: <strong>{description}</strong></h3>
         </div>
       </div>
     </div>
@@ -44,7 +44,7 @@ export const RoomCardListUser = ({ name, image, description}) => {
   )
 }
 
-export const RoomCardEdit = ({ name, odd, image, onClick }) => {
+export const RoomCardEdit = ({ name, description, image, onClick }) => {
   return (
     <div 
       className="card text-white bg-secondary border-success m-2" 
@@ -54,12 +54,12 @@ export const RoomCardEdit = ({ name, odd, image, onClick }) => {
       <img 
         src={`http://localhost:1200/${image?.replace(/^uploads\//, '')}`} 
         className="card-img-top" 
-        alt={`Imagem da formiga ${name}`} 
+        alt={`Imagem da sala ${name}`} 
         style={{ height: '200px', objectFit: 'cover' }}
       />
       <div className="card-body">
         <h5 className="card-title">{name}</h5>
-        <p className="card-text">Probabilidade: <strong>{odd}</strong></p>
+        <p className="card-text">Descrição: <strong>{description}</strong></p>
       </div>
     </div>
   )

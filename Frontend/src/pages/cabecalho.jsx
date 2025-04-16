@@ -143,7 +143,7 @@ export function HeaderLogado() {
             <div className="offcanvas-body">
               <ul className="navbar-nav justify-content-end flex-grow-1 pe-3">
                 <li className="nav-item">
-                  <a className="nav-link text-white" href="/deposito">
+                  <a className="nav-link text-white" href="/perfil">
                     Perfil
                   </a>
                 </li>
