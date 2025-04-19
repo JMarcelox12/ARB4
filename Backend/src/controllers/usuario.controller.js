@@ -6,7 +6,6 @@ import {
   requestPasswordReset,
   resetPassword,
 } from '../services/auth.service.js'
-import { body, validationResult } from 'express-validator'
 
 const app = express()
 const prisma = new PrismaClient()

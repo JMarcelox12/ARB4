@@ -144,12 +144,12 @@ export function HeaderLogado() {
               <ul className="navbar-nav justify-content-end flex-grow-1 pe-3">
                 <li className="nav-item">
                   <a className="nav-link text-white" href="/perfil">
-                    Perfil
+                    Perfil (em andamento)
                   </a>
                 </li>
                 <li className="nav-item">
-                  <a className="nav-link text-white" href="/deposito">
-                    Minhas Apostas
+                  <a className="nav-link text-white" href="/">
+                    Minhas Apostas (vazio)
                   </a>
                 </li>
                 <li className="nav-item">
@@ -169,27 +169,27 @@ export function HeaderLogado() {
                 </li>
                 <li className="nav-item">
                   <a className="nav-link text-white" href="/cadastroFormiga">
-                    Cadastrar Formiga
+                    Cadastrar Formiga (tirar)
                   </a>
                 </li>
                 <li className="nav-item">
                   <a className="nav-link text-white" href="/editarFormiga">
-                    Editar Formiga
+                    Editar Formiga (tirar)
                   </a>
                 </li>
                 <li className="nav-item">
                   <a className="nav-link text-white" href="/criarSala">
-                    Criar Sala
+                    Criar Sala (tirar)
                   </a>
                 </li>
                 <li className="nav-item">
                   <a className="nav-link text-white" href="/salas">
-                    Listar Salas
+                    Listar Salas (tirar)
                   </a>
                 </li>
                 <li className="nav-item">
                   <a className="nav-link text-white" href="/">
-                    Criar Sala
+                    Vazio
                   </a>
                 </li>
                 <li className="nav-item align-self-center right">

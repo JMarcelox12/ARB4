@@ -9,6 +9,7 @@ generator client {
 
 model User {
   id                Int       @id @default(autoincrement()) // Usando Int para chave primária
+  image             String?
   name              String
   age               Int
   email             String    @unique

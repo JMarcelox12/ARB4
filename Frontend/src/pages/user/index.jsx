@@ -1,5 +1,7 @@
 import { HeaderLogado } from "../cabecalho.jsx"
 import { useState } from 'react'
+
+
 const perfilUser = () => {
   const [image, setImage] = useState(null);
   const [preview, setPreview] = useState(null)
