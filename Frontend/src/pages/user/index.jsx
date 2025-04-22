@@ -22,7 +22,7 @@ const handleChangeImage = (e) => {
         <HeaderLogado/>
 
         <div className="container my-5 flex-column align-items-center rounded">
-            //
+            <div>Imagem do usuário</div>
         </div>
       </div>
     )

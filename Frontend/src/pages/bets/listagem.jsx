@@ -1,23 +1,42 @@
 import React, { useEffect, useState } from 'react'
-import { AntCardListUser } from '../../components/formigas/card.jsx'
+import { BetCardList } from '../../components/apostas/card.jsx'
 import '../../styles/lst.css'
+import { jwtDecode } from "jwt-decode";
 import api from "../../services/api.js"
 import { HeaderLogado } from '../cabecalho.jsx'
 
 const BetList = () => {
   const [bets, setBets] = useState([])
 
+  const getUserIdFromToken = () => {
+    const token = localStorage.getItem("authToken");
+    if (!token) return null;
+    try {
+      const decodedToken = jwtDecode(token);
+      return decodedToken.userId;
+    } catch (error) {
+      console.error("Erro ao decodificar o token:", error);
+      return null;
+    }
+  };
+
   useEffect(() => {
     async function fetchBets() {
       try {
-        const response = await api.get("/app/bet/list")
+        const id = getUserIdFromToken();
+      if (!id) {
+        alert("Erro: usuário não autenticado.");
+        return;
+      }
+
+        const response = await api.get(`/app/bet/user/${id}`)
         setBets(response.data)
       } catch (err) {
         console.error("Erro ao buscar apostas:", err)
       }
     }
   
-    fetchAnts()
+    fetchBets()
   }, [])
 
   return (
@@ -28,17 +47,14 @@ const BetList = () => {
       <div className="ant-grid">
       {bets.length > 0 ? (
         bets.map((bet) => (
-          <AntCardListUser
-            key={bet.id}
-            name={bet.name}
-            odd={bet.odd}
-            image={bet.image}
-            win={bet.win}
-            game={bet.game}
+          <BetCardList
+            status={bet.status}
+            createdAt={bet.createdAt}
+            amount={bet.amount}
           />
         ))
       ) : (
-        <h5>Nenhuma formiga encontrada.</h5>
+        <h5>Nenhuma aposta encontrada.</h5>
       )}
       </div>
     </div>

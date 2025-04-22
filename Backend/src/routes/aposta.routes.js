@@ -10,9 +10,9 @@ import {
 const BetRoutes = Router()
 
 BetRoutes.post('/bet', createBet)
-BetRoutes.get('/bet/list', listBets)
-BetRoutes.get('/bet/:id', getBetById)
-BetRoutes.get('/bet/user/:userId', listUserBets)
+BetRoutes.get('/list', listBets)
+BetRoutes.get('/:id', getBetById)
+BetRoutes.get('/user/:id', listUserBets)
 BetRoutes.post('/race/results', processRaceResults)
 
 export default BetRoutes

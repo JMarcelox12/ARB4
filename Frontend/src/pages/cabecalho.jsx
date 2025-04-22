@@ -140,15 +140,16 @@ export function HeaderLogado() {
                 <img src="../public/imagens/FVFC.png" className="imgLogoCanvas"/>
               </button>
             </div>
+            <hr/>
             <div className="offcanvas-body">
-              <ul className="navbar-nav justify-content-end flex-grow-1 pe-3">
+              <ul className="nav nav-pills flex-column mb-auto">
                 <li className="nav-item">
-                  <a className="nav-link text-white" href="/perfil">
-                    Perfil (em andamento)
+                  <a className="nav-link text-white" href="/perfil" aria-current="page">
+                    Perfil (não sei o que fazer)
                   </a>
                 </li>
                 <li className="nav-item">
-                  <a className="nav-link text-white" href="/">
+                  <a className="nav-link text-white" href="/apostas">
                     Minhas Apostas (vazio)
                   </a>
                 </li>
@@ -192,7 +193,8 @@ export function HeaderLogado() {
                     Vazio
                   </a>
                 </li>
-                <li className="nav-item align-self-center right">
+                <hr/>
+                <li className="nav-item align-self-center right py-5">
                   <Link onClick={logout} className="btnCanvas" type="button">
                     Deslogar
                   </Link>
