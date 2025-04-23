@@ -49,12 +49,13 @@ export const getBetById = async (req, res) => {
 
 // Função para listar todas as apostas de um usuário específico
 export const listUserBets = async (req, res) => {
-  try {
-    const { userId } = req.params
+  const id = parseInt(req.params.id)
 
-    const bets = await prisma.betticket.findMany({
-      where: { userId },
-      include: { user: true, room: true, ant: true },
+  try {
+
+    const bets = await prisma.bet.findMany({
+      where: { id: id },
+      include: { user: true, ant: true },
     })
 
     if (bets.length === 0) {
