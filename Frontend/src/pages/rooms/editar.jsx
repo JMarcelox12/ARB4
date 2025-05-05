@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react'
 import { RoomCardEdit } from '../../components/salas/card.jsx'
-import '../../styles/lst.css'
+import '../../styles/global.css'
 import api from "../../services/api.js"
 import { Header } from '../cabecalho.jsx'
 
@@ -136,9 +136,9 @@ async function handleSubmit(e) {
         </form>
     </div>
 
-    <div className="ant-container">
-      <h1 className="title">Salas Cadastradas</h1>
-      <div className="ant-grid">
+    <div className="lst-container">
+      <h1 className="lst-title">Salas Cadastradas</h1>
+      <div className="lst-grid">
       {rooms.length > 0 ? (
         ants.map((room) => (
           <RoomCardEdit

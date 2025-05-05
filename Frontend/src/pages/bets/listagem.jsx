@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { BetCardList } from '../../components/apostas/card.jsx'
-import '../../styles/lst.css'
+import '../../styles/global.css'
 import { jwtDecode } from "jwt-decode";
 import api from "../../services/api.js"
 import { HeaderLogado } from '../cabecalho.jsx'
@@ -42,15 +42,16 @@ const BetList = () => {
   return (
     <div className="bg-dark text-white" style={{ height: "100%", margin: "0%", minHeight: "150dvh" }}>
       <HeaderLogado/>
-    <div className="ant-container">
-      <h1 className="title">Apostas Cadastradas</h1>
-      <div className="ant-grid">
+    <div className="lst-container">
+      <h1 className="lst-title">Apostas Cadastradas</h1>
+      <div className="lst-grid">
       {bets.length > 0 ? (
         bets.map((bet) => (
           <BetCardList
             status={bet.status}
             createdAt={bet.createdAt}
             amount={bet.amount}
+            ant={bet.ant}
           />
         ))
       ) : (

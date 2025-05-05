@@ -51,7 +51,7 @@ export default function CadastroSala() {
     <div className="bg-dark text-white" style={{ height: "100%", margin: "0%", minHeight: "150dvh" }}>
       <Header/>
 
-      <div className="input  flex-column align-items-center rounded">
+      <div className="input flex-column align-items-center rounded">
 
         <form onSubmit={handleSubmit}  encType="multipart/form-data">
           <p className="fw-bold fs-3 left">Registrar Sala</p>

@@ -1,4 +1,4 @@
-import '../styles/home.css'
+import '../styles/global.css'
 import { Link, useNavigate } from 'react-router'
 import { AuthContext, } from '../services/AuthContext.jsx'
 import { useContext, useEffect, useState } from 'react'
@@ -189,8 +189,8 @@ export function HeaderLogado() {
                   </a>
                 </li>
                 <li className="nav-item">
-                  <a className="nav-link text-white" href="/">
-                    Vazio
+                  <a className="nav-link text-white" href="/editarApostas">
+                    Editar Apostas(tirar daqui)
                   </a>
                 </li>
                 <hr/>

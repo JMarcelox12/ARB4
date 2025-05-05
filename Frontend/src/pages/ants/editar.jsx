@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react'
 import { AntCardEdit } from '../../components/formigas/card.jsx'
-import '../../styles/lst.css'
+import '../../styles/global.css'
 import api from "../../services/api.js"
 import { Header } from '../cabecalho.jsx'
 
@@ -136,9 +136,9 @@ async function handleSubmit(e) {
         </form>
     </div>
 
-    <div className="ant-container">
-      <h1 className="title">Formigas Cadastradas</h1>
-      <div className="ant-grid">
+    <div className="lst-container">
+      <h1 className="lst-title">Formigas Cadastradas</h1>
+      <div className="lst-grid">
       {ants.length > 0 ? (
         ants.map((ant) => (
           <AntCardEdit

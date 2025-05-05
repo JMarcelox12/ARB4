@@ -1,4 +1,4 @@
-import '../../styles/home.css';
+import '../../styles/global.css';
 import { useState } from "react";
 import { useNavigate } from 'react-router-dom';
 import { jwtDecode } from "jwt-decode";
@@ -92,6 +92,7 @@ export default function Deposito() {
         </div>
         <form>
           <p className="fw-bold fs-3 left">Informe ou selecione um valor.</p>
+
           <div className="form-floating mb-3">
             <span className="position-absolute top-50 start-0 translate-middle-y ps-3 text-white title">R$</span>
             <input

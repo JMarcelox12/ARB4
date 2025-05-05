@@ -47,6 +47,51 @@ export const getBetById = async (req, res) => {
   }
 }
 
+// Função para editar a aposta
+export const updateBet = async (req, res) => {
+  try {
+    const bet = await prisma.bet.findUnique({ where: { id: req.params.id } })
+
+    if (!bet) {
+      return res.status(404).send('Aposta não encontrada')
+    }
+
+    await prisma.bet.update({
+      where: {
+        id: req.params.id,
+      },
+      data: {
+        amount: req.body.amount,
+      },
+    })
+    res.send('OK! ta funfando!')
+  } catch ( error ) {
+    console.error(err)
+    res.status(500).send('Erro ao editar aposta')
+  }
+}
+
+// Função para deletar a aposta
+export const deleteBet = async (req, res) => {
+  const id = parseInt(req.params.id)
+
+  try {
+    const bet = await prisma.bet.findUnique({ where: { id: req.params.id } })
+
+    if (!bet) {
+      return res.status(404).send('Aposta não encontrada')
+    }
+
+    await prisma.bet.update({
+      where:{ id: id},
+
+    })
+  } catch (error) {
+    console.error('Erro ao deletar aposta do usuário:', error)
+    res.status(500).json({ error: 'Erro ao deletar aposta. Tente novamente.' })
+  }
+}
+
 // Função para listar todas as apostas de um usuário específico
 export const listUserBets = async (req, res) => {
   const id = parseInt(req.params.id)

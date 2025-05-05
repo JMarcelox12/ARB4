@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { RoomCardListUser } from '../../components/salas/card.jsx'
-import '../../styles/lst.css'
+import '../../styles/global.css'
 import api from "../../services/api.js"
 import { HeaderLogado } from '../cabecalho.jsx'
 
@@ -23,9 +23,9 @@ const RoomList = () => {
   return (
     <div className="bg-dark text-white" style={{ height: "100%", margin: "0%", minHeight: "150dvh" }}>
       <HeaderLogado/>
-    <div className="room-container">
-      <h1 className="title">Salas Disponíveis</h1>
-      <div className="room-grid">
+    <div className="input flex-column align-items-center rounded">
+      <h1 className="lst-title">Salas Disponíveis</h1>
+      <div className="lst-grid">
       {rooms.length > 0 ? (
         rooms.map((room) => (
           <RoomCardListUser

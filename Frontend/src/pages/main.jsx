@@ -14,6 +14,7 @@ import CadastroSala from './rooms/cadastro.jsx'
 import RoomList from './rooms/listagem.jsx'
 import perfilUser from './user/index.jsx'
 import BetList from './bets/listagem.jsx'
+import BetEdit from './bets/editar.jsx'
 import { AuthProvider } from '../services/AuthContext.jsx'
 
 createRoot(document.getElementById('root')).render(
@@ -33,6 +34,7 @@ createRoot(document.getElementById('root')).render(
           <Route Component={RoomList} path="/salas"></Route>
           <Route Component={perfilUser} path="/perfil"></Route>
           <Route Component={BetList} path="/apostas"></Route>
+          <Route Component={BetEdit} path="/editarApostas"></Route>
         </Routes>
       </BrowserRouter>
     </AuthProvider>

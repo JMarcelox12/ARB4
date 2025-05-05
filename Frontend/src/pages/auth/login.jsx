@@ -1,4 +1,4 @@
-import '../../styles/home.css'
+import '../../styles/global.css'
 import { useRef } from "react"
 import { useNavigate } from 'react-router'
 import api from "../../services/api"

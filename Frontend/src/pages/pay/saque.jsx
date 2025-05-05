@@ -1,4 +1,4 @@
-import '../../styles/home.css';
+import '../../styles/global.css';
 import { useState } from "react";
 import { useNavigate } from 'react-router-dom';
 import { jwtDecode } from "jwt-decode";

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { AntCardListUser } from '../../components/formigas/card.jsx'
-import '../../styles/lst.css'
+import '../../styles/global.css'
 import api from "../../services/api.js"
 import { HeaderLogado } from '../cabecalho.jsx'
 
@@ -23,9 +23,9 @@ const AntList = () => {
   return (
     <div className="bg-dark text-white" style={{ height: "100%", margin: "0%", minHeight: "150dvh" }}>
       <HeaderLogado/>
-    <div className="ant-container">
-      <h1 className="title">Formigas Cadastradas</h1>
-      <div className="ant-grid">
+    <div className="lst-container">
+      <h1 className="lst-title">Formigas Cadastradas</h1>
+      <div className="lst-grid">
       {ants.length > 0 ? (
         ants.map((ant) => (
           <AntCardListUser
