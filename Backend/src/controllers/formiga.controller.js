@@ -2,6 +2,7 @@ import { PrismaClient } from '@prisma/client'
 import multer from 'multer'
 import path from 'path'
 import fs from 'fs'
+import { captureRejectionSymbol } from 'events'
 
 const prisma = new PrismaClient()
 
@@ -78,7 +79,7 @@ export const createAnt = async (req, res) => {
   if (!name) {
     return res.status(400).send('Nome da formiga é obrigatório')
   }
-  
+
   try {
     let sg = await sortGame(),
       sw = await sortWin(sg)
@@ -122,8 +123,13 @@ export const getAnts = async (req, res) => {
 
 // Função para editar uma formiga
 export const updateAnt = async (req, res) => {
+  const { name } = req.body;
+  const image = req.file ? req.file.filename : null
+
   try {
-    const ant = await prisma.ant.findUnique({ where: { id: req.params.id } })
+    const id = parseInt(req.params.id)
+
+    const ant = await prisma.ant.findUnique({ where: { id: id } })
 
     if (!ant) {
       return res.status(404).send('Formiga não encontrada')
@@ -131,13 +137,14 @@ export const updateAnt = async (req, res) => {
 
     await prisma.ant.update({
       where: {
-        id: req.params.id,
+        id: id,
       },
       data: {
-        image: req.body.image,
-        name: req.body.name,
+        name,
+        image,
       },
     })
+    console.log(ant)
     res.send('OK! ta funfando!')
   } catch (err) {
     console.error(err)
@@ -148,18 +155,20 @@ export const updateAnt = async (req, res) => {
 // Função para deletar uma formiga
 export const deleteAnt = async (req, res) => {
   try {
-    const ant = await prisma.ant.findUnique({ where: { id: req.params.id } })
+    const id = parseInt(req.params.id);
+
+    const ant = await prisma.ant.findUnique({ where: { id: id } })
 
     if (!ant) {
-      return res.status(404).send('Formiga não encontrada');
+      return res.status(404).send('Formiga não encontrada')
     }
 
     await prisma.ant.delete({
       where: {
-        id: req.params.id,
+        id: id,
       },
     })
-    res.send('OK, tá deletando!');
+    res.json('OK, tá deletando!');
   } catch (err) {
     console.error(err)
     res.status(500).send('Erro ao deletar formiga');

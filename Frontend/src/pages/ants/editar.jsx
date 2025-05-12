@@ -7,7 +7,7 @@ import { Header } from '../cabecalho.jsx'
 const AntEdit = () => {
   const [ants, setAnts] = useState([])
   const [selectedAnt, setSelectedAnt] = useState(null)
-  const nameRef = useRef(null)
+  const [name, setName] = useState('Nome')
   const [imagem, setImagem] = useState(null)
   const [preview, setPreview] = useState(null)
 
@@ -28,7 +28,12 @@ const handleImageChange = (e) => {
     setPreview(previewUrl)
   }
 }
-  
+
+const handleChange = (e) => {
+  setName(e.target.value)
+}
+
+// Função do delete
 async function btnDelete(e) {
   e.preventDefault()
 
@@ -38,20 +43,23 @@ async function btnDelete(e) {
   }
 
   try {
-    await api.post(`/app/ant/delete/${selectedAnt.id}`)
+    const id = parseInt(selectedAnt.id)
+
+    await api.delete(`/app/ant/delete/${id}`)
     alert("Formiga excluída com sucesso!")
     window.location.reload()
   } catch (err) {
-    alert("Erro ao excluir formiga")
+    alert("Erro ao excluir formiga")    
     console.error(err)
   }
 }
 
 function handleCardClick(ant) {
   setSelectedAnt(ant)
-  nameRef.current.value = ant.name
+  setName(ant.name)
 }
 
+// Função de editar
 async function handleSubmit(e) {
   e.preventDefault()
 
@@ -61,13 +69,15 @@ async function handleSubmit(e) {
   }
 
   const formData = new FormData()
-  formData.append("name", nameRef.current.value)
-  if (imagem) {
-    formData.append("image", imagem)
-  }
+  formData.append("name", name)
+  if (imagem) formData.append("image", imagem)
+
+  console.log("Nome enviado: ", name)
 
   try {
-    await api.post(`/app/ant/update/${selectedAnt.id}`, formData, {
+    const id = parseInt(selectedAnt.id)
+
+    await api.post(`/app/ant/update/${id}`, formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
       },
@@ -114,21 +124,20 @@ async function handleSubmit(e) {
           <div className="form-floating mb-3">
             <input
               type="text"
+              id="value"
+              value={name}
               className="form-control bg-transparent border-success rounded py-2 text-white"
-              id="name"
-              placeholder="Text"
-              ref={nameRef}
+              onChange={handleChange}
               required
             />
-            <label htmlFor="floatingInput">Nome</label>
           </div>
 
           <div className="d-grid gap-2">
-            <button type="submit" className="btnEdit" onClick={handleSubmit}>
+            <button type="button" className="btnEdit" onClick={handleSubmit}>
                 EDITAR
             </button>
 
-            <button type="submit" className="btnDelete" onClick={btnDelete}>
+            <button type="button" className="btnDelete" onClick={btnDelete}>
                 EXCLUIR
             </button>
           </div>

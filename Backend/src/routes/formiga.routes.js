@@ -11,7 +11,7 @@ var AntRoutes = Router()
 
 AntRoutes.post('/', upload.single('image'), createAnt)
 AntRoutes.get('/list', getAnts)
-AntRoutes.put('/update/:id', updateAnt)
+AntRoutes.post('/update/:id', upload.single('image'), updateAnt)
 AntRoutes.delete('/delete/:id', deleteAnt)
 
 AntRoutes.use('/ant', AntRoutes)
