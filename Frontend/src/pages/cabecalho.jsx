@@ -193,6 +193,21 @@ export function HeaderLogado() {
                     Editar Apostas(tirar daqui)
                   </a>
                 </li>
+                <li className="nav-item">
+                  <a className="nav-link text-white" href="/editarSalas">
+                    Editar Sala(tirar daqui)
+                  </a>
+                </li>
+                <li className="nav-item">
+                  <a className="nav-link text-white" href="/">
+                    Vazio
+                  </a>
+                </li>
+                <li className="nav-item">
+                  <a className="nav-link text-white" href="/">
+                    Vazio
+                  </a>
+                </li>
                 <hr/>
                 <li className="nav-item align-self-center right py-5">
                   <Link onClick={logout} className="btnCanvas" type="button">

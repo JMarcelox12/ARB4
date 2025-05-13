@@ -9,8 +9,6 @@ const BetEdit = () => {
   const [selectedBet, setSelectedBet] = useState(null)
   const [ value, setValue ] = useState("10,00")
   const [ ganho, setGanho ] = useState("vazio")
-  const statusRef = useRef("vazio")
-  const dateRef = useRef("vazio")
 
   useEffect(() => {
     async function fetchBets() {

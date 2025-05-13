@@ -19,7 +19,7 @@ export const AntCardListUser = ({ name, odd, image, win, game }) => {
       style={{ width: '18rem', cursor: "pointer", border: "2px solid #02ad21" }}
       onClick={mudaModal}>
       <img 
-        src={`http://localhost:1200/${image?.replace(/^uploads\//, '')}`} 
+        src={`http://localhost:1200/${image}`} 
         className="card-img-top" 
         alt={`Imagem da formiga ${name}`} 
         style={{ height: '200px', objectFit: 'cover' }}
@@ -34,7 +34,7 @@ export const AntCardListUser = ({ name, odd, image, win, game }) => {
     <div className="custom-backdrop d-block" style={modalStyles.backdrop} onClick={mudaModal}>
       <div className='custom-modal' style={modalStyles.modal}>
         <img
-          src={`http://localhost:1200/${image?.replace(/^uploads\//, '')}`}
+          src={`http://localhost:1200/${image}`}
           alt={`Imagem da formiga ${name}`}
           style={{ maxWidth: '100%', maxHeight: '300px', borderRadius: '10px' }}
         />
@@ -60,7 +60,7 @@ export const AntCardEdit = ({ name, odd, image, onClick }) => {
       onClick={onClick}
     >
       <img 
-        src={`http://localhost:1200/${image?.replace(/^uploads\//, '')}`} 
+        src={`http://localhost:1200/${image}`} 
         className="card-img-top" 
         alt={`Imagem da formiga ${name}`} 
         style={{ height: '200px', objectFit: 'cover' }}

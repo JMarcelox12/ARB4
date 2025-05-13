@@ -105,7 +105,7 @@ async function handleSubmit(e) {
           <img src={preview} alt="Pré-visualização" style={{ maxHeight: '200px', borderRadius: '10px' }} />
         ) : selectedAnt?.image && (
           <img
-          src={`http://localhost:1200/${selectedAnt.image.replace(/^uploads\//, '')}`}
+          src={`http://localhost:1200/${selectedAnt.image}`}
           alt="Imagem atual"
           style={{ maxHeight: '200px', borderRadius: '10px' }}
           />

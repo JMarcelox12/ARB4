@@ -5,8 +5,8 @@ import { Header } from '../cabecalho'
 
 export default function CadastroSala() {
   const navigate = useNavigate()
-  const [name, setName] = useState("");
-  const [description, setDescription] = useState("");
+  const [name, setName] = useState("Nome");
+  const [description, setDescription] = useState("Descrição");
   const [imagem, setImagem] = useState(null)
   const [preview, setPreview] = useState(null)
 
@@ -78,21 +78,21 @@ export default function CadastroSala() {
           <div className="form-floating mb-3">
             <input
               type="text"
+              value={name}
               className="form-control bg-transparent border-success rounded py-2 text-white"
               onChange={(e) => setName(e.target.value)}
               required
             />
-            <label htmlFor="floatingInput">Nome</label>
           </div>
 
           <div className="form-floating mb-3">
             <input
               type="text"
+              value={description}
               className="form-control bg-transparent border-success rounded py-2 text-white"
               onChange={(e) => setDescription(e.target.value)}
               required
             />
-            <label htmlFor="floatingInput">Descrição</label>
           </div>
 
           <button type="submit" className="btn btn-success btnVerde">

@@ -7,7 +7,7 @@ import { Header } from '../cabecalho.jsx'
 const RoomEdit = () => {
   const [rooms, setRooms] = useState([])
   const [selectedRoom, setSelectedRoom] = useState(null)
-  const nameRef = useRef(null)
+  const nameRef = useRef("Nome")
   const [imagem, setImagem] = useState(null)
   const [preview, setPreview] = useState(null)
 
