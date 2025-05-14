@@ -58,15 +58,17 @@ model Room {
   image       String
   name        String     @unique
   description String
-  status      RoomStatus @default(PREPARING)
+  status      RoomStatus @default(PAUSE)
+  inicioFase  DateTime
+  winnerId    Int?
 
   rooms RoomAnt[]
 }
 
 enum RoomStatus {
-  PENDING // Sala em andamento
-  FINISH // Sala finalizada
-  PREPARING // Sala em preparo
+  PAUSE // Sala em preparo / 30s
+  BETTING // Sala em apostas / 1m
+  RACING // Sala em disputa / 15s
 }
 
 model RoomAnt {
