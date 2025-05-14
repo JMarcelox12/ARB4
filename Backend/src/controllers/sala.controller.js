@@ -27,43 +27,122 @@ export const upload = multer({ storage })
 // Função para sortear formigas
 const getShuffledAnts = async () => {
   const ants = await prisma.ant.findMany()
-  if (ants.length < 8) {
-    throw new Error('Não há formigas suficientes cadastradas!')
-  }
+  if (ants.length < 8) throw new Error('Não há formigas suficientes cadastradas!')
   return ants.sort(() => Math.random() - 0.5).slice(0, 8)
+}
+
+const fases = {
+  PAUSE: { duracao: 30000, proxima: 'BETTING' },
+  BETTING: { duracao: 60000, proxima: 'RACING' },
+  RACING: { duracao: 15000, proxima: 'PAUSE' },
+}
+
+const intervalosDasSalas = new Map()
+
+// Função que inicia o temporizador da sala
+export async function iniciarTemporizadorSala(roomId) {
+  if (intervalosDasSalas.has(roomId)) return
+
+  let sala = await prisma.room.findUnique({ where: { id: roomId }, include: { formigas: true } })
+  if (!sala) return
+
+  setInterval(async () => {
+    const agora = new Date()
+    const faseAtual = fases[sala.status]
+    const fimFase = new Date(sala.inicioFase.getTime() + faseAtual.duracao)
+
+    if (agora >= fimFase) {
+      let winnerId = sala.winnerId
+      if (sala.status === 'BETTING') {
+      // Sorteia a formiga vencedora
+        const formigas = sala.formigas
+        const sorteada = formigas[Math.floor(Math.random() * formigas.length)]
+        winnerId = sorteada?.antId ?? null
+      }
+
+      sala = await prisma.room.update({
+        where: { id: roomId },
+        data: {
+          status: faseAtual.proxima,
+          inicioFase: new Date(),
+          winnerId: sala.status === 'BETTING' ? winnerId : null,
+        },
+        include: { formigas: true },
+      })
+
+      console.log(`[Sala ${sala.id}] Nova fase: ${faseAtual.proxima}`)
+    }
+  }, 1000)
+}
+
+// Função que encerra o temporizador
+export function encerrarTemporizadorSala(roomId) {
+  const intervalo = intervalosDasSalas.get(roomId)
+  if (intervalo) {
+    clearInterval(intervalo)
+    intervalosDasSalas.delete(roomId)
+  }
+}
+
+// Função que lista os status das salas
+export const getRoomStatus = async (req, res) => {
+  const { id } = parseInt(req.params)
+
+  try {
+    const sala = await prisma.room.findUnique({
+      where: { id: id },
+      include: { formigas: { include: { ant: true } } },
+    })
+    if (!sala) return res.status(404).json({ error: 'Sala não encontrada' })
+
+    const tempos = { PAUSE: 30, BETTING: 60, RACING: 15 }
+    const tempoInicio = new Date(sala.inicioFase).getTime()
+    const duracao = tempos[sala.status] * 1000
+    const restante = Math.max(0, (tempoInicio + duracao - Date.now()) / 1000)
+
+    res.json({
+      status: sala.status,
+      tempoRestante: Math.floor(restante),
+      winnerId: sala.winnerId,
+      ants: sala.formigas.map(f => ({
+        id: f.ant.id,
+        nome: f.ant.name,
+        image: f.ant.image,
+      })),
+    })
+  } catch (error) {
+    console.error(error)
+    res.status(500).json({ error: 'Erro ao buscar status da sala' })
+  }
 }
 
 // Cria uma nova sala e seleciona as formigas
 export const createRoom = async (req, res) => {
   const { name, description } = req.body
-  const imagePath = req.file ? req.file.path : null
+  const imagePath = req.file?.path
 
   // Validação básica para os campos necessários
-  if (!imagePath) {
-    return res.status(400).send('Imagem da formiga é obrigatória')
-  }
-
-  if (!name || !description) {
-    return res.status(400).json({ error: 'Nome e descrição são obrigatórios' })
-  }
+  if (!imagePath) return res.status(400).send('Imagem da formiga é obrigatória')
+  if (!name || !description) return res.status(400).json({ error: 'Nome e descrição são obrigatórios' })
 
   try {
+    const inicio = new Date()
     const shuffledAnts = await getShuffledAnts()
 
     const room = await prisma.room.create({
       data: {
         image: imagePath,
-        name: name,
-        description: description,
+        name,
+        description,
+        inicioFase: inicio,
         formigas: {
-          create: shuffledAnts.map((ant) => ({
-            ant: { connect: { id: ant.id } },
-          })),
+          create: shuffledAnts.map((ant) => ({ ant: { connect: { id: ant.id } } })),
         },
       },
       include: { formigas: true },
     })
 
+    iniciarTemporizadorSala(room.id)
     res.status(200).json({ message: 'Sala criada com sucesso!', room })
   } catch (error) {
     console.error(error)
@@ -86,16 +165,14 @@ export const getRooms = async (req, res) => {
 
 // Edita a sala pelo id
 export const updateRoom = async (req, res) => {
-  const { id } = req.params
+  const { id } = parseInt(req.params);
   const { name, description } = req.body
 
-  if (!name || !description) {
-    return res.status(400).json({ error: 'Nome e descrição são obrigatórios' })
-  }
+  if (!name || !description) return res.status(400).json({ error: 'Nome e descrição são obrigatórios' })
 
   try {
     const updatedRoom = await prisma.room.update({
-      where: { id },
+      where: { id: id },
       data: { name, description },
     })
     res.json({ message: 'Sala atualizada!', room: updatedRoom })
@@ -107,15 +184,58 @@ export const updateRoom = async (req, res) => {
 
 // Deleta a sala pelo id
 export const deleteRoom = async (req, res) => {
-  const { id } = req.params
+  const { id } = parseInt(req.params);
 
   try {
-    await prisma.room.delete({
-      where: { id },
-    })
+    await prisma.room.delete({ where: { id: id } })
     res.json({ message: 'Sala deletada com sucesso!' })
   } catch (error) {
     console.error(error)
     res.status(500).json({ error: 'Erro ao deletar sala' })
+  }
+}
+
+// Função para iniciar as salas
+export const playRoom = async (req, res) => {
+  const { id } = parseInt(req.params)
+
+  try {
+    const sala = await prisma.room.findUnique({ where: { id: id } })
+    if (!sala) return res.status(404).json({ error: 'Sala não encontrada' })
+
+    // Atualiza para o estado inicial
+    await prisma.room.update({
+      where: { id: id },
+      data: {
+        status: 'PAUSE',
+        inicioFase: new Date(),
+        winnerId: null,
+      },
+    })
+
+    // Inicia o temporizador da sala
+    iniciarTemporizadorSala(id)
+
+    res.json({ message: 'Corrida iniciada com sucesso!' })
+  } catch (error) {
+    console.error(error)
+    res.status(500).json({ error: 'Erro ao iniciar corrida na sala' })
+  }
+}
+
+// Função para encerar as salas
+export const endRoom = async (req, res) => {
+  const id = parseInt(req.params.id)
+
+  try {
+    await prisma.room.update({
+      where: { id },
+      data: { status: 'ENCERRADA' },
+    })
+    encerrarTemporizadorSala(id)
+    res.json({ message: 'Sala encerrada com sucesso!' })
+  } catch (error) {
+    console.error(error)
+    res.status(500).json({ error: 'Erro ao encerrar a sala' })
   }
 }

@@ -69,6 +69,7 @@ enum RoomStatus {
   PAUSE // Sala em preparo / 30s
   BETTING // Sala em apostas / 1m
   RACING // Sala em disputa / 15s
+  FINISH // Sala finalizada
 }
 
 model RoomAnt {
