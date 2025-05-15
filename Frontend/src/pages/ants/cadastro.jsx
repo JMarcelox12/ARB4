@@ -33,7 +33,6 @@ export default function CadastroFormiga() {
           },
         })
         console.log(response.data)
-        alert("Formiga registrada com sucesso!")
         window.location.reload()
       } catch (err) {
         alert("Erro ao cadastrar formiga")
@@ -76,7 +75,6 @@ export default function CadastroFormiga() {
               onChange={(e) => setName(e.target.value)}
               required
             />
-            <label htmlFor="floatingInput">Nome</label>
           </div>
 
           <button type="submit" className="btn btn-success btnVerde">

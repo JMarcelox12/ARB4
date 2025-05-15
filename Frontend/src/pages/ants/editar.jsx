@@ -72,7 +72,7 @@ async function handleSubmit(e) {
   formData.append("name", name)
   if (imagem) formData.append("image", imagem)
 
-  console.log("Nome enviado: ", name)
+  
 
   try {
     const id = parseInt(selectedAnt.id)
@@ -115,7 +115,7 @@ async function handleSubmit(e) {
           <div className="form-floating mb-3">
             <input 
                 type="file" 
-                name="imagem" 
+                name="imagem"
                 accept="image/*" 
                 onChange={handleImageChange}
                 className="form-control bg-transparent border-success rounded py-2 text-white"/>
