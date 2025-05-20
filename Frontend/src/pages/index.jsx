@@ -1,5 +1,5 @@
 import '../styles/global.css'
-import { AuthContext } from '../services/AuthContext.jsx'
+import { AuthContext } from "../services/AuthContext.jsx";
 import { useContext } from 'react'
 import { HeaderDeslogado, HeaderLogado } from './cabecalho.jsx';
 

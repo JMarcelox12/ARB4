@@ -14,18 +14,20 @@ export default function Registro() {
     e.preventDefault()
 
     try {
-      await api.post("/app/user/register", {
+      const response = await api.post("/app/user/register", {
         name: nameRef.current.value,
         age: parseInt(ageRef.current.value, 10),
         email: emailRef.current.value,
         password: passwordRef.current.value,
       })
+
       localStorage.setItem('authToken', response.data.token);
       console.log(localStorage.getItem("authToken"));
       alert("Usuário registrado com sucesso!")
       navigate("/")
       window.location.reload();
     } catch (err) {
+      console.log(err)
       alert("Erro ao cadastrar usuário")
     }
   }

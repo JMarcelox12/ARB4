@@ -2,10 +2,14 @@ import React, { useEffect, useState } from 'react'
 import { AntCardListUser } from '../../components/formigas/card.jsx'
 import '../../styles/global.css'
 import api from "../../services/api.js"
-import { HeaderLogado } from '../cabecalho.jsx'
+import { AuthContext } from '../../services/AuthContext.jsx'
+import { useContext } from 'react'
+import { HeaderDeslogado, HeaderLogado } from '../cabecalho.jsx';
 
 const AntList = () => {
   const [ants, setAnts] = useState([])
+  const { userLogado } = useContext(AuthContext)
+
 
   useEffect(() => {
     async function fetchAnts() {
@@ -22,7 +26,7 @@ const AntList = () => {
 
   return (
     <div className="bg-dark text-white" style={{ height: "100%", margin: "0%", minHeight: "150dvh" }}>
-      <HeaderLogado/>
+       {userLogado ? <HeaderLogado /> : <HeaderDeslogado />}
     <div className="lst-container">
       <h1 className="lst-title">Formigas Cadastradas</h1>
       <div className="lst-grid">

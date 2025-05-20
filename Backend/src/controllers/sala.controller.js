@@ -27,7 +27,8 @@ export const upload = multer({ storage })
 // Função para sortear formigas
 const getShuffledAnts = async () => {
   const ants = await prisma.ant.findMany()
-  if (ants.length < 8) throw new Error('Não há formigas suficientes cadastradas!')
+  if (ants.length < 8)
+    throw new Error('Não há formigas suficientes cadastradas!')
   return ants.sort(() => Math.random() - 0.5).slice(0, 8)
 }
 
@@ -43,7 +44,10 @@ const intervalosDasSalas = new Map()
 export async function iniciarTemporizadorSala(roomId) {
   if (intervalosDasSalas.has(roomId)) return
 
-  let sala = await prisma.room.findUnique({ where: { id: roomId }, include: { formigas: true } })
+  let sala = await prisma.room.findUnique({
+    where: { id: roomId },
+    include: { formigas: true },
+  })
   if (!sala) return
 
   setInterval(async () => {
@@ -54,7 +58,7 @@ export async function iniciarTemporizadorSala(roomId) {
     if (agora >= fimFase) {
       let winnerId = sala.winnerId
       if (sala.status === 'BETTING') {
-      // Sorteia a formiga vencedora
+        // Sorteia a formiga vencedora
         const formigas = sala.formigas
         const sorteada = formigas[Math.floor(Math.random() * formigas.length)]
         winnerId = sorteada?.antId ?? null
@@ -104,7 +108,7 @@ export const getRoomStatus = async (req, res) => {
       status: sala.status,
       tempoRestante: Math.floor(restante),
       winnerId: sala.winnerId,
-      ants: sala.formigas.map(f => ({
+      ants: sala.formigas.map((f) => ({
         id: f.ant.id,
         nome: f.ant.name,
         image: f.ant.image,
@@ -119,33 +123,40 @@ export const getRoomStatus = async (req, res) => {
 // Cria uma nova sala e seleciona as formigas
 export const createRoom = async (req, res) => {
   const { name, description } = req.body
-  const imagePath = req.file?.path
+  const imagePath = req.file ? req.file.path : null
 
+  console.log('1')
   // Validação básica para os campos necessários
   if (!imagePath) return res.status(400).send('Imagem da formiga é obrigatória')
-  if (!name || !description) return res.status(400).json({ error: 'Nome e descrição são obrigatórios' })
+  if (!name || !description)
+    return res.status(400).json({ error: 'Nome e descrição são obrigatórios' })
 
   try {
     const inicio = new Date()
     const shuffledAnts = await getShuffledAnts()
+    console.log('2')
 
     const room = await prisma.room.create({
       data: {
         image: imagePath,
-        name,
-        description,
+        name: name,
+        description: description,
         inicioFase: inicio,
-        formigas: {
-          create: shuffledAnts.map((ant) => ({ ant: { connect: { id: ant.id } } })),
+        rooms: {
+          create: shuffledAnts.map((ant) => ({
+            ant: { connect: { id: ant.id } },
+          })),
         },
       },
-      include: { formigas: true },
+      include: { rooms: true },
     })
+    console.log('3')
 
     iniciarTemporizadorSala(room.id)
     res.status(200).json({ message: 'Sala criada com sucesso!', room })
+    console.log('4')
   } catch (error) {
-    console.error(error)
+    console.log(error)
     res.status(500).json({ error: error.message })
   }
 }
@@ -165,10 +176,11 @@ export const getRooms = async (req, res) => {
 
 // Edita a sala pelo id
 export const updateRoom = async (req, res) => {
-  const { id } = parseInt(req.params);
+  const { id } = parseInt(req.params)
   const { name, description } = req.body
 
-  if (!name || !description) return res.status(400).json({ error: 'Nome e descrição são obrigatórios' })
+  if (!name || !description)
+    return res.status(400).json({ error: 'Nome e descrição são obrigatórios' })
 
   try {
     const updatedRoom = await prisma.room.update({
@@ -184,7 +196,7 @@ export const updateRoom = async (req, res) => {
 
 // Deleta a sala pelo id
 export const deleteRoom = async (req, res) => {
-  const { id } = parseInt(req.params);
+  const { id } = parseInt(req.params)
 
   try {
     await prisma.room.delete({ where: { id: id } })

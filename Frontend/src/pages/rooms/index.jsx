@@ -1,9 +1,13 @@
-import { HeaderLogado } from "../cabecalho";
+import { AuthContext } from "../../services/AuthContext.jsx";
+import { useContext } from 'react'
+import { HeaderDeslogado, HeaderLogado } from '../cabecalho.jsx';
 
 const Room = () => {
+  const { userLogado } = useContext(AuthContext)
+
     return(
       <div className="bg-dark text-white" style={{ height: "100%", margin: "0%", minHeight: "150dvh" }}>
-        <HeaderLogado/>
+        {userLogado ? <HeaderLogado /> : <HeaderDeslogado />}
       </div>
     );
 }

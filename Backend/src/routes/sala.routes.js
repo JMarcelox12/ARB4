@@ -1,4 +1,5 @@
 import { Router } from 'express'
+import { upload } from '../controllers/formiga.controller.js'
 import {
   createRoom,
   getRooms,
@@ -11,13 +12,13 @@ import {
 
 var RoomRoutes = Router()
 
-RoomRoutes.get("/status/:id", getRoomStatus)
-RoomRoutes.post('/', createRoom)
+RoomRoutes.get('/status/:id', getRoomStatus)
+RoomRoutes.post('/', upload.single('image'), createRoom)
 RoomRoutes.get('/rooms', getRooms)
 RoomRoutes.post('/room/:id', updateRoom)
 RoomRoutes.delete('/room/:id', deleteRoom)
-RoomRoutes.post("/play:id", playRoom)
-RoomRoutes.post("/finish/:id", endRoom)
+RoomRoutes.post('/play:id', playRoom)
+RoomRoutes.post('/finish/:id', endRoom)
 
 RoomRoutes.use('/room', RoomRoutes)
 

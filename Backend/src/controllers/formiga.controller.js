@@ -123,8 +123,7 @@ export const getAnts = async (req, res) => {
 
 // Função para editar uma formiga
 export const updateAnt = async (req, res) => {
-  const { name } = req.body;
-  const image = req.file ? req.file.filename : null
+  const { name } = req.body
 
   try {
     const id = parseInt(req.params.id)
@@ -135,13 +134,14 @@ export const updateAnt = async (req, res) => {
       return res.status(404).send('Formiga não encontrada')
     }
 
+    console.log(req.body.name) 
+
     await prisma.ant.update({
       where: {
         id: id,
       },
       data: {
         name,
-        image,
       },
     })
     console.log(ant)
@@ -155,7 +155,7 @@ export const updateAnt = async (req, res) => {
 // Função para deletar uma formiga
 export const deleteAnt = async (req, res) => {
   try {
-    const id = parseInt(req.params.id);
+    const id = parseInt(req.params.id)
 
     const ant = await prisma.ant.findUnique({ where: { id: id } })
 
@@ -168,9 +168,9 @@ export const deleteAnt = async (req, res) => {
         id: id,
       },
     })
-    res.json('OK, tá deletando!');
+    res.json('OK, tá deletando!')
   } catch (err) {
     console.error(err)
-    res.status(500).send('Erro ao deletar formiga');
+    res.status(500).send('Erro ao deletar formiga')
   }
 }

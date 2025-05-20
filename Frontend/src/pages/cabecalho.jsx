@@ -43,18 +43,13 @@ export function HeaderDeslogado() {
                   </Link>
                 </li>
                 <li className="nav-item">
-                  <a className="nav-link text-white" href="#">
+                  <a className="nav-link text-white" href="/formigas">
                     Formigas
                   </a>
                 </li>
                 <li className="nav-item">
-                  <a className="nav-link text-white" href="#">
+                  <a className="nav-link text-white" href="/salas">
                     Salas
-                  </a>
-                </li>
-                <li className="nav-item">
-                  <a className="nav-link text-white" href="#">
-                    Quem somos
                   </a>
                 </li>
               </ul>
@@ -145,17 +140,22 @@ export function HeaderLogado() {
               <ul className="nav nav-pills flex-column mb-auto">
                 <li className="nav-item">
                   <a className="nav-link text-white" href="/perfil" aria-current="page">
-                    Perfil (não sei o que fazer)
+                    Perfil (vazio)
                   </a>
                 </li>
                 <li className="nav-item">
                   <a className="nav-link text-white" href="/apostas">
-                    Minhas Apostas (vazio)
+                    Minhas Apostas
+                  </a>
+                </li>
+                <li className="nav-item">
+                  <a className="nav-link text-white" href="/salas">
+                    Salas
                   </a>
                 </li>
                 <li className="nav-item">
                   <a className="nav-link text-white" href="/formigas">
-                    Listar Formigas
+                    Formigas
                   </a>
                 </li>
                 <li className="nav-item">
@@ -184,18 +184,13 @@ export function HeaderLogado() {
                   </a>
                 </li>
                 <li className="nav-item">
-                  <a className="nav-link text-white" href="/salas">
-                    Listar Salas (tirar)
+                  <a className="nav-link text-white" href="/editarAposta">
+                    Editar Apostas (tirar)
                   </a>
                 </li>
                 <li className="nav-item">
-                  <a className="nav-link text-white" href="/editarApostas">
-                    Editar Apostas(tirar daqui)
-                  </a>
-                </li>
-                <li className="nav-item">
-                  <a className="nav-link text-white" href="/editarSalas">
-                    Editar Sala(tirar daqui)
+                  <a className="nav-link text-white" href="/editarSala">
+                    Editar Salas (tirar)
                   </a>
                 </li>
                 <li className="nav-item">

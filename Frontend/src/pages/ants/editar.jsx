@@ -8,7 +8,6 @@ const AntEdit = () => {
   const [ants, setAnts] = useState([])
   const [selectedAnt, setSelectedAnt] = useState(null)
   const [name, setName] = useState('Nome')
-  const [imagem, setImagem] = useState(null)
   const [preview, setPreview] = useState(null)
 
   useEffect(() => {
@@ -19,15 +18,6 @@ const AntEdit = () => {
     fetchAnts()
   }, [])
 
-const handleImageChange = (e) => {
-  const file = e.target.files[0]
-  setImagem(file)
-  
-  if (file) {
-    const previewUrl = URL.createObjectURL(file)
-    setPreview(previewUrl)
-  }
-}
 
 const handleChange = (e) => {
   setName(e.target.value)
@@ -67,20 +57,15 @@ async function handleSubmit(e) {
     alert("Selecione uma formiga para editar.")
     return
   }
-
-  const formData = new FormData()
-  formData.append("name", name)
-  if (imagem) formData.append("image", imagem)
-
   
-
   try {
     const id = parseInt(selectedAnt.id)
 
-    await api.post(`/app/ant/update/${id}`, formData, {
+    await api.post(`/app/ant/update/${id}`, {
       headers: {
         'Content-Type': 'multipart/form-data',
       },
+      name: name,
     })
 
     alert("Formiga editada com sucesso!")
@@ -113,15 +98,6 @@ async function handleSubmit(e) {
       </div>
 
           <div className="form-floating mb-3">
-            <input 
-                type="file" 
-                name="imagem"
-                accept="image/*" 
-                onChange={handleImageChange}
-                className="form-control bg-transparent border-success rounded py-2 text-white"/>
-          </div>
-
-          <div className="form-floating mb-3">
             <input
               type="text"
               id="value"
@@ -133,7 +109,7 @@ async function handleSubmit(e) {
           </div>
 
           <div className="d-grid gap-2">
-            <button type="button" className="btnEdit" onClick={handleSubmit}>
+            <button type="submit" className="btnEdit" onClick={handleSubmit}>
                 EDITAR
             </button>
 
