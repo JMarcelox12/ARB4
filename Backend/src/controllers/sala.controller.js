@@ -122,14 +122,18 @@ export const getRoomStatus = async (req, res) => {
 
 // Cria uma nova sala e seleciona as formigas
 export const createRoom = async (req, res) => {
-  const { name, description } = req.body
   const imagePath = req.file ? req.file.path : null
+  const { name } = req.body.name
+  const { description } = req.body.description
 
-  console.log('1')
+  console.log(name, description)
   // Validação básica para os campos necessários
-  if (!imagePath) return res.status(400).send('Imagem da formiga é obrigatória')
-  if (!name || !description)
+  if (!imagePath) {
+    return res.status(400).send('Imagem da formiga é obrigatória')
+  }
+  if (!name || !description) {
     return res.status(400).json({ error: 'Nome e descrição são obrigatórios' })
+  }
 
   try {
     const inicio = new Date()

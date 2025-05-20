@@ -24,7 +24,9 @@ export default function CadastroFormiga() {
 
     const formData = new FormData()
     formData.append('name', name)
-    if (imagem) formData.append("image", imagem)
+    if (imagem) { 
+      formData.append("image", imagem)
+    }
 
     try {
         const response = await api.post("/app/ant/", formData, {

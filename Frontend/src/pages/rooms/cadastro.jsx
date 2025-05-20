@@ -5,8 +5,8 @@ import { Header } from '../cabecalho'
 
 export default function CadastroSala() {
   const navigate = useNavigate()
-  const [name, setName] = useState("Nome");
-  const [description, setDescription] = useState("Descrição");
+  const [name, setName] = useState("");
+  const [description, setDescription] = useState("");
   const [imagem, setImagem] = useState(null)
   const [preview, setPreview] = useState(null)
 
@@ -28,7 +28,12 @@ export default function CadastroSala() {
     const formData = new FormData()
     formData.append('name', name)
     formData.append('description', description)
-    if (imagem) formData.append("image", imagem)
+    
+    if (imagem) {
+       formData.append("image", imagem)
+    }
+
+    console.log(formData)
 
     try {
       console.log("2")
