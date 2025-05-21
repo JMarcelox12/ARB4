@@ -13,7 +13,7 @@ const RoomList = () => {
   useEffect(() => {
     async function fetchRooms() {
       try {
-        const response = await api.get("/app/room/list")
+        const response = await api.get("/app/room/rooms")
         setRooms(response.data)
       } catch (err) {
         console.error("Erro ao buscar salas:", err)

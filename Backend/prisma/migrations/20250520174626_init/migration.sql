@@ -1,6 +1,7 @@
 -- CreateTable
 CREATE TABLE "User" (
     "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "image" TEXT,
     "name" TEXT NOT NULL,
     "age" INTEGER NOT NULL,
     "email" TEXT NOT NULL,
@@ -25,11 +26,11 @@ CREATE TABLE "Bet" (
 -- CreateTable
 CREATE TABLE "Ant" (
     "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-    "image" TEXT NOT NULL,
+    "image" TEXT,
     "name" TEXT NOT NULL,
     "win" INTEGER NOT NULL,
     "game" INTEGER NOT NULL,
-    "odd" REAL NOT NULLteste1
+    "odd" REAL NOT NULL
 );
 
 -- CreateTable
@@ -38,7 +39,9 @@ CREATE TABLE "Room" (
     "image" TEXT NOT NULL,
     "name" TEXT NOT NULL,
     "description" TEXT NOT NULL,
-    "status" TEXT NOT NULL DEFAULT 'PREPARING'
+    "status" TEXT NOT NULL DEFAULT 'PAUSE',
+    "inicioFase" DATETIME NOT NULL,
+    "winnerId" INTEGER
 );
 
 -- CreateTable

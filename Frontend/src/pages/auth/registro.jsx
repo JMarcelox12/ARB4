@@ -23,12 +23,12 @@ export default function Registro() {
 
       localStorage.setItem('authToken', response.data.token);
       console.log(localStorage.getItem("authToken"));
-      alert("Usuário registrado com sucesso!")
+      alert("Usuário cadastrado com sucesso!")
       navigate("/")
       window.location.reload();
     } catch (err) {
       console.log(err)
-      alert("Erro ao cadastrar usuário")
+       return alert("Erro ao cadastrar usuário")
     }
   }
 
@@ -71,7 +71,7 @@ export default function Registro() {
               ref={emailRef}
               required
             />
-            <label htmlFor="floatingInput">Email</label>
+            <label>Email</label>
           </div>
           <div className="form-floating mb-3">
             <input

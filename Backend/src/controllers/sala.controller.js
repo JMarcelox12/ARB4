@@ -123,10 +123,9 @@ export const getRoomStatus = async (req, res) => {
 // Cria uma nova sala e seleciona as formigas
 export const createRoom = async (req, res) => {
   const imagePath = req.file ? req.file.path : null
-  const { name } = req.body.name
-  const { description } = req.body.description
+  const name = req.body.name
+  const description = req.body.description
 
-  console.log(name, description)
   // Validação básica para os campos necessários
   if (!imagePath) {
     return res.status(400).send('Imagem da formiga é obrigatória')
@@ -138,7 +137,6 @@ export const createRoom = async (req, res) => {
   try {
     const inicio = new Date()
     const shuffledAnts = await getShuffledAnts()
-    console.log('2')
 
     const room = await prisma.room.create({
       data: {
@@ -154,34 +152,33 @@ export const createRoom = async (req, res) => {
       },
       include: { rooms: true },
     })
-    console.log('3')
 
     iniciarTemporizadorSala(room.id)
-    res.status(200).json({ message: 'Sala criada com sucesso!', room })
-    console.log('4')
+    return res.status(200).json({ message: 'Sala criada com sucesso!', room })
   } catch (error) {
     console.log(error)
-    res.status(500).json({ error: error.message })
+    return res.status(500).json({ error: error.message })
   }
 }
 
 // Lista todas as salas
 export const getRooms = async (req, res) => {
   try {
-    const rooms = await prisma.room.findMany({
-      include: { formigas: { include: { ant: true } } },
+    const room = await prisma.room.findMany({
+      include: { rooms: { include: { ant: true } } },
     })
-    res.status(200).json(rooms)
+    return res.status(200).json(room)
   } catch (error) {
     console.error(error)
-    res.status(500).json({ error: 'Erro ao listar salas' })
+    return res.status(500).json({ error: 'Erro ao listar salas' })
   }
 }
 
 // Edita a sala pelo id
 export const updateRoom = async (req, res) => {
   const { id } = parseInt(req.params)
-  const { name, description } = req.body
+  const name = req.body.name
+  const description = req.body.description
 
   if (!name || !description)
     return res.status(400).json({ error: 'Nome e descrição são obrigatórios' })

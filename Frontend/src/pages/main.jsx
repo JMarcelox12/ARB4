@@ -37,7 +37,7 @@ createRoot(document.getElementById('root')).render(
           <Route Component={perfilUser} path="/perfil"></Route>
           <Route Component={BetList} path="/apostas"></Route>
           <Route Component={BetEdit} path="/editarApostas"></Route>
-          <Route Component={RoomEdit} path='/editarSalas'></Route>
+          <Route Component={RoomEdit} path='/editarSala'></Route>
           <Route Component={Room} path='/sala:id'></Route>
         </Routes>
       </BrowserRouter>

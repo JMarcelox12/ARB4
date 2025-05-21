@@ -7,27 +7,24 @@ import { Header } from '../cabecalho.jsx'
 const RoomEdit = () => {
   const [rooms, setRooms] = useState([])
   const [selectedRoom, setSelectedRoom] = useState(null)
-  const nameRef = useRef("Nome")
+  const nameRef = useRef("")
+  const descriptionRef = useRef("")
   const [imagem, setImagem] = useState(null)
   const [preview, setPreview] = useState(null)
 
   useEffect(() => {
     async function fetchRooms() {
-      const response = await api.get("/app/room/list")
-      setRooms(response.data)
+      try {
+        const response = await api.get("/app/room/rooms")
+        setRooms(response.data)
+      } catch (err) {
+        console.error("Erro ao buscar salas: ", err)
+      }
     }
+
     fetchRooms()
   }, [])
 
-const handleImageChange = (e) => {
-  const file = e.target.files[0]
-  setImagem(file)
-  
-  if (file) {
-    const previewUrl = URL.createObjectURL(file)
-    setPreview(previewUrl)
-  }
-}
   
 async function btnDelete(e) {
   e.preventDefault()
@@ -50,6 +47,7 @@ async function btnDelete(e) {
 function handleCardClick(room) {
   setSelectedRoom(room)
   nameRef.current.value = room.name
+  descriptionRef.current.value = room.description
 }
 
 async function handleSubmit(e) {
@@ -103,15 +101,6 @@ async function handleSubmit(e) {
       </div>
 
           <div className="form-floating mb-3">
-            <input 
-                type="file" 
-                name="imagem" 
-                accept="image/*" 
-                onChange={handleImageChange}
-                className="form-control bg-transparent border-success rounded py-2 text-white"/>
-          </div>
-
-          <div className="form-floating mb-3">
             <input
               type="text"
               className="form-control bg-transparent border-success rounded py-2 text-white"
@@ -121,6 +110,18 @@ async function handleSubmit(e) {
               required
             />
             <label htmlFor="floatingInput">Nome</label>
+          </div>
+
+          <div className="form-floating mb-3">
+            <input
+              type="text"
+              className="form-control bg-transparent border-success rounded py-2 text-white"
+              id="description"
+              placeholder="Descrição"
+              ref={descriptionRef}
+              required
+            />
+            <label htmlFor="floatingInput">Descrição</label>
           </div>
 
           <div className="d-grid gap-2">
@@ -140,7 +141,7 @@ async function handleSubmit(e) {
       <h1 className="lst-title">Salas Cadastradas</h1>
       <div className="lst-grid">
       {rooms.length > 0 ? (
-        ants.map((room) => (
+        rooms.map((room) => (
           <RoomCardEdit
             key={room.id}
             name={room.name}
