@@ -8,6 +8,18 @@ const Room = () => {
     return(
       <div className="bg-dark text-white" style={{ height: "100%", margin: "0%", minHeight: "150dvh" }}>
         {userLogado ? <HeaderLogado /> : <HeaderDeslogado />}
+
+        <div className="row" style={{margin: "6%"}}>
+          <div className="col">
+            //
+          </div>
+          <div className="col">
+            //
+          </div>
+          <div className="col end">
+            //
+          </div>
+        </div>
       </div>
     );
 }

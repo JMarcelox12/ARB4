@@ -23,8 +23,6 @@ export default function CadastroSala() {
   async function handleSubmit(e) {
     e.preventDefault()
 
-    console.log("1")
-
     const formData = new FormData()
     formData.append('name', name)
     formData.append('description', description)
@@ -36,13 +34,11 @@ export default function CadastroSala() {
     console.log(formData)
 
     try {
-      console.log("2")
         const response = await api.post("/app/room/", formData, {
           headers: {
             'Content-Type': 'multipart/form-data',
           },
         })
-        console.log("3")
         console.log(response.data)
         alert("Sala criada com sucesso!")
         window.location.reload()

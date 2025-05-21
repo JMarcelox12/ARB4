@@ -26,13 +26,13 @@ const RoomList = () => {
   return (
     <div className="bg-dark text-white" style={{ height: "100%", margin: "0%", minHeight: "150dvh" }}>
       {userLogado ? <HeaderLogado /> : <HeaderDeslogado />}
-    <div className="input flex-column align-items-center rounded">
+    <div className="lst-container">
       <h1 className="lst-title">Salas Disponíveis</h1>
       <div className="lst-grid">
       {rooms.length > 0 ? (
         rooms.map((room) => (
           <RoomCardListUser
-            key={room.id}
+            id={room.id}
             name={room.name}
             description={room.description}
             image={room.image}
