@@ -1,8 +1,12 @@
 .info-room{
-    background-color: green;
-    height: 1200px;
-    max-height: 20%;
+    background-color: #02ad21;
+    height: 300px;
+    min-height: 10%;
     width: 100%;
     border-radius: 10px;
-    padding: 0%;
+    margin-bottom: 2%;
+}
+
+table, td, th{
+  border: 1px solid #02ad21;
 }

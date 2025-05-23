@@ -174,6 +174,24 @@ export const getRooms = async (req, res) => {
   }
 }
 
+export const listAnts = async (req, res) => {
+  const salaId = parseInt(req.params.id)
+
+  try {
+    const roomAnts = await prisma.roomAnt.findMany({
+      where: { roomId: salaId },
+      include: { ant: true },
+    })
+
+    const ants = roomAnts.map((ra) => ra.ant)
+
+    res.json(ants)
+  } catch (error) {
+    console.error('Erro ao buscar formigas:', error)
+    res.status(500).json({ erro: 'Erro ao buscar formigas da sala.' })
+  }
+}
+
 // Edita a sala pelo id
 export const updateRoom = async (req, res) => {
   const { id } = parseInt(req.params)
