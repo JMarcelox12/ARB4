@@ -10,3 +10,79 @@
 table, td, th{
   border: 1px solid #02ad21;
 }
+
+.linha{
+    text-decoration: none;
+}
+
+.input {
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin: 5dvh;
+  margin-inline: 50dvh;
+  padding: 4dvh 4dvh 4dvh 4vh;
+}
+
+.title {
+    color: white;
+    font-size: 20px;
+    font-weight: bold;
+    text-decoration: none;
+}
+
+.btnDelete {
+    background-color: #ba0000;
+    width: 100%;
+    padding-block: 12px;
+    font-weight: bold;
+    color: white;
+}
+
+.btnDelete:hover {
+  background-color: #c82333;
+  opacity: 1;
+}
+
+.btnVerde {
+    background-color: #02ad21;
+    width: 100%;
+    padding-block: 12px;
+    margin-block: 1dvh;
+    font-weight: bold;
+    color: white;
+}
+
+.btnVerde:hover {
+  background-color: #02a821;
+  opacity: 1;
+}
+
+.odd{
+    width: 100%;
+    margin-block: 3dvh;
+}
+
+.painel-lateral {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 25%;
+  height: 100%;
+  background-color: #222;
+  color: white;
+  padding: 20px;
+  box-shadow: -2px 0 10px rgba(0,0,0,0.5);
+  z-index: 10;
+  transition: transform 0.3s ease;
+}
+
+/* Área principal com efeito de "empurrar" */
+.conteudo-area {
+  transition: margin-right 0.3s ease;
+}
+
+/* Quando a sidebar estiver ativa */
+.com-lateral {
+  margin-right: 300px;
+}
