@@ -61,3 +61,5 @@ const ultimo = (a) => {
     return parseFloat(result).toFixed(2)
   }
 }
+
+export default campea, vice, penultimo, ultimo;
