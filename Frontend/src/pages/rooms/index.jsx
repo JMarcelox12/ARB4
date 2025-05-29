@@ -92,25 +92,30 @@ const Room = () => {
 
         <div className={`row conteudo-area ${modal ? "com-lateral" : ""}`} style={{ margin: "6%", transition: "all 0.3s ease" }}>
 
-          <div className={`cronometro-area status-${status}`}>
-            <div className="status-label title">Status: {status.toUpperCase()}</div>
-            <div className={`tempo status-${status}`}>
-              {String(Math.floor(tempoRestante / 60)).padStart(2, '0')}:
-              {String(tempoRestante % 60).padStart(2, '0')}
+          <div className="row">
+            <div className="col" style={{marginRight: "1%"}}>
+              <div className={`cronometro-area status-${status}`}>
+                <div className="status-label title">Status: {status.toUpperCase()}</div>
+                <div className={`tempo status-${status}`}>
+                  {String(Math.floor(tempoRestante / 60)).padStart(2, '0')}:
+                  {String(tempoRestante % 60).padStart(2, '0')}
+                </div>
+              </div>
+            </div>
+
+            <div className="col">
+              <div className={`info-sala cronometro-area status-${status}`} style={{marginLeft: "4%"}}>
+                <div className="titulo">SALA #{id}</div>
+                <p className="status-label title"><strong>Status:</strong> {status}</p>
+                <p className="status-label title"><strong>Tempo restante:</strong> {tempoRestante}s</p>
+                <p className="status-label title"><strong>Formigas na corrida: {formigasSala.length}</strong></p>
+              </div>
             </div>
           </div>
 
           <div>
             <AntRaceChart />
           </div>
-
-          <div className={`info-sala status-${status}`}>
-            <h3 className="titulo">Sala #{id}</h3>
-            <p><strong>Status:</strong> {status}</p>
-            <p><strong>Tempo restante:</strong> {tempoRestante}s</p>
-            <p><strong>Formigas na corrida: {formigasSala.length}</strong></p>
-          </div>
-
 
           <div>
             <table className="table">
@@ -129,9 +134,9 @@ const Room = () => {
                 {formigasSala.map((formiga, index) => (
                   <tr
                     key={formiga.id}
-                    className={index % 2 === 0 ? "tr-par" : "tr-impar"}
+                    className={index % 2 === 0 ? "td-par" : "td-impar"}
                   >
-                  <th scope="row">{index + 1}</th>
+                  <th scope="row" className="titulo">{index + 1}</th>
                   <td>
                     <img src={formiga.image} alt={formiga.name} style={{ width: '60px', height: '60px', objectFit: 'cover' }} />
                   </td>
@@ -149,7 +154,7 @@ const Room = () => {
               </tbody>
             </table>
           </div>
-          <button type="submit" className="btn btn-success btnVerde" onClick={show}>
+          <button type="submit" className="btn btn-success btnVerde" style={{width: "96%", marginInline: "1.6%", borderRadius: "10px"}} onClick={show}>
             CLIQUE PARA APOSTAR
           </button>
         </div>

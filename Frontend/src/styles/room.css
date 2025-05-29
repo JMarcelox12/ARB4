@@ -1,9 +1,8 @@
 .info-sala {
-  max-width: 400px;
   padding: 16px;
-  margin: 20px auto;
+  height: 100%;
+  width: 100%;
   border-radius: 12px;
-  box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
   color: #fff;
   background-color: #222;
   border: 2px solid #02ad21;
@@ -15,28 +14,14 @@
   transform: scale(1.02);
 }
 
-.info-sala p {
-  margin: 0.5rem 0;
-  font-size: 1rem;
-}
-
-.info-sala ul {
-  margin: 0;
-  list-style-type: disc;
-  color: #ccc;
-  font-size: 0.95rem;
-}
-
-.info-sala li {
-  margin-left: 1rem;
-}
-
 /* Adaptação de cor do título para combinar */
 .titulo {
   color: #02ad21;
-  font-size: 20px;
-  margin-bottom: 10px;
+  font-size: 30px;
+  margin-bottom: 1rem;
   font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 1px;
 }
 
 /* Cores por status */
@@ -52,24 +37,34 @@
   border-left: 5px solid #ff0000;
 }
 
-table{
-  border: 1px solid #02a821;
-  border-radius: 10px;
-}
-
-th{
+table {
+  width: 50px; /* tenta esse valor mesmo */
   border: 2px solid #02a821;
+  border-radius: 10px;
+  border-collapse: separate;
+  border-spacing: 0;
+  overflow: hidden;
+  table-layout: fixed; /* força a largura fixa */
+  margin-inline: 1%;
+  font-size: 10px; /* fonte menor ainda */
 }
 
-td{
-  border: 2px solid #02a821
-}
-.tr-par {
-  background-color: #383737;
+th, td {
+  border: 1px solid #02a821;
+  padding: 1px 2px; /* padding bem pequeno */
+  word-break: break-all; /* força quebra de palavra */
+  text-align: center;
+  white-space: normal; /* permite quebra de linha */
 }
 
-.tr-impar {
-  background-color: #2a2a2a;
+.td-par {
+  background-color: #020202;
+  color: white;
+}
+
+.td-impar {
+  background-color: blue; /* cor válida */
+  color: white;
 }
 
 .linha{
@@ -84,6 +79,7 @@ td{
   margin-inline: 25dvh;
   padding: 2dvh 2dvh 2dvh 2vh;
 }
+
 
 .title {
     color: white;
@@ -142,12 +138,13 @@ td{
 .cronometro-area {
   background-color: #222;
   border: 2px solid #02ad21;
-  padding: 15px;
-  margin-inline: 300px;
+  width: 96%;
+  height: 100%;
+  padding: 20px;
+  margin-inline: 2.5%;
   border-radius: 10px;
   transition: all 0.4s ease-in-out;
   text-align: center;
-  margin: auto;
 }
 
 .cronometro-area .status-label {
