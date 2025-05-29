@@ -1,9 +1,9 @@
-const campea = (a) => {
+export const campea = (a) => {
   const j = parseFloat(a).toFixed(2)
   return j
 }
 
-const vice = (a) => {
+export const vice = (a) => {
   const j = parseFloat(a)
   let result = 0;
 
@@ -24,7 +24,7 @@ const vice = (a) => {
   }
 }
 
-const penultimo = (a) => {
+export const penultimo = (a) => {
   const j = parseFloat(a)
   let result = 0;
 
@@ -43,7 +43,7 @@ const penultimo = (a) => {
   }
 }
 
-const ultimo = (a) => {
+export const ultimo = (a) => {
   const j = parseFloat(a)
   let result = 0;
 
@@ -61,5 +61,3 @@ const ultimo = (a) => {
     return parseFloat(result).toFixed(2)
   }
 }
-
-export default campea, vice, penultimo, ultimo;

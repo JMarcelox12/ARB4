@@ -5,20 +5,30 @@ import { useEffect, useState } from "react";
 import "../../styles/room.css"
 import { useParams } from "react-router-dom";
 import api from "../../services/api.js";
-import { campea, vice, ultimo, penultimo} from "../../services/oddCalc.js"
+import { campea, vice, ultimo, penultimo} from "../../services/oddCalc.js";
+import AntRaceChart from "../../components/salas/AntRaceChart.jsx";
 
 const Room = () => {
   const { userLogado } = useContext(AuthContext)
   const [ formigasSala, setFormigasSala ] = useState([])
   const [ status, setStatus] = useState('')
+  const [ tempoRestante, setTempoRestante ] = useState(30);
   const { id } = useParams();
   const [ modal, setModal ] = useState(false)
+
+  if (userLogado === null) {
+    return (
+      <div className="bg-dark text-white d-flex justify-content-center align-items-center" style={{ minHeight: "100vh" }}>
+        <h2>Carregando dados do usuário...</h2>
+      </div>
+    );
+  }
 
    useEffect(() => {
     async function carregarStatus() {
       try {
         const response = await api.get(`/app/room/status/${id}`);
-        setStatusSala(response.data.status); // Ex: "apostando", "correndo", "encerrada"
+        setStatus(response.data.status); // Ex: "apostando", "correndo", "encerrada"
       } catch (erro) {
         console.error("Erro ao carregar status da sala:", erro);
       }
@@ -40,26 +50,67 @@ const Room = () => {
 
   }, [id]);
 
+  useEffect(() => {
+    let segundos = 0;
+
+    switch (status) {
+      case "pausando":
+        segundos = 30;
+        break;
+      case "apostando":
+        segundos = 60;
+        break;
+      case "correndo":
+        segundos = 15;
+        break;
+      default:
+        segundos = 0;
+    }
+
+    setTempoRestante(segundos);
+
+    const interval = setInterval(() => {
+      setTempoRestante((prev) => {
+        if (prev <= 1) {
+          clearInterval(interval);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [status]);
+
   const show = () => {
     setModal(!modal)
   }
 
     return(
-      <div className="bg-dark text-white" style={{ height: "100%", margin: "0%", minHeight: "150dvh" }}>
+      <div className="bg-dark text-white xx-container" style={{ height: "100%", padding: "0%", minHeight: "300dvh" }}>
         {userLogado ? <HeaderLogado /> : <HeaderDeslogado />}
 
         <div className={`row conteudo-area ${modal ? "com-lateral" : ""}`} style={{ margin: "6%", transition: "all 0.3s ease" }}>
-          <div>
-            <h1>Aqui fica o crônometro da corrida.</h1>
+
+          <div className={`cronometro-area status-${status}`}>
+            <div className="status-label title">Status: {status.toUpperCase()}</div>
+            <div className={`tempo status-${status}`}>
+              {String(Math.floor(tempoRestante / 60)).padStart(2, '0')}:
+              {String(tempoRestante % 60).padStart(2, '0')}
+            </div>
           </div>
 
           <div>
-            <h1>Aqui fica o gráfico da corrida.</h1>
+            <AntRaceChart />
           </div>
 
-          <div className="info-room">
-            <h1>Aqui ficam as informações da sala.</h1>
+          <div className={`info-sala status-${status}`}>
+            <h3 className="titulo">Sala #{id}</h3>
+            <p><strong>Status:</strong> {status}</p>
+            <p><strong>Tempo restante:</strong> {tempoRestante}s</p>
+            <p><strong>Formigas na corrida: {formigasSala.length}</strong></p>
           </div>
+
 
           <div>
             <table className="table">
@@ -76,20 +127,23 @@ const Room = () => {
               </thead>
               <tbody>
                 {formigasSala.map((formiga, index) => (
-                <tr key={formiga.id}>
+                  <tr
+                    key={formiga.id}
+                    className={index % 2 === 0 ? "tr-par" : "tr-impar"}
+                  >
                   <th scope="row">{index + 1}</th>
                   <td>
                     <img src={formiga.image} alt={formiga.name} style={{ width: '60px', height: '60px', objectFit: 'cover' }} />
                   </td>
-                  <td>{formiga.name}</td>
-                  <td><a className="link-success link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover linha">
-                    {campea(formiga.odd)}</a></td>
-                  <td><a className="link-success link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover linha">
-                    {vice(formiga.odd)}</a></td>
-                  <td><a className="link-success link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover linha">
-                    {penultimo(formiga.odd)}</a></td>
-                  <td><a className="link-success link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover linha">
-                    {ultimo(formiga.odd)}</a></td>
+                  <td className="titulo">{formiga.name}</td>
+                  <td><p className="titulo">
+                    {campea(formiga.odd)}</p></td>
+                  <td><p className="titulo">
+                    {vice(formiga.odd)}</p></td>
+                  <td><p className="titulo">
+                    {penultimo(formiga.odd)}</p></td>
+                  <td><p className="titulo">
+                    {ultimo(formiga.odd)}</p></td>
                 </tr>
                 ))}
               </tbody>
@@ -99,16 +153,19 @@ const Room = () => {
             CLIQUE PARA APOSTAR
           </button>
         </div>
-        <ModalAposta
-          visible={modal}
-          onClose={show}
-          formigasSala={formigasSala}
-        />
+        {modal && userLogado && (
+          <ModalAposta
+            visible={modal}
+            onClose={show}
+            formigasSala={formigasSala}
+            roomId={id}
+          />
+        )};
       </div>
     );
 }
 
-function ModalAposta({ visible, onClose, formigasSala }) {
+function ModalAposta({ visible, onClose, formigasSala, roomId }) {
   const [formigaSelecionada, setFormigaSelecionada] = useState("");
   const [posicaoSelecionada, setPosicaoSelecionada] = useState("");
   const [value, setValue] = useState("0,00");
@@ -166,10 +223,17 @@ function ModalAposta({ visible, onClose, formigasSala }) {
   async function handleApostar (e) {
     e.preventDefault()
 
+    if (!userLogado || !userLogado.id) {
+    alert("Você precisa estar logado para apostar.");
+    return;
+  }
+
     const formData = new FormData()
     formData.append("userId", userLogado.id);
     formData.append("antId", formigaSelecionada);
+    formData.append("roomId", roomId)
     formData.append("value", value.replace(",", "."));
+    formData.append("betType", posicaoSelecionada.toUpperCase())
 
     try {
       const response = await api.post("/app/bet/bet", formData, {
@@ -189,10 +253,10 @@ function ModalAposta({ visible, onClose, formigasSala }) {
   if (!visible) return null;
 
   const returne = (a,b) =>{
-    const money = parseFloat(a);
-    const odd = parseFloat(b);
+    const money = parseFloat(a.replace(",", ".")) || 0;
+    const odd = parseFloat(b.replace(",",".")) || 0;
     let result = money * odd;
-    return result.toFixed(2);
+    return result.toFixed(2).replace(".", ",");
   }
 
   const verificarType = () => {
@@ -203,7 +267,7 @@ function ModalAposta({ visible, onClose, formigasSala }) {
     <div className="painel-lateral bg-dark text-white p-4">
       <h1>Fazer Aposta</h1>
 
-      <label htmlFor="formigaSelect" className="form-label mt-3">Informe o valor de aposta:</label>
+      <label htmlFor="formigaSelect" className="form-label">Informe o valor de aposta:</label>
       <input
         type="text" step="1" min="20"
         className="form-control bg-transparent border-success rounded py-2 text-white"
@@ -214,7 +278,7 @@ function ModalAposta({ visible, onClose, formigasSala }) {
         required
       />
 
-      <label htmlFor="formigaSelect" className="form-label mt-3">Escolha a formiga:</label>
+      <label htmlFor="formigaSelect" className="form-label mt-2">Escolha a formiga:</label>
       <select className="form-select mb-4" id="formigaSelect" value={formigaSelecionada} onChange={handleChangeFormiga}>
         <option>-- Selecione uma formiga --</option>
         {formigasSala.map((formiga) => (
@@ -222,7 +286,7 @@ function ModalAposta({ visible, onClose, formigasSala }) {
         ))}
       </select>
 
-      <label htmlFor="posicaoSelect" className="form-label mt-3">Escolha a posição:</label>
+      <label htmlFor="posicaoSelect" className="form-label">Escolha a posição:</label>
       <select className="form-select mb-4" id="posicaoSelect" value={posicaoSelecionada} onChange={handleChangePosicao}>
         <option>-- Selecione uma posição --</option>
         <option>Campeão</option>
@@ -233,10 +297,10 @@ function ModalAposta({ visible, onClose, formigasSala }) {
 
       <div className="row">
         <div className="col">
-          <label htmlFor="formigaSelect" className="form-label mt-3">APOSTADO</label>
+          <label htmlFor="formigaSelect" className="form-label">APOSTADO</label>
           <input
             type="text" step="1" min="20"
-            className="form-control bg-transparent border-success rounded py-2 text-white odd"
+            className="form-control bg-transparent border-success rounded text-white odd"
             id="valuePreview"
             placeholder="0,00"
             value={value}
@@ -246,10 +310,10 @@ function ModalAposta({ visible, onClose, formigasSala }) {
         </div>
 
         <div className="col">
-          <label htmlFor="formigaSelect" className="form-label mt-3">ODD</label>
+          <label htmlFor="formigaSelect" className="form-label">ODD</label>
           <input
             type="text" step="1" min="20"
-            className="form-control bg-transparent border-success rounded py-2 text-white odd"
+            className="form-control bg-transparent border-success rounded text-white odd"
             id="oddValue"
             placeholder="0,00"
             value={odd}
@@ -259,10 +323,10 @@ function ModalAposta({ visible, onClose, formigasSala }) {
         </div>
       </div>
 
-      <label htmlFor="formigaSelect" className="form-label mt-3">RETORNO</label>
+      <label htmlFor="formigaSelect" className="form-label">RETORNO</label>
       <input
         type="text" step="1" min="20"
-        className="form-control bg-transparent border-success rounded py-2 text-white odd"
+        className="form-control bg-transparent border-success rounded text-white odd"
         id="returnValue"
         placeholder="0,00"
         value={returne(value, odd)}

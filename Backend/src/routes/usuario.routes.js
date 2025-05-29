@@ -7,8 +7,8 @@ import {
   login,
   requestPasswordResetController,
   resetPasswordController,
-  deposit,
-  withdraw,
+  Deposito,
+  Saque,
 } from '../controllers/usuario.controller.js'
 
 var UserRoutes = Router()
@@ -20,7 +20,7 @@ UserRoutes.delete('/delete/:id', deleteUser)
 UserRoutes.post('/login', login)
 UserRoutes.post('/request-reset', requestPasswordResetController)
 UserRoutes.post('/reset-password', resetPasswordController)
-UserRoutes.post('/deposit/:id', deposit)
-UserRoutes.post('/withdraw/:id', withdraw)
+UserRoutes.post('/deposit/:id', Deposito)
+UserRoutes.post('/withdraw/:id', Saque)
 
 export default UserRoutes

@@ -19,6 +19,4 @@ app.get('/', async (req, res) => {
   res.send('ARB funcionando!')
 })
 
-app.listen(1200, (req, res) => {
-  console.log('Servidor rodando na porta 1200!')
-})
+export default app

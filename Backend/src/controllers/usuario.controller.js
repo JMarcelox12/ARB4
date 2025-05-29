@@ -6,6 +6,7 @@ import {
   requestPasswordReset,
   resetPassword,
 } from '../services/auth.service.js'
+import { deposit, withdraw } from '../services/pay.service.js'
 
 const app = express()
 const prisma = new PrismaClient()
@@ -14,7 +15,6 @@ app.use(express.json())
 
 //cria usuário
 export const register = async (req, res) => {
-  res.send('Registro está funcionando!')
   try {
     const result = await registerUser(
       req.body.name,
@@ -126,15 +126,8 @@ export const resetPasswordController = async (req, res) => {
     const message = await resetPassword(req.body.token, req.body.newPassword)
     res.json({ message })
   } catch (error) {
-    res.status(400).json({ error: error.message })
+    console.error('Erro ao redefinir senha:', error)
 
-    const deposito = async (req, res) => {
-      try {
-        const message = await deposito(res)
-      } catch (error) {
-        res.status(500).json({ error: message })
-      }
-    }
     if (!res.headersSent) {
       res.status(500).json({ error: 'Erro ao redefinir senha' })
     }
@@ -142,7 +135,7 @@ export const resetPasswordController = async (req, res) => {
 }
 
 //deposito
-export const deposit = async (req, res) => {
+export const Deposito = async (req, res) => {
   const id = parseInt(req.params.id)
 
   try {
@@ -157,6 +150,8 @@ export const deposit = async (req, res) => {
       return res.status(404).json({ error: 'Usuário não encontrado' })
     }
 
+    await deposit(id, valor);
+
     res
       .status(200)
       .json({ message: 'Depósito realizado com sucesso', saldo: user.saldo })
@@ -167,7 +162,7 @@ export const deposit = async (req, res) => {
 }
 
 //saque
-export const withdraw = async (req, res) => {
+export const Saque = async (req, res) => {
   const id = parseInt(req.params.id)
 
   try {
@@ -189,6 +184,8 @@ export const withdraw = async (req, res) => {
       where: { id },
       data: { saldo: { decrement: valor } },
     })
+
+    await withdraw(id, valor);
 
     res.status(200).json(updatedUser)
   } catch (error) {

@@ -6,8 +6,8 @@ const prisma = new PrismaClient()
 // Função para criar uma aposta
 export const createBet = async (req, res) => {
   try {
-    const { userId, antId, amount } = req.body
-    const bet = await placeBet(userId, antId, amount)
+    const { userId, antId, roomId, amount, type } = req.body
+    const bet = await placeBet(userId, antId, roomId, amount, type)
     res.status(201).json(bet)
   } catch (error) {
     res.status(400).json({ error: error.message })
@@ -17,7 +17,7 @@ export const createBet = async (req, res) => {
 // Função para listar todas as apostas
 export const listBets = async (req, res) => {
   try {
-    const bets = await prisma.betticket.findMany({
+    const bets = await prisma.bet.findMany({
       include: { user: true, room: true, ant: true },
     })
 
@@ -33,7 +33,7 @@ export const getBetById = async (req, res) => {
   try {
     const { id } = req.params
 
-    const bet = await prisma.betticket.findUnique({
+    const bet = await prisma.bet.findUnique({
       where: { id },
       include: { user: true, room: true, ant: true },
     })
@@ -82,7 +82,7 @@ export const deleteBet = async (req, res) => {
       return res.status(404).send('Aposta não encontrada')
     }
 
-    await prisma.bet.update({
+    await prisma.bet.delete({
       where:{ id: id},
 
     })
@@ -99,7 +99,7 @@ export const listUserBets = async (req, res) => {
   try {
 
     const bets = await prisma.bet.findMany({
-      where: { id: id },
+      where: { userId: id },
       include: { user: true, ant: true },
     })
 
@@ -119,8 +119,8 @@ export const listUserBets = async (req, res) => {
 // Função para processar a corrida e pagar os vencedores
 export const processRaceResults = async (req, res) => {
   try {
-    const { winningAntId } = req.body
-    await checkBetResults(winningAntId)
+    const { roomId, resultado } = req.body
+    await checkBetResults(roomId, resultado)
     res.status(200).json({ message: 'Resultados processados com sucesso.' })
   } catch (error) {
     res.status(500).json({ error: error.message })

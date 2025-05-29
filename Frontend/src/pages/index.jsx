@@ -7,7 +7,7 @@ export default function Home() {
   const { userLogado } = useContext(AuthContext)
 
   return (
-      <div className="bg-dark text-white" style={{ height: "100%", margin: "0%", minHeight: "150dvh" }}>
+      <div className="bg-dark text-white xx-container" style={{ height: "100%", margin: "0%", minHeight: "150dvh" }}>
         
 
         {userLogado ? <HeaderLogado /> : <HeaderDeslogado />}

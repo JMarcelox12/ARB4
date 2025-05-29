@@ -23,15 +23,27 @@ model User {
 }
 
 model Bet {
-  id        Int       @id @default(autoincrement()) // Usando Int para chave primária
-  userId    Int
-  antId     Int
-  amount    Float
-  status    BetStatus @default(PENDING)
-  createdAt DateTime  @default(now())
+  id           Int       @id @default(autoincrement()) // Usando Int para chave primária
+  userId       Int
+  antId        Int
+  roomId       Int
+  amount       Float
+  potentialWin Float
+  odd          Float
+  type         BetType   @default(CAMPEA)
+  status       BetStatus @default(PENDING)
+  createdAt    DateTime  @default(now())
 
   user User @relation(fields: [userId], references: [id])
   ant  Ant  @relation(fields: [antId], references: [id])
+  room Room @relation(fields: [roomId], references: [id])
+}
+
+enum BetType {
+  CAMPEA // Aposta na campeã (1º lugar)
+  VICE // Aposta na vice (2º lugar)
+  PENULTIMA // Aposta na penúltima (posição específica)
+  ULTIMA // Aposta na última colocada
 }
 
 enum BetStatus {
@@ -63,6 +75,7 @@ model Room {
   winnerId    Int?
 
   rooms RoomAnt[]
+  Bet   Bet[]
 }
 
 enum RoomStatus {
