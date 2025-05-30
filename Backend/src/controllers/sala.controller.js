@@ -88,14 +88,14 @@ export function encerrarTemporizadorSala(roomId) {
   }
 }
 
-// Função que lista os status das salas
+// Função que lista o status da sala
 export const getRoomStatus = async (req, res) => {
-  const { id } = parseInt(req.params)
+  const { id } = parseInt(req.params.id)
 
   try {
     const sala = await prisma.room.findUnique({
       where: { id: id },
-      include: { formigas: { include: { ant: true } } },
+      include: { include: { ant: true } },
     })
     if (!sala) return res.status(404).json({ error: 'Sala não encontrada' })
 
@@ -161,6 +161,26 @@ export const createRoom = async (req, res) => {
   }
 }
 
+// Função que lista uma sala em específico
+export const getRoom = async (req, res) => {
+  const { roomId } = parseInt(req.params.id);
+
+  try {
+    if (!roomId) {
+      return res.status(400).json({ error: "Erro ao encontrar sala!" })
+    }
+
+    const room = await prisma.room.findMany({
+      where: { id: roomId },
+      include: { include: { ant: true } },
+    })
+    return res.status(200).json(room)
+  } catch (err) {
+    console.error(err)
+    return res.status(500).json({ error: "Erro ao encontrar sala!" })
+  }
+}
+
 // Lista todas as salas
 export const getRooms = async (req, res) => {
   try {
@@ -174,6 +194,7 @@ export const getRooms = async (req, res) => {
   }
 }
 
+// Lista as formigas de uma sala específica
 export const listAnts = async (req, res) => {
   const salaId = parseInt(req.params.id)
 

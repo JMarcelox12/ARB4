@@ -1,5 +1,6 @@
 import { AuthContext } from "../../services/AuthContext.jsx";
 import { useContext } from 'react'
+import { jwtDecode } from "jwt-decode";
 import { HeaderDeslogado, HeaderLogado } from '../cabecalho.jsx';
 import { useEffect, useState } from "react";
 import "../../styles/room.css"
@@ -24,6 +25,20 @@ const Room = () => {
     );
   }
 
+  const getUserIdFromToken = () => {
+    const token = localStorage.getItem("authToken");
+    if (!token) return null;
+    try {
+      const decodedToken = jwtDecode(token);
+      return decodedToken.userId;
+    } catch (error) {
+      console.error("Erro ao decodificar o token:", error);
+      return null;
+    }
+  };
+
+  const userId = getUserIdFromToken();
+
    useEffect(() => {
     async function carregarStatus() {
       try {
@@ -38,7 +53,7 @@ const Room = () => {
   
     async function carregarFormigas() {
       try {
-        const response = await api.get(`/app/room/${id}/formigas`);
+        const response = await api.get(`/app/room/${id}/ants`);
         console.log(response.data)
         setFormigasSala(response.data);
       } catch (erro) {
@@ -116,8 +131,8 @@ const Room = () => {
 
             <div>
               <AntRace
-              roomId={id}
-              userId={userLogado}
+                roomId={id}
+                userId={userId}
                />
             </div>
 
@@ -165,13 +180,14 @@ const Room = () => {
             onClose={show}
             formigasSala={formigasSala}
             roomId={id}
+            userId={userId}
           />
         )};
       </div>
     );
 }
 
-function ModalAposta({ visible, onClose, formigasSala, roomId }) {
+function ModalAposta({ visible, onClose, formigasSala, roomId, userId }) {
   const [formigaSelecionada, setFormigaSelecionada] = useState("");
   const [posicaoSelecionada, setPosicaoSelecionada] = useState("");
   const [value, setValue] = useState("0,00");
@@ -229,20 +245,20 @@ function ModalAposta({ visible, onClose, formigasSala, roomId }) {
   async function handleApostar (e) {
     e.preventDefault()
 
-    if (!userLogado || !userLogado.id) {
+    if (userLogado === false) {
     alert("Você precisa estar logado para apostar.");
     return;
-  }
+    }
 
     const formData = new FormData()
-    formData.append("userId", userLogado.id);
+    formData.append("userId", userId);
     formData.append("antId", formigaSelecionada);
     formData.append("roomId", roomId)
     formData.append("value", value.replace(",", "."));
     formData.append("betType", posicaoSelecionada.toUpperCase())
 
     try {
-      const response = await api.post("/app/bet/bet", formData, {
+      const response = await api.post("/app/bet/", formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },

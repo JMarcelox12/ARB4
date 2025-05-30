@@ -15,12 +15,14 @@
     "canvas-confetti": "^1.9.3",
     "jsonwebtoken": "^9.0.2",
     "jwt-decode": "^4.0.0",
+    "motion": "^12.15.0",
     "react": "^19.0.0",
     "react-confetti": "^6.4.0",
     "react-dom": "^19.0.0",
     "react-router": "^7.2.0",
     "react-router-dom": "^7.3.0",
-    "recharts": "^2.15.3"
+    "recharts": "^2.15.3",
+    "use-sound": "^5.0.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.19.0",
