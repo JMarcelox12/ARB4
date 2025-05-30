@@ -7,6 +7,11 @@ const prisma = new PrismaClient()
 export const createBet = async (req, res) => {
   try {
     const { userId, antId, roomId, amount, type } = req.body
+    if (!userId || !antId || !roomId || !amount) {
+      return res
+        .status(400)
+        .json({ error: 'Campos obrigatórios não preenchidos.' })
+    }
     const bet = await placeBet(userId, antId, roomId, amount, type)
     res.status(201).json(bet)
   } catch (error) {
@@ -31,7 +36,7 @@ export const listBets = async (req, res) => {
 // Função para listar uma aposta específica por ID
 export const getBetById = async (req, res) => {
   try {
-    const { id } = req.params
+    const id = parseInt(req.params.id)
 
     const bet = await prisma.bet.findUnique({
       where: { id },
@@ -65,8 +70,8 @@ export const updateBet = async (req, res) => {
       },
     })
     res.send('OK! ta funfando!')
-  } catch ( error ) {
-    console.error(err)
+  } catch (error) {
+    console.error(error)
     res.status(500).send('Erro ao editar aposta')
   }
 }
@@ -83,9 +88,9 @@ export const deleteBet = async (req, res) => {
     }
 
     await prisma.bet.delete({
-      where:{ id: id},
-
+      where: { id: id },
     })
+    res.status(200).json({ message: 'Aposta deletada com sucesso!' })
   } catch (error) {
     console.error('Erro ao deletar aposta do usuário:', error)
     res.status(500).json({ error: 'Erro ao deletar aposta. Tente novamente.' })
@@ -97,7 +102,6 @@ export const listUserBets = async (req, res) => {
   const id = parseInt(req.params.id)
 
   try {
-
     const bets = await prisma.bet.findMany({
       where: { userId: id },
       include: { user: true, ant: true },

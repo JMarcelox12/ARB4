@@ -6,7 +6,7 @@ import "../../styles/room.css"
 import { useParams } from "react-router-dom";
 import api from "../../services/api.js";
 import { campea, vice, ultimo, penultimo} from "../../services/oddCalc.js";
-import AntRaceChart from "../../components/salas/AntRaceChart.jsx";
+import AntRace from "../../components/salas/AntRace.jsx";
 
 const Room = () => {
   const { userLogado } = useContext(AuthContext)
@@ -87,76 +87,77 @@ const Room = () => {
   }
 
     return(
-      <div className="bg-dark text-white xx-container" style={{ height: "100%", padding: "0%", minHeight: "300dvh" }}>
+      <div className="bg-dark text-white xx-container" >
         {userLogado ? <HeaderLogado /> : <HeaderDeslogado />}
 
         <div className={`row conteudo-area ${modal ? "com-lateral" : ""}`} style={{ margin: "6%", transition: "all 0.3s ease" }}>
+          <div className="container-room">
 
-          <div className="row">
-            <div className="col" style={{marginRight: "1%"}}>
-              <div className={`cronometro-area status-${status}`}>
-                <div className="status-label title">Status: {status.toUpperCase()}</div>
-                <div className={`tempo status-${status}`}>
-                  {String(Math.floor(tempoRestante / 60)).padStart(2, '0')}:
-                  {String(tempoRestante % 60).padStart(2, '0')}
+            <div className="row">
+              <div className="col" >
+                <div className={`cronometro-area status-${status}`}>
+                  <div className="status-label title">Status: {status.toUpperCase()}</div>
+                  <div className={`tempo status-${status}`}>
+                    {String(Math.floor(tempoRestante / 60)).padStart(2, '0')}:
+                    {String(tempoRestante % 60).padStart(2, '0')}
+                  </div>
+                </div>
+              </div>
+
+              <div className="col">
+                <div className={`info-sala cronometro-area status-${status}`}>
+                  <div className="titulo">SALA #{id}</div>
+                  <p className="status-label title"><strong>Status:</strong> {status}</p>
+                  <p className="status-label title"><strong>Tempo restante:</strong> {tempoRestante}s</p>
+                  <p className="status-label title"><strong>Formigas na corrida: {formigasSala.length}</strong></p>
                 </div>
               </div>
             </div>
 
-            <div className="col">
-              <div className={`info-sala cronometro-area status-${status}`} style={{marginLeft: "4%"}}>
-                <div className="titulo">SALA #{id}</div>
-                <p className="status-label title"><strong>Status:</strong> {status}</p>
-                <p className="status-label title"><strong>Tempo restante:</strong> {tempoRestante}s</p>
-                <p className="status-label title"><strong>Formigas na corrida: {formigasSala.length}</strong></p>
-              </div>
+            <div>
+              <AntRace
+              roomId={id}
+              userId={userLogado}
+               />
             </div>
-          </div>
 
-          <div>
-            <AntRaceChart />
+            <div>
+              <table className="table table-success table-striped">
+                <thead>
+                  <tr className="table-dark">
+                    <th scope="col">#</th>
+                    <th scope="col">NOME</th>
+                    <th scope="col">CAMPEÃ</th>
+                    <th scope="col">VICE</th>
+                    <th scope="col">PENÚLTIMA</th>
+                    <th scope="col">ÚLTIMA</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {formigasSala.map((formiga, index) => (
+                    <tr
+                      key={formiga.id}
+                      className={parseInt(index) % 2 === 0 ? "td-light" : "td-dark"}
+                    >
+                    <th scope="row" className="titulo">{index + 1}</th>
+                    <td className="titulo">{formiga.name}</td>
+                    <td><p className="titulo">
+                      {campea(formiga.odd)}</p></td>
+                    <td><p className="titulo">
+                      {vice(formiga.odd)}</p></td>
+                    <td><p className="titulo">
+                      {penultimo(formiga.odd)}</p></td>
+                    <td><p className="titulo">
+                      {ultimo(formiga.odd)}</p></td>
+                  </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            <button type="submit" className="btn btn-success btnVerde" style={{borderRadius: "10px"}} onClick={show}>
+              CLIQUE PARA APOSTAR
+            </button>
           </div>
-
-          <div>
-            <table className="table">
-              <thead>
-                <tr className="table-dark">
-                  <th scope="col">#</th>
-                  <th scope="col">IMAGEM</th>
-                  <th scope="col">NOME</th>
-                  <th scope="col">CAMPEÃ</th>
-                  <th scope="col">VICE</th>
-                  <th scope="col">PENÚLTIMA</th>
-                  <th scope="col">ÚLTIMA</th>
-                </tr>
-              </thead>
-              <tbody>
-                {formigasSala.map((formiga, index) => (
-                  <tr
-                    key={formiga.id}
-                    className={index % 2 === 0 ? "td-par" : "td-impar"}
-                  >
-                  <th scope="row" className="titulo">{index + 1}</th>
-                  <td>
-                    <img src={formiga.image} alt={formiga.name} style={{ width: '60px', height: '60px', objectFit: 'cover' }} />
-                  </td>
-                  <td className="titulo">{formiga.name}</td>
-                  <td><p className="titulo">
-                    {campea(formiga.odd)}</p></td>
-                  <td><p className="titulo">
-                    {vice(formiga.odd)}</p></td>
-                  <td><p className="titulo">
-                    {penultimo(formiga.odd)}</p></td>
-                  <td><p className="titulo">
-                    {ultimo(formiga.odd)}</p></td>
-                </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-          <button type="submit" className="btn btn-success btnVerde" style={{width: "96%", marginInline: "1.6%", borderRadius: "10px"}} onClick={show}>
-            CLIQUE PARA APOSTAR
-          </button>
         </div>
         {modal && userLogado && (
           <ModalAposta

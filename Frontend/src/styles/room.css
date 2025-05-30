@@ -14,6 +14,10 @@
   transform: scale(1.02);
 }
 
+.container-room{
+  margin: 0% 0% 3% 0%;
+}
+
 /* Adaptação de cor do título para combinar */
 .titulo {
   color: #02ad21;
@@ -38,33 +42,34 @@
 }
 
 table {
-  width: 50px; /* tenta esse valor mesmo */
+  width: 10px; /* tenta esse valor mesmo */
   border: 2px solid #02a821;
-  border-radius: 10px;
-  border-collapse: separate;
-  border-spacing: 0;
-  overflow: hidden;
-  table-layout: fixed; /* força a largura fixa */
-  margin-inline: 1%;
-  font-size: 10px; /* fonte menor ainda */
+  font-size: 20px; /* fonte menor ainda */
+}
+
+table .titulo{
+  color: #02ad21;
+  font-size: 20px;
+  margin-bottom: 5px;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 1px;
 }
 
 th, td {
-  border: 1px solid #02a821;
-  padding: 1px 2px; /* padding bem pequeno */
+  border: 2px solid #02a821;
   word-break: break-all; /* força quebra de palavra */
   text-align: center;
   white-space: normal; /* permite quebra de linha */
+  width: 10px;
 }
 
 .td-par {
-  background-color: #020202;
-  color: white;
+  background-color: #1a1a1a !important; /* cinza escuro */
 }
 
 .td-impar {
-  background-color: blue; /* cor válida */
-  color: white;
+  background-color: #2a2a2a !important;
 }
 
 .linha{
@@ -138,19 +143,19 @@ th, td {
 .cronometro-area {
   background-color: #222;
   border: 2px solid #02ad21;
-  width: 96%;
+  width: 100%;
   height: 100%;
-  padding: 20px;
-  margin-inline: 2.5%;
+  padding: 5px;
   border-radius: 10px;
   transition: all 0.4s ease-in-out;
   text-align: center;
+  position: fixed relative;
 }
 
 .cronometro-area .status-label {
   font-size: 30px;
   color: #bbbbbb;
-  margin-bottom: 1rem;
+  margin-bottom: 1px;
   text-transform: uppercase;
   letter-spacing: 1px;
 }
@@ -160,7 +165,6 @@ th, td {
   font-size: 10dvh;
   font-weight: bold;
   color: #00ff00;
-  padding: 0.5dvh 1dvh;
   border-radius: 0.5rem;
   display: inline-block;
   letter-spacing: 2px;
@@ -199,6 +203,7 @@ th, td {
   border-radius: 10px;
   color: white;
   font-size: 1.2rem;
+  width: 100%;
   text-align: center;
 }
 
@@ -230,7 +235,7 @@ th, td {
 }
 
 .formiga-percentual {
-  margin-left: 12px;
+    -left: 12px;
   width: 40px;
   text-align: right;
 }
