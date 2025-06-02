@@ -40,6 +40,27 @@ const fases = {
 
 const intervalosDasSalas = new Map()
 
+// Função que define o resultado da sala
+export async function resultsRoom(salaId) {
+  const id = parseInt(salaId)
+  if (!id) throw new Error("Erro ao encontrar sala!")
+
+  const ants = await prisma.roomAnt.findMany({
+    where: { roomId: id },
+    include: { ant: true },
+  })
+
+  if (ants.length < 4) {
+    throw new Error("Sala não possui formigas suficientes para sorteio!")
+  }
+  const shuffled = ants.sort(() => Math.random() - 0.5)
+
+  const resultado = shuffled.slice(0, 4).map(item => item.ant)
+
+  return resultado
+}
+
+
 // Função que inicia o temporizador da sala
 export async function iniciarTemporizadorSala(roomId) {
   if (intervalosDasSalas.has(roomId)) return
@@ -90,12 +111,12 @@ export function encerrarTemporizadorSala(roomId) {
 
 // Função que lista o status da sala
 export const getRoomStatus = async (req, res) => {
-  const { id } = parseInt(req.params.id)
+  const id = parseInt(req.params.id)
 
   try {
     const sala = await prisma.room.findUnique({
       where: { id: id },
-      include: { include: { ant: true } },
+      include: { bets: true, rooms: { include: { ant: true } } }
     })
     if (!sala) return res.status(404).json({ error: 'Sala não encontrada' })
 
@@ -108,7 +129,7 @@ export const getRoomStatus = async (req, res) => {
       status: sala.status,
       tempoRestante: Math.floor(restante),
       winnerId: sala.winnerId,
-      ants: sala.formigas.map((f) => ({
+      ants: sala.rooms.map((f) => ({
         id: f.ant.id,
         nome: f.ant.name,
         image: f.ant.image,
@@ -163,17 +184,29 @@ export const createRoom = async (req, res) => {
 
 // Função que lista uma sala em específico
 export const getRoom = async (req, res) => {
-  const { roomId } = parseInt(req.params.id);
+  const roomId = parseInt(req.params.id);
 
   try {
     if (!roomId) {
       return res.status(400).json({ error: "Erro ao encontrar sala!" })
     }
 
+    let result = await resultsRoom(roomId);
+    let winner = (result[0]);
+
+    const response = await prisma.room.update({
+      where: { id: roomId },
+      data: {
+        winnerId: parseInt(winner.id),
+        result: parseInt(result.map(r => r.id)),
+      },
+    });
+
     const room = await prisma.room.findMany({
       where: { id: roomId },
-      include: { include: { ant: true } },
+      include: { bets: true, rooms: { include: { ant: true } } },
     })
+
     return res.status(200).json(room)
   } catch (err) {
     console.error(err)

@@ -66,16 +66,17 @@ model Ant {
 }
 
 model Room {
-  id          Int        @id @default(autoincrement()) // Usando Int para chave primária
+  id          Int        @id @default(autoincrement())
   image       String
   name        String     @unique
   description String
   status      RoomStatus @default(PAUSE)
   inicioFase  DateTime
   winnerId    Int?
+  result ??
 
   rooms RoomAnt[]
-  Bet   Bet[]
+  bets   Bet[]
 }
 
 enum RoomStatus {

@@ -54,8 +54,10 @@ export const getBetById = async (req, res) => {
 
 // Função para editar a aposta
 export const updateBet = async (req, res) => {
+  const id = parseInt(req.params.id);
+
   try {
-    const bet = await prisma.bet.findUnique({ where: { id: req.params.id } })
+    const bet = await prisma.bet.findUnique({ where: { id: id } })
 
     if (!bet) {
       return res.status(404).send('Aposta não encontrada')
@@ -81,7 +83,7 @@ export const deleteBet = async (req, res) => {
   const id = parseInt(req.params.id)
 
   try {
-    const bet = await prisma.bet.findUnique({ where: { id: req.params.id } })
+    const bet = await prisma.bet.findUnique({ where: { id: id } })
 
     if (!bet) {
       return res.status(404).send('Aposta não encontrada')
@@ -103,13 +105,13 @@ export const listUserBets = async (req, res) => {
 
   try {
     const bets = await prisma.bet.findMany({
-      where: { userId: id },
+      where: { roomId: id },
       include: { user: true, ant: true },
     })
 
     if (bets.length === 0) {
       return res
-        .status(404)
+        .status(400)
         .json({ error: 'Nenhuma aposta encontrada para este usuário.' })
     }
 

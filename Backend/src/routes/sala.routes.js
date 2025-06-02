@@ -22,7 +22,7 @@ RoomRoutes.post('/update/:id', upload.single('image'), updateRoom)
 RoomRoutes.delete('/room/:id', deleteRoom)
 RoomRoutes.post('/play/:id', playRoom)
 RoomRoutes.post('/finish/:id', endRoom)
-RoomRoutes.get('/:id/ants', listAnts)
+RoomRoutes.get('/ants/:id', listAnts)
 
 RoomRoutes.use('/room', RoomRoutes)
 

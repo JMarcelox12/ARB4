@@ -26,14 +26,14 @@ export default function AntRace({ roomId, userId }) {
   useEffect(() => {
     async function fetchRoomData() {
       const { data: room } = await api.get(`/app/room/sala/${SalaId}`)
-      setResult(room.resultado)
+      setResult(room.result)
       setWinnerAnt(room.winnerId)
 
-      const { data: antsData } = await api.get(`/app/room/${SalaId}/ants`)
+      const { data: antsData } = await api.get(`/app/room/ants/${SalaId}`)
       setAnts(antsData)
       setPositions(new Array(antsData.length).fill(0))
 
-      const { data: bets } = await api.get(`/app/bet/bets/${UserId}`)
+      const { data: bets } = await api.get(`/app/bet/bets/${SalaId}`)
       const lastBet = bets.filter(bet => bet.roomId === SalaId).pop()
       setUserBet(lastBet)
     }

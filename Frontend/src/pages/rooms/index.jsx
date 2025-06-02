@@ -43,6 +43,7 @@ const Room = () => {
     async function carregarStatus() {
       try {
         const response = await api.get(`/app/room/status/${id}`);
+        console.log(response.data)
         setStatus(response.data.status); // Ex: "apostando", "correndo", "encerrada"
       } catch (erro) {
         console.error("Erro ao carregar status da sala:", erro);
@@ -53,8 +54,7 @@ const Room = () => {
   
     async function carregarFormigas() {
       try {
-        const response = await api.get(`/app/room/${id}/ants`);
-        console.log(response.data)
+        const response = await api.get(`/app/room/ants/${id}`);
         setFormigasSala(response.data);
       } catch (erro) {
         console.error("Erro ao carregar formigas:", erro);
