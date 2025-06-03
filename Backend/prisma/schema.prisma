@@ -73,7 +73,9 @@ model Room {
   status      RoomStatus @default(PAUSE)
   inicioFase  DateTime
   winnerId    Int?
-  result ??
+  vice        Int?
+  penultimo   Int?
+  ultimo        Int?
 
   rooms RoomAnt[]
   bets   Bet[]

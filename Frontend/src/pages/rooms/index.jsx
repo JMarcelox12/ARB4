@@ -43,7 +43,6 @@ const Room = () => {
     async function carregarStatus() {
       try {
         const response = await api.get(`/app/room/status/${id}`);
-        console.log(response.data)
         setStatus(response.data.status); // Ex: "apostando", "correndo", "encerrada"
       } catch (erro) {
         console.error("Erro ao carregar status da sala:", erro);

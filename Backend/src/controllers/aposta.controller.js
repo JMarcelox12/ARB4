@@ -105,20 +105,34 @@ export const listUserBets = async (req, res) => {
 
   try {
     const bets = await prisma.bet.findMany({
-      where: { roomId: id },
+      where: { userId: id },
       include: { user: true, ant: true },
     })
 
     if (bets.length === 0) {
-      return res
-        .status(400)
-        .json({ error: 'Nenhuma aposta encontrada para este usuário.' })
+      return res.send("Nenhuma aposta encontrada para este usuário")
     }
 
     res.status(200).json(bets)
   } catch (error) {
     console.error('Erro ao listar apostas do usuário:', error)
     res.status(500).json({ error: 'Erro ao buscar apostas. Tente novamente.' })
+  }
+}
+
+// Função para listar todas as apostas de uma sala específica
+export const listBetsRoom = async (req, res) => {
+  const id = parseInt(req.params.id);
+  try {
+    const response = await prisma.bet.findMany({
+      where: { roomId: id },
+      include: { user: true, ant: true, room: true },
+    })
+
+    return res.status(200).json({ data: response })
+  } catch (error) {
+    console.error(error)
+    return res.status(500).json({ error: 'Erro ao listar salas' })
   }
 }
 

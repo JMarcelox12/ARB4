@@ -26,14 +26,16 @@ export default function AntRace({ roomId, userId }) {
   useEffect(() => {
     async function fetchRoomData() {
       const { data: room } = await api.get(`/app/room/sala/${SalaId}`)
-      setResult(room.result)
+      setResult([room.vice, room.penultimo, room.ultimo])
       setWinnerAnt(room.winnerId)
 
       const { data: antsData } = await api.get(`/app/room/ants/${SalaId}`)
       setAnts(antsData)
       setPositions(new Array(antsData.length).fill(0))
 
-      const { data: bets } = await api.get(`/app/bet/bets/${SalaId}`)
+      const response = await api.get(`/app/bet/rooms/${SalaId}`)
+      const bets = response.data.data // Acessa o array real dentro do objeto
+
       const lastBet = bets.filter(bet => bet.roomId === SalaId).pop()
       setUserBet(lastBet)
     }

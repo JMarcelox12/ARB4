@@ -4,6 +4,7 @@ import {
   listBets,
   getBetById,
   listUserBets,
+  listBetsRoom,
   processRaceResults,
   updateBet,
   deleteBet,
@@ -14,7 +15,8 @@ const BetRoutes = Router()
 BetRoutes.post('/', createBet)
 BetRoutes.get('/list', listBets)
 BetRoutes.get('/:id', getBetById)
-BetRoutes.get('/bets/:id', listUserBets)
+BetRoutes.get('/user/:id', listUserBets)
+BetRoutes.get("/rooms/:id", listBetsRoom)
 BetRoutes.post('/update/:id', updateBet)
 BetRoutes.delete('/delete/:id', deleteBet)
 BetRoutes.post('/race/results', processRaceResults)

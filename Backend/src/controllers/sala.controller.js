@@ -192,13 +192,18 @@ export const getRoom = async (req, res) => {
     }
 
     let result = await resultsRoom(roomId);
-    let winner = (result[0]);
+    let winner = result[0];
+    let vice = result[1];
+    let penultimo = result[2];
+    let ultimo = result[3];
 
     const response = await prisma.room.update({
       where: { id: roomId },
       data: {
         winnerId: parseInt(winner.id),
-        result: parseInt(result.map(r => r.id)),
+        vice: parseInt(vice.id),
+        penultimo: parseInt(penultimo.id),
+        ultimo: parseInt(ultimo.id),
       },
     });
 
@@ -220,7 +225,7 @@ export const getRooms = async (req, res) => {
     const room = await prisma.room.findMany({
       include: { rooms: { include: { ant: true } } },
     })
-    return res.status(200).json(room)
+    return res.status(200)
   } catch (error) {
     console.error(error)
     return res.status(500).json({ error: 'Erro ao listar salas' })
