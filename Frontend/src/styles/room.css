@@ -42,7 +42,7 @@
 }
 
 table {
-  width: 10px; /* tenta esse valor mesmo */
+  width: 100px; /* tenta esse valor mesmo */
   border: 2px solid #02a821;
   font-size: 20px; /* fonte menor ainda */
 }
@@ -58,18 +58,21 @@ table .titulo{
 
 th, td {
   border: 2px solid #02a821;
-  word-break: break-all; /* força quebra de palavra */
-  text-align: center;
-  white-space: normal; /* permite quebra de linha */
+  justify-content: center;
+  align-items: center;
   width: 10px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
 }
 
-.td-par {
-  background-color: #1a1a1a !important; /* cinza escuro */
+th{
+  justify-content: center;
+  text-align: center;
 }
 
-.td-impar {
-  background-color: #2a2a2a !important;
+p{
+  justify-content: center;
+  text-align: center;
 }
 
 .linha{
@@ -107,12 +110,18 @@ th, td {
 }
 
 .btnVerde {
-    background-color: #02ad21;
-    width: 100%;
-    padding-block: 12px;
-    margin-block: 1dvh;
-    font-weight: bold;
-    color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #02ad21;
+  width: 100%;
+  height: 5%;
+  padding-block: 12px;
+  margin-block: 1dvh;
+  font-weight: bold;
+  color: white;
+  border: 1px solid black;
+  border-radius: 10px;
 }
 
 .btnVerde:hover {

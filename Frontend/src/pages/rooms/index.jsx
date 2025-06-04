@@ -8,6 +8,7 @@ import { useParams } from "react-router-dom";
 import api from "../../services/api.js";
 import { campea, vice, ultimo, penultimo} from "../../services/oddCalc.js";
 import AntRace from "../../components/salas/AntRace.jsx";
+import AntRaceChart from "../../components/salas/AntRaceChart.jsx";
 
 const Room = () => {
   const { userLogado } = useContext(AuthContext)
@@ -101,7 +102,7 @@ const Room = () => {
   }
 
     return(
-      <div className="bg-dark text-white xx-container" >
+      <div className="bg-dark text-white" >
         {userLogado ? <HeaderLogado /> : <HeaderDeslogado />}
 
         <div className={`row conteudo-area ${modal ? "com-lateral" : ""}`} style={{ margin: "6%", transition: "all 0.3s ease" }}>
@@ -129,10 +130,7 @@ const Room = () => {
             </div>
 
             <div>
-              <AntRace
-                roomId={id}
-                userId={userId}
-               />
+              <AntRaceChart/>
             </div>
 
             <div>
@@ -140,6 +138,7 @@ const Room = () => {
                 <thead>
                   <tr className="table-dark">
                     <th scope="col">#</th>
+                    <th scope="col">IMAGEM</th>
                     <th scope="col">NOME</th>
                     <th scope="col">CAMPEÃ</th>
                     <th scope="col">VICE</th>
@@ -151,9 +150,9 @@ const Room = () => {
                   {formigasSala.map((formiga, index) => (
                     <tr
                       key={formiga.id}
-                      className={parseInt(index) % 2 === 0 ? "td-light" : "td-dark"}
                     >
                     <th scope="row" className="titulo">{index + 1}</th>
+                    <td className="titulo">{formiga.name}</td>
                     <td className="titulo">{formiga.name}</td>
                     <td><p className="titulo">
                       {campea(formiga.odd)}</p></td>
@@ -168,7 +167,7 @@ const Room = () => {
                 </tbody>
               </table>
             </div>
-            <button type="submit" className="btn btn-success btnVerde" style={{borderRadius: "10px"}} onClick={show}>
+            <button type="submit" className="btnVerde" style={{borderRadius: "10px"}} onClick={show}>
               CLIQUE PARA APOSTAR
             </button>
           </div>
@@ -356,8 +355,8 @@ function ModalAposta({ visible, onClose, formigasSala, roomId, userId }) {
       />
 
       <div className="d-flex justify-content-end gap-2 row">
-        <button className="btn btnDelete" onClick={onClose}>Cancelar</button>
-        <button className="btn btnVerde" onClick={handleApostar}
+        <button className="btnDelete" onClick={onClose}>Cancelar</button>
+        <button className="btnVerde" onClick={handleApostar}
          disabled={!formigaSelecionada || !posicaoSelecionada || parseFloat(value.replace(",", ".")) < 2}
         >Apostar</button>
       </div>

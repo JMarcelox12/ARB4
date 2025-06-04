@@ -21,7 +21,7 @@ header {
   width: 100%;
   padding-inline: 5%;
   padding-top: 1%;
-  color: white solid;
+  color: white;
 }
 
 /*texto*/
@@ -78,9 +78,9 @@ header {
 }
 
 /*canvas*/
-.canvas {
-    background-color: #1b1c1b;
-    font-weight: bold;
+.canvas-color {
+  background-color: #1b1c1b;
+  font-weight: bold;
 }
 
 /*inputs*/
