@@ -75,7 +75,7 @@ model Room {
   winnerId    Int?
   vice        Int?
   penultimo   Int?
-  ultimo        Int?
+  ultimo      Int?
 
   rooms RoomAnt[]
   bets   Bet[]

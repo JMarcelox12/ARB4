@@ -211,6 +211,7 @@ export const getRoom = async (req, res) => {
       where: { id: roomId },
       include: { bets: true, rooms: { include: { ant: true } } },
     })
+    console.log(room)
 
     return res.status(200).json(room)
   } catch (err) {

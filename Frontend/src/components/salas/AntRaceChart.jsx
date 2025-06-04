@@ -1,6 +1,7 @@
 import "../../styles/room.css";
 import { useEffect, useState } from "react";
 import Confetti from "react-confetti";
+import api from "../../services/api";
 
 const nomesFormigas = [
   "Formiga 1", "Formiga 2", "Formiga 3", "Formiga 4",
@@ -12,17 +13,34 @@ const coresFormigas = [
   "#e6194b", "#3cb44b", "#ffe119", "#4363d8", "#f58231", "#911eb4", "#46f0f0", "#f032e6"
 ];
 
-export default function AntRaceChart() {
+export default function AntRaceChart({roomId}) {
   const [posicoes, setPosicoes] = useState(Array(nomesFormigas.length).fill(0));
   const [correndo, setCorrendo] = useState(true);
   const [vencedora, setVencedora] = useState(null);
   const [mostrarConfete, setMostrarConfete] = useState(false);
   const [tamanhoTela, setTamanhoTela] = useState({ width: 0, height: 0 });
   const [formigas, setFormigas] = useState([]);
+  const [resultado, setResultado] = useState([]);
+
+  const SalaId = parseInt(roomId)
 
   useEffect(() => {
-    //fazer
-  })
+    async function fetchRoomData() {
+      //puxar as formigas do backend
+      const response = await api.get(`/app/room/ants/${SalaId}`)
+      setFormigas(response.data)
+
+      //puxa o resultado da sala
+      const { data: room } = await api.get(`/app/room/sala/${SalaId}`)
+      console.log(room)
+      const vice = parseInt(room.vice)
+      setResultado([vice])
+      console.log(setResultado)
+      setVencedora(room.winnerId);
+      console.log(vencedora)
+    }
+    fetchRoomData();
+  }, [formigas])
 
   useEffect(() => {
     setTamanhoTela({ width: window.innerWidth, height: window.innerHeight });

@@ -130,7 +130,9 @@ const Room = () => {
             </div>
 
             <div>
-              <AntRaceChart/>
+              <AntRaceChart
+              roomId={id}
+              />
             </div>
 
             <div>
