@@ -24,7 +24,6 @@ export const RoomCardListUser = ({ id, name, image, description}) => {
       />
       <div className="card-body">
         <h5 className="card-title">{name}</h5>
-        <h5 className="card-title">Descrição: <strong>{description}</strong></h5>
       </div>
     </div>
   </>

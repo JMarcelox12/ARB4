@@ -25,22 +25,27 @@ export default function AntRaceChart({roomId}) {
   const SalaId = parseInt(roomId)
 
   useEffect(() => {
-    async function fetchRoomData() {
-      //puxar as formigas do backend
-      const response = await api.get(`/app/room/ants/${SalaId}`)
-      setFormigas(response.data)
-
-      //puxa o resultado da sala
-      const { data: room } = await api.get(`/app/room/sala/${SalaId}`)
-      console.log(room)
-      const vice = parseInt(room.vice)
-      setResultado([vice])
-      console.log(setResultado)
-      setVencedora(room.winnerId);
-      console.log(vencedora)
+    async function carregarFormigas() {
+      try {
+        const response = await api.get(`/app/room/ants/${SalaId}`);
+        setFormigas(response.data);
+      } catch (erro) {
+        console.error("Erro ao carregar formigas:", erro);
+      }
     }
-    fetchRoomData();
-  }, [formigas])
+    carregarFormigas();
+
+    async function carregarDados() {
+      try {
+        const response = await api.get(`/app/room/sala/${SalaId}`);
+        setResultado(response.data);
+      } catch (err) {
+        console.error("Erro ao puxar resultado:", err);
+      }
+    }
+    carregarDados();    
+
+  }, [formigas]);
 
   useEffect(() => {
     setTamanhoTela({ width: window.innerWidth, height: window.innerHeight });
@@ -59,7 +64,7 @@ export default function AntRaceChart({roomId}) {
         if (indexVencedora !== -1) {
           clearInterval(intervalo);
           setCorrendo(false);
-          setVencedora(nomesFormigas[indexVencedora]);
+          setVencedora(formigas[indexVencedora]);
           setMostrarConfete(true);
           // Oculta o confete após 5 segundos
           setTimeout(() => setMostrarConfete(false), 5000);
@@ -76,13 +81,13 @@ export default function AntRaceChart({roomId}) {
         <Confetti width={tamanhoTela.width} height={tamanhoTela.height} numberOfPieces={200} />
       )}
       <div className="race-container">
-      {nomesFormigas.map((nome, i) => {
+      {formigas.map((formiga, i) => {
         const porcentagem = Math.floor(posicoes[i]);
         const cor = coresFormigas[i];
         return (
           <div key={i} style={{ marginBottom: "12px" }}>
             <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-              <span style={{ width: "90px", color: "#fff", textAlign: "right" }}>{nome}</span>
+              <span style={{ width: "90px", color: "#fff", textAlign: "right" }}>{formiga.name}</span>
               <div style={{
                 position: "relative",
                 background: "#444",

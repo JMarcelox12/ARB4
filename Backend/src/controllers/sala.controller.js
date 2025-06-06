@@ -182,22 +182,19 @@ export const createRoom = async (req, res) => {
   }
 }
 
-// Função que lista uma sala em específico
-export const getRoom = async (req, res) => {
-  const roomId = parseInt(req.params.id);
-
+// complemento da função abaixo
+const getRoomUpdate = async (id) => {
   try {
-    if (!roomId) {
-      return res.status(400).json({ error: "Erro ao encontrar sala!" })
+    const roomId = parseInt(id);
+    const result = await resultsRoom(roomId);
+
+    if (!result || result.length < 4) {
+      throw new Error("Resultado incompleto");
     }
 
-    let result = await resultsRoom(roomId);
-    let winner = result[0];
-    let vice = result[1];
-    let penultimo = result[2];
-    let ultimo = result[3];
+    const [winner, vice, penultimo, ultimo] = result;
 
-    const response = await prisma.room.update({
+    await prisma.room.update({
       where: { id: roomId },
       data: {
         winnerId: parseInt(winner.id),
@@ -206,19 +203,44 @@ export const getRoom = async (req, res) => {
         ultimo: parseInt(ultimo.id),
       },
     });
+  } catch (error) {
+    console.error("Erro ao atualizar a sala:", error);
+    throw error;
+  }
+};
+
+
+// Função que lista uma sala em específico
+export const getRoom = async (req, res) => {
+  const roomId = parseInt(req.params.id);
+
+  if (!roomId) {
+    return res.status(400).json({ error: "ID da sala inválido!" });
+  }
+
+  try {
+    // Aguarda a atualização da sala antes de buscar os dados
+    await getRoomUpdate(roomId);
 
     const room = await prisma.room.findMany({
       where: { id: roomId },
-      include: { bets: true, rooms: { include: { ant: true } } },
-    })
-    console.log(room)
+      include: {
+        bets: true,
+        rooms: {
+          include: {
+            ant: true,
+          },
+        },
+      },
+    });
 
-    return res.status(200).json(room)
+    return res.status(200).json(room);
   } catch (err) {
-    console.error(err)
-    return res.status(500).json({ error: "Erro ao encontrar sala!" })
+    console.error("Erro ao obter sala:", err);
+    return res.status(500).json({ error: "Erro ao encontrar sala!" });
   }
-}
+};
+
 
 // Lista todas as salas
 export const getRooms = async (req, res) => {
