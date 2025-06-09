@@ -76,10 +76,6 @@ export default function AntRaceChart({roomId}) {
     const rankPorcentagens = {
       primeiro: 100,
       segundo: 90, // Mudei um pouco para ser mais linear
-      terceiro: 80,
-      quarto: 65,
-      quinto: 50,
-      sexto: 30,
       setimo: 20,
       oitavo: 10, // Diminuí ainda mais para que o último fique bem para trás
     };
