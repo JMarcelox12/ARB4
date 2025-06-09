@@ -32,6 +32,7 @@ const RoomList = () => {
       {rooms.length > 0 ? (
         rooms.map((room) => (
           <RoomCardListUser
+            key={room.id}
             id={room.id}
             name={room.name}
             description={room.description}

@@ -248,7 +248,7 @@ export const getRooms = async (req, res) => {
     const room = await prisma.room.findMany({
       include: { rooms: { include: { ant: true } } },
     })
-    return res.status(200)
+    return res.status(200).json(room)
   } catch (error) {
     console.error(error)
     return res.status(500).json({ error: 'Erro ao listar salas' })

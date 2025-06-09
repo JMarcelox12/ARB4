@@ -11,7 +11,6 @@ export const RoomCardListUser = ({ id, name, image, description}) => {
   }
 
   return (
-    <>
     <div 
       className="card text-white bg-secondary m-2"
       style={{ width: '18rem', cursor: "pointer", border: "2px solid #02ad21" }}
@@ -26,7 +25,6 @@ export const RoomCardListUser = ({ id, name, image, description}) => {
         <h5 className="card-title">{name}</h5>
       </div>
     </div>
-  </>
   )
 }
 
