@@ -55,9 +55,7 @@ export async function resultsRoom(salaId) {
   }
   const shuffled = ants.sort(() => Math.random() - 0.5)
 
-  const resultado = shuffled.slice(0, 4).map(item => item.ant)
-
-  return resultado
+  return shuffled;
 }
 
 
@@ -188,19 +186,24 @@ const getRoomUpdate = async (id) => {
     const roomId = parseInt(id);
     const result = await resultsRoom(roomId);
 
-    if (!result || result.length < 4) {
+    if (!result || result.length < 8) {
       throw new Error("Resultado incompleto");
     }
 
-    const [winner, vice, penultimo, ultimo] = result;
+    const [winner, vice, terceiro, quarto, quinto, sexto, penultimo, ultimo] = result;
+    //console.log(result)
 
     await prisma.room.update({
       where: { id: roomId },
       data: {
-        winnerId: parseInt(winner.id),
-        vice: parseInt(vice.id),
-        penultimo: parseInt(penultimo.id),
-        ultimo: parseInt(ultimo.id),
+        winnerId: parseInt(winner.ant.id),
+        vice: parseInt(vice.ant.id),
+        terceiro: parseInt(terceiro.ant.id),
+        quarto: parseInt(quarto.ant.id),
+        quinto: parseInt(quinto.ant.id),
+        sexto: parseInt(sexto.ant.id),
+        penultimo: parseInt(penultimo.ant.id),
+        ultimo: parseInt(ultimo.ant.id),
       },
     });
   } catch (error) {
@@ -276,7 +279,7 @@ export const listAnts = async (req, res) => {
 
 // Edita a sala pelo id
 export const updateRoom = async (req, res) => {
-  const { id } = parseInt(req.params)
+  const id = parseInt(req.params.id)
   const name = req.body.name
   const description = req.body.description
 
@@ -297,7 +300,7 @@ export const updateRoom = async (req, res) => {
 
 // Deleta a sala pelo id
 export const deleteRoom = async (req, res) => {
-  const { id } = parseInt(req.params)
+  const id = parseInt(req.params.id)
 
   try {
     await prisma.room.delete({ where: { id: id } })
@@ -310,7 +313,7 @@ export const deleteRoom = async (req, res) => {
 
 // Função para iniciar as salas
 export const playRoom = async (req, res) => {
-  const { id } = parseInt(req.params)
+  const id = parseInt(req.params.id);
 
   try {
     const sala = await prisma.room.findUnique({ where: { id: id } })
@@ -338,7 +341,7 @@ export const playRoom = async (req, res) => {
 
 // Função para encerar as salas
 export const endRoom = async (req, res) => {
-  const id = parseInt(req.params.id)
+  const id = parseInt(req.params.id);
 
   try {
     await prisma.room.update({

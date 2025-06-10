@@ -74,6 +74,10 @@ model Room {
   inicioFase  DateTime
   winnerId    Int?
   vice        Int?
+  terceiro    Int?
+  quarto      Int?
+  quinto      Int?
+  sexto       Int?
   penultimo   Int?
   ultimo      Int?
 

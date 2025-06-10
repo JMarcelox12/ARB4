@@ -30,6 +30,7 @@ export default function AntRaceChart({roomId}) {
         setFormigas(loadedFormigas);
         setPosicoes(Array(loadedFormigas.length).fill(0));
 
+
         const responseSala = await api.get(`/app/room/sala/${SalaId}`);
         const sala = responseSala.data[0];
 
@@ -42,7 +43,7 @@ export default function AntRaceChart({roomId}) {
                 quinto: sala.quinto,
                 sexto: sala.sexto,
                 setimo: sala.penultimo,
-                oitavo: sala.ultimo,
+                oitavo: sala.ultimo
             });
             setCorrendo(true);
         } else {
@@ -76,6 +77,10 @@ export default function AntRaceChart({roomId}) {
     const rankPorcentagens = {
       primeiro: 100,
       segundo: 90, // Mudei um pouco para ser mais linear
+      terceiro: 65,
+      quarto: 50,
+      quinto: 45,
+      sexto: 30,
       setimo: 20,
       oitavo: 10, // Diminuí ainda mais para que o último fique bem para trás
     };
@@ -189,10 +194,10 @@ export default function AntRaceChart({roomId}) {
             {[
               { id: resultadosClassificacaoBackend.primeiro, rankText: '1º', alias: 'Primeiro' },
               { id: resultadosClassificacaoBackend.segundo, rankText: '2º', alias: 'Segundo' },
-              { id: resultadosClassificacaoBackend.terceiro, rankText: '3º', alias: "Terceiro" },
-              { id: resultadosClassificacaoBackend.quarto, rankText: '4º', alias: "Quarto" },
-              { id: resultadosClassificacaoBackend.quinto, rankText: '5º', alias: "Quinto" },
-              { id: resultadosClassificacaoBackend.sexto, rankText: '6º', alias: "Sexto" },
+              { id: resultadosClassificacaoBackend.terceiro, rankText: '3º', alias: 'Terceiro' },
+              { id: resultadosClassificacaoBackend.quarto, rankText: '4º', alias: 'Quarto' },
+              { id: resultadosClassificacaoBackend.quinto, rankText: '5º', alias: 'Quinto' },
+              { id: resultadosClassificacaoBackend.sexto, rankText: '6º', alias: 'Sexto' },
               { id: resultadosClassificacaoBackend.setimo, rankText: '7º', alias: 'Sétimo' },
               { id: resultadosClassificacaoBackend.oitavo, rankText: '8º', alias: 'Oitavo' },
             ].map((item) => {
@@ -211,4 +216,4 @@ export default function AntRaceChart({roomId}) {
       )}
     </div>
   );
-}
+} 
