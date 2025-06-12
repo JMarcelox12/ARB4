@@ -50,7 +50,7 @@ function handleCardClick(room) {
   descriptionRef.current.value = room.description
 }
 
-async function handleSubmit(e) {
+async function btnEdit(e) {
   e.preventDefault()
 
   if (!selectedRoom) {
@@ -76,6 +76,44 @@ async function handleSubmit(e) {
   } catch (err) {
     alert("Erro ao editar sala")
     console.error(err)
+  }
+}
+
+async function IniciarSala(e){
+  e.preventDefault()
+
+  if (!selectedRoom) {
+    alert("Selecione uma sala para iniciar.")
+    return
+  }
+
+  try{
+    await api.post(`/app/room/play/${selectedRoom.id}`);
+
+    alert("Sala iniciada com sucesso!")
+    window.location.reload()
+  }catch(error){
+    alert("Erro ao iniciar sala!")
+    console.error("Mensagem de error: ", error)
+  }
+}
+
+async function FinalizarSala(e){
+  e.preventDefault()
+
+  if (!selectedRoom) {
+    alert("Selecione uma sala para finalizar.")
+    return
+  }
+
+  try{
+    await api.post(`/app/room/finish/${selectedRoom.id}`)
+
+    alert("Sala finalizada com sucesso!")
+    window.location.reload()
+  }catch(error){
+    alert("Erro ao finalizar sala!")
+    console.error("Mensagem de error: ", error)
   }
 }
 
@@ -124,14 +162,26 @@ async function handleSubmit(e) {
             <label htmlFor="floatingInput">Descrição</label>
           </div>
 
-          <div className="d-grid gap-2">
-            <button type="submit" className="btnEdit" onClick={handleSubmit}>
+          <div className="row">
+            <div className="col-6">
+              <button type="submit" className="btnEdit mb-2" onClick={btnEdit}>
                 EDITAR
             </button>
 
             <button type="submit" className="btnDelete" onClick={btnDelete}>
                 EXCLUIR
             </button>
+            </div>
+
+            <div className='col-6'>
+              <button type="submit" className="btnIniciar mb-2" onClick={IniciarSala}>
+                INICIAR SALA
+            </button>
+
+            <button type="submit" className="btnFinalizar" onClick={FinalizarSala}>
+                FINALIZAR SALA
+            </button>
+            </div>
           </div>
           
         </form>

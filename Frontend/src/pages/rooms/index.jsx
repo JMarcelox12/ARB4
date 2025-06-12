@@ -7,7 +7,6 @@ import "../../styles/room.css"
 import { useParams } from "react-router-dom";
 import api from "../../services/api.js";
 import { campea, vice, ultimo, penultimo} from "../../services/oddCalc.js";
-import AntRace from "../../components/salas/AntRace.jsx";
 import AntRaceChart from "../../components/salas/AntRaceChart.jsx";
 
 const Room = () => {

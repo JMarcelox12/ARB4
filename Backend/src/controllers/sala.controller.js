@@ -1,6 +1,6 @@
 import { PrismaClient } from '@prisma/client'
 import multer from 'multer'
-import path from 'path'
+import path, { format } from 'path'
 import fs from 'fs'
 
 const prisma = new PrismaClient()
@@ -43,7 +43,7 @@ const intervalosDasSalas = new Map()
 // Função que define o resultado da sala
 export async function resultsRoom(salaId) {
   const id = parseInt(salaId)
-  if (!id) throw new Error("Erro ao encontrar sala!")
+  if (!id) throw new Error('Erro ao encontrar sala!')
 
   const ants = await prisma.roomAnt.findMany({
     where: { roomId: id },
@@ -51,21 +51,20 @@ export async function resultsRoom(salaId) {
   })
 
   if (ants.length < 4) {
-    throw new Error("Sala não possui formigas suficientes para sorteio!")
+    throw new Error('Sala não possui formigas suficientes para sorteio!')
   }
   const shuffled = ants.sort(() => Math.random() - 0.5)
 
-  return shuffled;
+  return shuffled
 }
-
 
 // Função que inicia o temporizador da sala
 export async function iniciarTemporizadorSala(roomId) {
-  if (intervalosDasSalas.has(roomId)) return
+  const room = parseInt(roomId)
+  if (intervalosDasSalas.has(room)) return
 
   let sala = await prisma.room.findUnique({
-    where: { id: roomId },
-    include: { formigas: true },
+    where: { id: room },
   })
   if (!sala) return
 
@@ -90,7 +89,6 @@ export async function iniciarTemporizadorSala(roomId) {
           inicioFase: new Date(),
           winnerId: sala.status === 'BETTING' ? winnerId : null,
         },
-        include: { formigas: true },
       })
 
       console.log(`[Sala ${sala.id}] Nova fase: ${faseAtual.proxima}`)
@@ -114,7 +112,7 @@ export const getRoomStatus = async (req, res) => {
   try {
     const sala = await prisma.room.findUnique({
       where: { id: id },
-      include: { bets: true, rooms: { include: { ant: true } } }
+      include: { bets: true, rooms: { include: { ant: true } } },
     })
     if (!sala) return res.status(404).json({ error: 'Sala não encontrada' })
 
@@ -183,14 +181,15 @@ export const createRoom = async (req, res) => {
 // complemento da função abaixo
 const getRoomUpdate = async (id) => {
   try {
-    const roomId = parseInt(id);
-    const result = await resultsRoom(roomId);
+    const roomId = parseInt(id)
+    const result = await resultsRoom(roomId)
 
     if (!result || result.length < 8) {
-      throw new Error("Resultado incompleto");
+      throw new Error('Resultado incompleto')
     }
 
-    const [winner, vice, terceiro, quarto, quinto, sexto, penultimo, ultimo] = result;
+    const [winner, vice, terceiro, quarto, quinto, sexto, penultimo, ultimo] =
+      result
     //console.log(result)
 
     await prisma.room.update({
@@ -205,25 +204,24 @@ const getRoomUpdate = async (id) => {
         penultimo: parseInt(penultimo.ant.id),
         ultimo: parseInt(ultimo.ant.id),
       },
-    });
+    })
   } catch (error) {
-    console.error("Erro ao atualizar a sala:", error);
-    throw error;
+    console.error('Erro ao atualizar a sala:', error)
+    throw error
   }
-};
-
+}
 
 // Função que lista uma sala em específico
 export const getRoom = async (req, res) => {
-  const roomId = parseInt(req.params.id);
+  const roomId = parseInt(req.params.id)
 
   if (!roomId) {
-    return res.status(400).json({ error: "ID da sala inválido!" });
+    return res.status(400).json({ error: 'ID da sala inválido!' })
   }
 
   try {
     // Aguarda a atualização da sala antes de buscar os dados
-    await getRoomUpdate(roomId);
+    await getRoomUpdate(roomId)
 
     const room = await prisma.room.findMany({
       where: { id: roomId },
@@ -235,15 +233,14 @@ export const getRoom = async (req, res) => {
           },
         },
       },
-    });
+    })
 
-    return res.status(200).json(room);
+    return res.status(200).json(room)
   } catch (err) {
-    console.error("Erro ao obter sala:", err);
-    return res.status(500).json({ error: "Erro ao encontrar sala!" });
+    console.error('Erro ao obter sala:', err)
+    return res.status(500).json({ error: 'Erro ao encontrar sala!' })
   }
-};
-
+}
 
 // Lista todas as salas
 export const getRooms = async (req, res) => {
@@ -313,7 +310,7 @@ export const deleteRoom = async (req, res) => {
 
 // Função para iniciar as salas
 export const playRoom = async (req, res) => {
-  const id = parseInt(req.params.id);
+  const id = parseInt(req.params.id)
 
   try {
     const sala = await prisma.room.findUnique({ where: { id: id } })
@@ -341,7 +338,7 @@ export const playRoom = async (req, res) => {
 
 // Função para encerar as salas
 export const endRoom = async (req, res) => {
-  const id = parseInt(req.params.id);
+  const id = parseInt(req.params.id)
 
   try {
     await prisma.room.update({
