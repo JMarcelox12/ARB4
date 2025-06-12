@@ -1,5 +1,7 @@
-import app from './app.js'
+import { app, httpServer, io } from './app.js'
 
-app.listen(1200, () => {
+httpServer.listen(1200, () => {
   console.log('Servidor rodando na porta 1200!')
 })
+
+export { io }

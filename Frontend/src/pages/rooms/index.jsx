@@ -8,14 +8,21 @@ import { useParams } from "react-router-dom";
 import api from "../../services/api.js";
 import { campea, vice, ultimo, penultimo} from "../../services/oddCalc.js";
 import AntRaceChart from "../../components/salas/AntRaceChart.jsx";
+import { io } from "socket.io-client";
 
 const Room = () => {
   const { userLogado } = useContext(AuthContext)
   const [ formigasSala, setFormigasSala ] = useState([])
   const [ status, setStatus] = useState('')
-  const [ tempoRestante, setTempoRestante ] = useState(30);
+  const [ tempoRestante, setTempoRestante ] = useState(0);
   const { id } = useParams();
   const [ modal, setModal ] = useState(false)
+
+  const socket = io("http://localhost:1200");
+
+  const [ antPositions, setAntPositions ] = useState({});
+  const [ winner, setWinner ] = useState(null);
+  const [ finalOrder, setFinalOrder ] = useState([]);
 
   if (userLogado === null) {
     return (
@@ -40,61 +47,73 @@ const Room = () => {
   const userId = getUserIdFromToken();
 
    useEffect(() => {
-    async function carregarStatus() {
+    async function carregarDadosIniciaisSala() {
       try {
-        const response = await api.get(`/app/room/status/${id}`);
-        setStatus(response.data.status); // Ex: "apostando", "correndo", "encerrada"
+        const [statusResponse, formigasResponse] = await Promise.all([
+          api.get(`/app/room/status/${id}`),
+          api.get(`/app/room/ants/${id}`)
+        ]);
+        setStatus(statusResponse.data.status);
+        setFormigasSala(formigasResponse.data);
       } catch (erro) {
-        console.error("Erro ao carregar status da sala:", erro);
+        console.error("Erro ao carregar dados iniciais da sala:", erro);
       }
     }
-
-    carregarStatus();
-  
-    async function carregarFormigas() {
-      try {
-        const response = await api.get(`/app/room/ants/${id}`);
-        setFormigasSala(response.data);
-      } catch (erro) {
-        console.error("Erro ao carregar formigas:", erro);
-      }
-    }
-
-    carregarFormigas();
-
+    carregarDadosIniciaisSala();
   }, [id]);
 
   useEffect(() => {
-    let segundos = 0;
+    const socket = io('http://localhost:1200');
 
-    switch (status) {
-      case "pausando":
-        segundos = 30;
-        break;
-      case "apostando":
-        segundos = 60;
-        break;
-      case "correndo":
-        segundos = 15;
-        break;
-      default:
-        segundos = 0;
-    }
+    socket.on('connect', () => {
+      console.log('Socket.IO conectado ao servidor!', socket.id);
+      socket.emit('join_room', id); 
+    });
 
-    setTempoRestante(segundos);
+    socket.on('disconnect', () => {
+      console.log('Socket.IO desconectado.');
+    });
 
-    const interval = setInterval(() => {
-      setTempoRestante((prev) => {
-        if (prev <= 1) {
-          clearInterval(interval);
-          return 0;
-        }
-        return prev - 1;
+    socket.on('room_state_update', (data) => {
+
+        setStatus(data.status);
+        setTempoRestante(data.tempoRestante);
+        setWinner(data.winnerId);
+    });
+
+    socket.on('race_update', (data) => {
+
+      const newPositions = {};
+      data.ants.forEach(ant => {
+        newPositions[ant.id] = ant.position;
       });
-    }, 1000);
+      setAntPositions(newPositions);
+    });
 
-    return () => clearInterval(interval);
-  }, [status]);
+    socket.on('race_finished', (data) => {
+
+      console.log('Corrida FINALIZADA! Dados finais:', data);
+      setWinner(data.winnerId);
+      setFinalOrder(data.finishedAntsOrder);
+
+      const finalPositions = {};
+      data.finalPositions.forEach(ant => {
+        finalPositions[ant.id] = ant.position;
+      });
+      setAntPositions(finalPositions);
+    });
+
+    return () => {
+      console.log('Desconectando Socket.IO do Room.jsx...');
+      socket.off('connect'); // Remova todos os listeners para evitar vazamentos
+      socket.off('disconnect');
+      socket.off('room_state_update');
+      socket.off('race_update');
+      socket.off('race_finished');
+      socket.emit('leave_room', id); // Opcional: avisar o backend que o cliente saiu da sala
+      socket.disconnect();
+    };
+  }, [id]);
 
   const show = () => {
     setModal(!modal)
@@ -124,14 +143,20 @@ const Room = () => {
                   <p className="status-label title"><strong>Status:</strong> {status}</p>
                   <p className="status-label title"><strong>Tempo restante:</strong> {tempoRestante}s</p>
                   <p className="status-label title"><strong>Formigas na corrida: {formigasSala.length}</strong></p>
+                   {/* Exibir o vencedor aqui se houver */}
+                  {winner && <p className="status-label title"><strong>Vencedor:</strong> Formiga {winner}</p>}
                 </div>
               </div>
             </div>
 
             <div>
-              <AntRaceChart
+              {/* Passar os dados da corrida para o AntRaceChart */}
+            <AntRaceChart
               roomId={id}
-              />
+              ants={formigasSala} // Passa as formigas iniciais
+              antPositions={antPositions} // Posições atualizadas pelo Socket.IO
+              winnerId={winner} // Vencedor atual
+            />
             </div>
 
             <div>
