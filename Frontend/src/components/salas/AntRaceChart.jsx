@@ -29,7 +29,7 @@ export default function AntRaceChart({ roomId, ants, antPositions, winnerId }) {
       if (formigaGanhadora) {
         setMensagemVencedoraDisplay(formigaGanhadora.name);
         setMostrarConfete(true);
-        setTimeout(() => setMostrarConfete(false), 5000); 
+        setTimeout(() => setMostrarConfete(false), 5000);
       }
     } else {
       setMostrarConfete(false);

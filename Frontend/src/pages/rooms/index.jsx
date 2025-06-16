@@ -66,54 +66,46 @@ const Room = () => {
     const socket = io('http://localhost:1200');
 
     socket.on('connect', () => {
-      console.log('Socket.IO conectado ao servidor!', socket.id);
-      socket.emit('join_room', id); 
-    });
-
-    socket.on('disconnect', () => {
-      console.log('Socket.IO desconectado.');
+        console.log('Frontend: Conectado ao servidor Socket.IO. ID do Socket:', socket.id);
+        // IMPORTANTE: Emita o evento 'join_room' AQUI!
+        // Certifique-se de que 'id' (da URL) está disponível e é enviado
+        socket.emit('join_room', id); // 'id' é o roomId
     });
 
     socket.on('room_state_update', (data) => {
-
-        setStatus(data.status);
-        setTempoRestante(data.tempoRestante);
-        setWinner(data.winnerId);
+        console.log('Frontend: Evento room_state_update recebido:', data);
+        // Verifique se 'data' tem 'status', 'tempoRestante', 'winnerId'
+        // Ex: setRoomData(data);
     });
 
     socket.on('race_update', (data) => {
-
-      const newPositions = {};
-      data.ants.forEach(ant => {
-        newPositions[ant.id] = ant.position;
-      });
-      setAntPositions(newPositions);
+        console.log('Frontend: Evento race_update recebido:', data);
+        // Verifique se 'data' tem 'ants' e cada 'ant' tem 'id' e 'position'
+        // Ex: setAntPositions(data.ants);
     });
 
     socket.on('race_finished', (data) => {
-
-      console.log('Corrida FINALIZADA! Dados finais:', data);
-      setWinner(data.winnerId);
-      setFinalOrder(data.finishedAntsOrder);
-
-      const finalPositions = {};
-      data.finalPositions.forEach(ant => {
-        finalPositions[ant.id] = ant.position;
-      });
-      setAntPositions(finalPositions);
+        console.log('Frontend: Evento race_finished recebido:', data);
+        // Ex: setRoomData(prev => ({ ...prev, winnerId: data.winnerId }));
     });
 
+    socket.on('disconnect', () => {
+        console.log('Frontend: Desconectado do servidor Socket.IO.');
+    });
+
+    // Limpeza: Garante que os listeners são removidos quando o componente desmonta
     return () => {
-      console.log('Desconectando Socket.IO do Room.jsx...');
-      socket.off('connect'); // Remova todos os listeners para evitar vazamentos
-      socket.off('disconnect');
-      socket.off('room_state_update');
-      socket.off('race_update');
-      socket.off('race_finished');
-      socket.emit('leave_room', id); // Opcional: avisar o backend que o cliente saiu da sala
-      socket.disconnect();
+        console.log('Frontend: Desconectando Socket.IO e removendo listeners.');
+        socket.emit('leave_room', id); // Opcional: avisar o backend que está saindo
+        socket.off('room_state_update');
+        socket.off('race_update');
+        socket.off('race_finished');
+        socket.off('connect');
+        socket.off('disconnect');
+        socket.disconnect();
     };
-  }, [id]);
+
+}, [id]);
 
   const show = () => {
     setModal(!modal)

@@ -2,6 +2,12 @@ import { PrismaClient } from '@prisma/client'
 import multer from 'multer'
 import path, { format } from 'path'
 import fs from 'fs'
+import {
+  startRaceSimulation,
+  activeRooms,
+  startRoomCycle,
+} from '../services/roomManager.js'
+import { start } from 'repl'
 
 const prisma = new PrismaClient()
 
@@ -32,108 +38,52 @@ const getShuffledAnts = async () => {
   return ants.sort(() => Math.random() - 0.5).slice(0, 8)
 }
 
-const fases = {
-  PAUSE: { duracao: 30000, proxima: 'BETTING' },
-  BETTING: { duracao: 60000, proxima: 'RACING' },
-  RACING: { duracao: 15000, proxima: 'PAUSE' },
-}
-
-const intervalosDasSalas = new Map()
-
-// Função que define o resultado da sala
-export async function resultsRoom(salaId) {
-  const id = parseInt(salaId)
-  if (!id) throw new Error('Erro ao encontrar sala!')
-
-  const ants = await prisma.roomAnt.findMany({
-    where: { roomId: id },
-    include: { ant: true },
-  })
-
-  if (ants.length < 4) {
-    throw new Error('Sala não possui formigas suficientes para sorteio!')
-  }
-  const shuffled = ants.sort(() => Math.random() - 0.5)
-
-  return shuffled
-}
-
-// Função que inicia o temporizador da sala
-export async function iniciarTemporizadorSala(roomId) {
-  const room = parseInt(roomId)
-  if (intervalosDasSalas.has(room)) return
-
-  let sala = await prisma.room.findUnique({
-    where: { id: room },
-  })
-  if (!sala) return
-
-  setInterval(async () => {
-    const agora = new Date()
-    const faseAtual = fases[sala.status]
-    const fimFase = new Date(sala.inicioFase.getTime() + faseAtual.duracao)
-
-    if (agora >= fimFase) {
-      let winnerId = sala.winnerId
-      if (sala.status === 'BETTING') {
-        // Sorteia a formiga vencedora
-        const formigas = sala.formigas
-        const sorteada = formigas[Math.floor(Math.random() * formigas.length)]
-        winnerId = sorteada?.antId ?? null
-      }
-
-      sala = await prisma.room.update({
-        where: { id: roomId },
-        data: {
-          status: faseAtual.proxima,
-          inicioFase: new Date(),
-          winnerId: sala.status === 'BETTING' ? winnerId : null,
-        },
-      })
-
-      console.log(`[Sala ${sala.id}] Nova fase: ${faseAtual.proxima}`)
-    }
-  }, 1000)
-}
-
-// Função que encerra o temporizador
-export function encerrarTemporizadorSala(roomId) {
-  const intervalo = intervalosDasSalas.get(roomId)
-  if (intervalo) {
-    clearInterval(intervalo)
-    intervalosDasSalas.delete(roomId)
-  }
-}
-
 // Função que lista o status da sala
 export const getRoomStatus = async (req, res) => {
-  const id = parseInt(req.params.id)
+  const roomId = parseInt(req.params.id)
+
+  if (!activeRooms[roomId]) {
+    // Verifique se a sala existe no activeRooms
+    console.log(`Iniciando ciclo da sala ${roomId} via getRoomStatus.`)
+    await startRoomCycle(roomId)
+  }
 
   try {
-    const sala = await prisma.room.findUnique({
-      where: { id: id },
-      include: { bets: true, rooms: { include: { ant: true } } },
-    })
-    if (!sala) return res.status(404).json({ error: 'Sala não encontrada' })
+    const currentRoomState = activeRooms[roomId]
 
-    const tempos = { PAUSE: 30, BETTING: 60, RACING: 15 }
-    const tempoInicio = new Date(sala.inicioFase).getTime()
-    const duracao = tempos[sala.status] * 1000
-    const restante = Math.max(0, (tempoInicio + duracao - Date.now()) / 1000)
+    if (!currentRoomState) {
+      return res
+        .status(404)
+        .json({ error: 'Sala não encontrada ou não iniciada no gerenciador.' })
+    }
+
+    const salaDB = await prisma.room.findUnique({
+      where: { id: roomId },
+      include: {
+        bets: true,
+        rooms: { include: { ant: true } },
+      },
+    })
+
+    if (!salaDB)
+      return res
+        .status(404)
+        .json({ error: 'Sala não encontrada no banco de dados.' })
 
     res.json({
-      status: sala.status,
-      tempoRestante: Math.floor(restante),
-      winnerId: sala.winnerId,
-      ants: sala.rooms.map((f) => ({
+      status: currentRoomState.status,
+      tempoRestante: currentRoomState.tempoRestante,
+      winnerId: currentRoomState.winnerId,
+
+      ants: salaDB.rooms.map((f) => ({
         id: f.ant.id,
-        nome: f.ant.name,
+        name: f.ant.name,
         image: f.ant.image,
       })),
     })
   } catch (error) {
-    console.error(error)
-    res.status(500).json({ error: 'Erro ao buscar status da sala' })
+    console.error('Erro ao buscar status da sala:', error)
+    res.status(500).json({ error: 'Erro interno ao buscar status da sala.' })
   }
 }
 
@@ -160,6 +110,7 @@ export const createRoom = async (req, res) => {
         image: imagePath,
         name: name,
         description: description,
+        status: 'PAUSE',
         inicioFase: inicio,
         rooms: {
           create: shuffledAnts.map((ant) => ({
@@ -170,44 +121,11 @@ export const createRoom = async (req, res) => {
       include: { rooms: true },
     })
 
-    iniciarTemporizadorSala(room.id)
+    await startRoomCycle(room.id, 'PAUSE')
     return res.status(200).json({ message: 'Sala criada com sucesso!', room })
   } catch (error) {
     console.log(error)
     return res.status(500).json({ error: error.message })
-  }
-}
-
-// complemento da função abaixo
-const getRoomUpdate = async (id) => {
-  try {
-    const roomId = parseInt(id)
-    const result = await resultsRoom(roomId)
-
-    if (!result || result.length < 8) {
-      throw new Error('Resultado incompleto')
-    }
-
-    const [winner, vice, terceiro, quarto, quinto, sexto, penultimo, ultimo] =
-      result
-    //console.log(result)
-
-    await prisma.room.update({
-      where: { id: roomId },
-      data: {
-        winnerId: parseInt(winner.ant.id),
-        vice: parseInt(vice.ant.id),
-        terceiro: parseInt(terceiro.ant.id),
-        quarto: parseInt(quarto.ant.id),
-        quinto: parseInt(quinto.ant.id),
-        sexto: parseInt(sexto.ant.id),
-        penultimo: parseInt(penultimo.ant.id),
-        ultimo: parseInt(ultimo.ant.id),
-      },
-    })
-  } catch (error) {
-    console.error('Erro ao atualizar a sala:', error)
-    throw error
   }
 }
 
@@ -234,6 +152,10 @@ export const getRoom = async (req, res) => {
         },
       },
     })
+
+    if (room.length === 0) {
+      return res.status(400).json({ error: 'Sala não encontrada!' })
+    }
 
     return res.status(200).json(room)
   } catch (err) {
@@ -327,7 +249,7 @@ export const playRoom = async (req, res) => {
     })
 
     // Inicia o temporizador da sala
-    iniciarTemporizadorSala(id)
+    await startRoomCycle(id, 'PAUSE')
 
     res.json({ message: 'Corrida iniciada com sucesso!' })
   } catch (error) {
@@ -345,7 +267,16 @@ export const endRoom = async (req, res) => {
       where: { id },
       data: { status: 'ENCERRADA' },
     })
-    encerrarTemporizadorSala(id)
+
+    if (activeRooms[id] && activeRooms[id].interval) {
+      clearInterval(activeRooms[id].interval)
+      delete activeRooms[id] // Limpa a sala do gerenciador em memória
+    }
+    if (roomTimers[id]) {
+      clearInterval(roomTimers[id].interval)
+      delete roomTimers[id]
+    }
+
     res.json({ message: 'Sala encerrada com sucesso!' })
   } catch (error) {
     console.error(error)
