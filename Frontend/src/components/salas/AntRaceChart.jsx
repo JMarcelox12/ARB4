@@ -1,6 +1,7 @@
 import "../../styles/room.css";
 import { useEffect, useState, useRef } from "react";
 import Confetti from "react-confetti";
+import api from "../../services/api.js"
 
 const coresFormigas = [
   "#e6194b", "#3cb44b", "#ffe119", "#4363d8", "#f58231", "#911eb4", "#46f0f0", "#f032e6",
@@ -13,6 +14,9 @@ export default function AntRaceChart({ roomId, ants, antPositions, winnerId }) {
   const [mensagemVencedoraDisplay, setMensagemVencedoraDisplay] = useState(null);
   const [mostrarConfete, setMostrarConfete] = useState(false);
   const [tamanhoTela, setTamanhoTela] = useState({ width: 0, height: 0 });
+
+  //console.log(winnerId);
+
 
   const intervaloRef = useRef(null); 
 
@@ -30,12 +34,15 @@ export default function AntRaceChart({ roomId, ants, antPositions, winnerId }) {
         setMensagemVencedoraDisplay(formigaGanhadora.name);
         setMostrarConfete(true);
         setTimeout(() => setMostrarConfete(false), 5000);
+        console.log(mensagemVencedoraDisplay)
       }
     } else {
       setMostrarConfete(false);
       setMensagemVencedoraDisplay(null);
     }
   }, [winnerId, ants]);
+
+  function mensagemVencedor(){}
 
   return (
     <div style={{ padding: "20px" }}>

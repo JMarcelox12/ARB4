@@ -232,7 +232,9 @@ export const deleteRoom = async (req, res) => {
 
 // Função para iniciar as salas
 export const playRoom = async (req, res) => {
-  const id = parseInt(req.params.id)
+  const id = parseInt(req.params.id);
+
+  console.log(`Controller: Rota playRoom atingida para a sala: ${id}`);
 
   try {
     const sala = await prisma.room.findUnique({ where: { id: id } })
@@ -250,6 +252,7 @@ export const playRoom = async (req, res) => {
 
     // Inicia o temporizador da sala
     await startRoomCycle(id, 'PAUSE')
+    console.log(`Controller: startRoomCycle chamado com sucesso para a sala: ${id}`);
 
     res.json({ message: 'Corrida iniciada com sucesso!' })
   } catch (error) {

@@ -55,6 +55,7 @@ const Room = () => {
         ]);
         setStatus(statusResponse.data.status);
         setFormigasSala(formigasResponse.data);
+        //console.log("Mostrando status da sala: ", statusResponse.data.status);
       } catch (erro) {
         console.error("Erro ao carregar dados iniciais da sala:", erro);
       }
@@ -73,23 +74,23 @@ const Room = () => {
     });
 
     socket.on('room_state_update', (data) => {
-        console.log('Frontend: Evento room_state_update recebido:', data);
-        // Verifique se 'data' tem 'status', 'tempoRestante', 'winnerId'
-        // Ex: setRoomData(data);
+      if (data.tempoRestante !== undefined) {
+        setTempoRestante(data.tempoRestante);
+      }
     });
 
-    socket.on('race_update', (data) => {
+    socket.on('race_update', (data) => { // -> Tô recebendmo esse
         console.log('Frontend: Evento race_update recebido:', data);
         // Verifique se 'data' tem 'ants' e cada 'ant' tem 'id' e 'position'
         // Ex: setAntPositions(data.ants);
     });
 
-    socket.on('race_finished', (data) => {
+    socket.on('race_finished', (data) => { // -> Não tô
         console.log('Frontend: Evento race_finished recebido:', data);
         // Ex: setRoomData(prev => ({ ...prev, winnerId: data.winnerId }));
     });
 
-    socket.on('disconnect', () => {
+    socket.on('disconnect', () => { // -> Tô recebendo esse
         console.log('Frontend: Desconectado do servidor Socket.IO.');
     });
 
@@ -106,6 +107,15 @@ const Room = () => {
     };
 
 }, [id]);
+
+
+useEffect(() => {
+  socket.on('room_state_update', (data) => {
+    setTempoRestante(data.tempoRestante); // Corrige se houver desvio
+    setStatus(data.status);
+  });
+  return () => socket.off('room_state_update');
+}, []);
 
   const show = () => {
     setModal(!modal)
