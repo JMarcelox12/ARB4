@@ -1,9 +1,9 @@
 import express from 'express'
-import { prismaClient } from '@prisma/client'
-import { withdraw, deposit } from '../services/pay.service'
+import { PrismaClient } from '@prisma/client'
+import { withdraw, deposit } from '../services/pay.service.js'
 
 const app = express()
-const prisma = prismaClient()
+const prisma = new PrismaClient()
 
 app.use(express.json())
 
