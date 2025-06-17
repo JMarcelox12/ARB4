@@ -27,8 +27,8 @@ UserRoutes.post('/request-reset', requestPasswordResetController)
 UserRoutes.post('/reset-password', resetPasswordController)
 UserRoutes.post('/deposit/:id', Deposito)
 UserRoutes.post('/withdraw/:id', Saque)
-UserRoutes.get('/transation', listUserTransacoes)
-UserRoutes.get('/transation/:id', listTransacoesId)
-UserRoutes.get('/admin/transation', listTransacoes)
+UserRoutes.get('/transactions/:id', listUserTransacoes)
+UserRoutes.get('/transaction/:id', listTransacoesId)
+UserRoutes.get('/admin/transaction', listTransacoes)
 
 export default UserRoutes

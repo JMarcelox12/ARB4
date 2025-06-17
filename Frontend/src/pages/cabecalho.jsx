@@ -194,8 +194,8 @@ export function HeaderLogado() {
                   </a>
                 </li>
                 <li className="nav-item">
-                  <a className="nav-link text-white" href="/">
-                    Vazio
+                  <a className="nav-link text-white" href="/transacoes">
+                    Transações
                   </a>
                 </li>
                 <li className="nav-item">
