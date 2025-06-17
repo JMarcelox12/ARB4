@@ -125,5 +125,12 @@ export const listTransacoesId = async (req, res) => {
 
 // Função que lista todas as transações para o admin
 export const listTransacoes = async (req, res) => {
-  //fazer
+  try {
+    const response = await prisma.transation.findMany()
+
+    return res.status(200).json(response)
+  } catch (error) {
+    console.error('Erro ao carregar transações: ', error)
+    res.status(500).json({ error: 'Não foi possível carregar transações.' })
+  }
 }
