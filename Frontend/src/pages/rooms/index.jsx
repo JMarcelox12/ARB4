@@ -1,134 +1,149 @@
 import { AuthContext } from "../../services/AuthContext.jsx";
-import { useContext } from 'react'
+import { useContext, useEffect, useState, useRef } from 'react'; // Adicionei useRef
 import { jwtDecode } from "jwt-decode";
 import { HeaderDeslogado, HeaderLogado } from '../cabecalho.jsx';
-import { useEffect, useState } from "react";
-import "../../styles/room.css"
+import "../../styles/room.css";
 import { useParams } from "react-router-dom";
 import api from "../../services/api.js";
-import { campea, vice, ultimo, penultimo} from "../../services/oddCalc.js";
+import { campea, vice, ultimo, penultimo } from "../../services/oddCalc.js";
 import AntRaceChart from "../../components/salas/AntRaceChart.jsx";
 import { io } from "socket.io-client";
 
-const Room = () => {
-  const { userLogado } = useContext(AuthContext)
-  const [ formigasSala, setFormigasSala ] = useState([])
-  const [ status, setStatus] = useState('')
-  const [ tempoRestante, setTempoRestante ] = useState(0);
-  const { id } = useParams();
-  const [ modal, setModal ] = useState(false)
-
-  const socket = io("http://localhost:1200");
-
-  const [ antPositions, setAntPositions ] = useState({});
-  const [ winner, setWinner ] = useState(null);
-  const [ finalOrder, setFinalOrder ] = useState([]);
-
-  if (userLogado === null) {
-    return (
-      <div className="bg-dark text-white d-flex justify-content-center align-items-center" style={{ minHeight: "100vh" }}>
-        <h2>Carregando dados do usuário...</h2>
-      </div>
-    );
+// Função helper para o token, pode ficar fora do componente
+const getUserIdFromToken = () => {
+  const token = localStorage.getItem("authToken");
+  if (!token) return null;
+  try {
+    const decodedToken = jwtDecode(token);
+    return decodedToken.userId;
+  } catch (error) {
+    console.error("Erro ao decodificar o token:", error);
+    return null;
   }
+};
 
-  const getUserIdFromToken = () => {
-    const token = localStorage.getItem("authToken");
-    if (!token) return null;
-    try {
-      const decodedToken = jwtDecode(token);
-      return decodedToken.userId;
-    } catch (error) {
-      console.error("Erro ao decodificar o token:", error);
-      return null;
-    }
-  };
-
+const Room = () => {
+  const { userLogado } = useContext(AuthContext);
+  const { id: roomId } = useParams(); // Renomear para clareza
   const userId = getUserIdFromToken();
 
-   useEffect(() => {
+  // Estados da Sala
+  const [formigasSala, setFormigasSala] = useState([]);
+  const [status, setStatus] = useState('carregando'); // Inicia como carregando
+  const [tempoRestante, setTempoRestante] = useState(0);
+  const [modal, setModal] = useState(false);
+
+  // Estados da Corrida
+  const [antPositions, setAntPositions] = useState({}); // Agora será um objeto { antId: position }
+  const [winner, setWinner] = useState(null);
+  const [finalOrder, setFinalOrder] = useState([]);
+  
+  // --- CORREÇÃO PRINCIPAL: GERENCIAMENTO ÚNICO DO SOCKET ---
+  // Usamos useRef para manter a mesma instância do socket durante todo o ciclo de vida do componente
+  const socketRef = useRef(null);
+
+  // Efeito para carregar dados iniciais via API (HTTP)
+  useEffect(() => {
     async function carregarDadosIniciaisSala() {
       try {
         const [statusResponse, formigasResponse] = await Promise.all([
-          api.get(`/app/room/status/${id}`),
-          api.get(`/app/room/ants/${id}`)
+          api.get(`/app/room/status/${roomId}`),
+          api.get(`/app/room/ants/${roomId}`)
         ]);
         setStatus(statusResponse.data.status);
         setFormigasSala(formigasResponse.data);
-        //console.log("Mostrando status da sala: ", statusResponse.data.status);
       } catch (erro) {
         console.error("Erro ao carregar dados iniciais da sala:", erro);
+        setStatus('erro');
       }
     }
     carregarDadosIniciaisSala();
-  }, [id]);
+  }, [roomId]);
 
+  // Efeito para gerenciar TODA a comunicação com o Socket.IO
   useEffect(() => {
-    const socket = io('http://localhost:1200');
-
-    socket.on('connect', () => {
-        console.log('Frontend: Conectado ao servidor Socket.IO. ID do Socket:', socket.id);
-        // IMPORTANTE: Emita o evento 'join_room' AQUI!
-        // Certifique-se de que 'id' (da URL) está disponível e é enviado
-        socket.emit('join_room', id); // 'id' é o roomId
+    // 1. Conecta ao servidor
+    // Acessamos o servidor pelo endereço no .env ou hardcoded
+    socketRef.current = io('http://localhost:1200', {
+      reconnectionAttempts: 5, // Tenta reconectar 5 vezes
     });
 
+    const socket = socketRef.current;
+
+    // 2. Avisa o backend que entramos na sala
+    socket.on('connect', () => {
+      console.log(`Frontend: Conectado! ID: ${socket.id}. Entrando na sala: ${roomId}`);
+      socket.emit('join_room', roomId);
+    });
+    
+    // 3. Define todos os listeners
     socket.on('room_state_update', (data) => {
-      if (data.tempoRestante !== undefined) {
-        setTempoRestante(data.tempoRestante);
+      //console.log('STATE_UPDATE:', data);
+      setTempoRestante(data.tempoRestante);
+      setStatus(data.status);
+
+      // Limpa os dados da corrida anterior quando uma nova corrida está prestes a começar
+      if (data.status === 'apostando' || data.status === 'pausando') {
+        setAntPositions({});
+        setWinner(null);
+        setFinalOrder([]);
       }
     });
 
-    socket.on('race_update', (data) => { // -> Tô recebendmo esse
-        console.log('Frontend: Evento race_update recebido:', data);
-        // Verifique se 'data' tem 'ants' e cada 'ant' tem 'id' e 'position'
-        // Ex: setAntPositions(data.ants);
+    socket.on('race_update', (data) => {
+      //console.log('RACE_UPDATE:', data.ants);
+      // Transforma o array de formigas em um objeto para fácil acesso
+      const newPositions = {};
+      data.ants.forEach(ant => {
+        newPositions[ant.id] = ant.position;
+      });
+      setAntPositions(newPositions);
     });
 
-    socket.on('race_finished', (data) => { // -> Não tô
-        console.log('Frontend: Evento race_finished recebido:', data);
-        // Ex: setRoomData(prev => ({ ...prev, winnerId: data.winnerId }));
+    socket.on('race_finished', (data) => {
+      console.log('Frontend: CORRIDA TERMINOU!', data);
+      setWinner(data.winnerId);
+      setFinalOrder(data.finishedAntsOrder);
+      // Opcional: forçar as posições finais para 100% para os vencedores
+      const finalPositions = {};
+      formigasSala.forEach(f => {
+        finalPositions[f.id] = data.finishedAntsOrder.includes(f.id) ? 100 : antPositions[f.id] || 0;
+      });
+      setAntPositions(finalPositions);
     });
 
-    socket.on('disconnect', () => { // -> Tô recebendo esse
-        console.log('Frontend: Desconectado do servidor Socket.IO.');
+    socket.on('disconnect', () => {
+      console.log('Frontend: Desconectado do servidor Socket.IO.');
     });
 
-    // Limpeza: Garante que os listeners são removidos quando o componente desmonta
+    // 4. Limpeza ao sair do componente
     return () => {
-        console.log('Frontend: Desconectando Socket.IO e removendo listeners.');
-        socket.emit('leave_room', id); // Opcional: avisar o backend que está saindo
-        socket.off('room_state_update');
-        socket.off('race_update');
-        socket.off('race_finished');
-        socket.off('connect');
-        socket.off('disconnect');
-        socket.disconnect();
+      console.log('Frontend: Desmontando componente. Desconectando socket.');
+      socket.emit('leave_room', roomId);
+      socket.disconnect();
     };
+  }, [roomId]); // Este efeito depende apenas do roomId
 
-}, [id]);
-
-
-useEffect(() => {
-  socket.on('room_state_update', (data) => {
-    setTempoRestante(data.tempoRestante); // Corrige se houver desvio
-    setStatus(data.status);
-  });
-  return () => socket.off('room_state_update');
-}, []);
-
-  const show = () => {
-    setModal(!modal)
+  const show = () => setModal(!modal);
+  
+  if (status === 'carregando' || userLogado === null) {
+    return (
+      <div className="bg-dark text-white d-flex justify-content-center align-items-center" style={{ minHeight: "100vh" }}>
+        <h2>Carregando dados da sala...</h2>
+      </div>
+    );
   }
+  
+  // O resto do seu JSX continua aqui, com algumas pequenas mudanças
+  // ...
+  return (
+    <div className="bg-dark text-white" >
+      {userLogado ? <HeaderLogado /> : <HeaderDeslogado />}
 
-    return(
-      <div className="bg-dark text-white" >
-        {userLogado ? <HeaderLogado /> : <HeaderDeslogado />}
-
-        <div className={`row conteudo-area ${modal ? "com-lateral" : ""}`} style={{ margin: "6%", transition: "all 0.3s ease" }}>
-          <div className="container-room">
-
-            <div className="row">
+      <div className={`row conteudo-area ${modal ? "com-lateral" : ""}`} style={{ margin: "6%", transition: "all 0.3s ease" }}>
+        <div className="container-room">
+          {/* ... seu código para cronômetro e info ... */}
+          <div className="row">
               <div className="col" >
                 <div className={`cronometro-area status-${status}`}>
                   <div className="status-label title">Status: {status.toUpperCase()}</div>
@@ -141,7 +156,7 @@ useEffect(() => {
 
               <div className="col">
                 <div className={`info-sala cronometro-area status-${status}`}>
-                  <div className="titulo">SALA #{id}</div>
+                  <div className="titulo">SALA #{roomId}</div>
                   <p className="status-label title"><strong>Status:</strong> {status}</p>
                   <p className="status-label title"><strong>Tempo restante:</strong> {tempoRestante}s</p>
                   <p className="status-label title"><strong>Formigas na corrida: {formigasSala.length}</strong></p>
@@ -151,17 +166,17 @@ useEffect(() => {
               </div>
             </div>
 
-            <div>
-              {/* Passar os dados da corrida para o AntRaceChart */}
+          {/* Renderiza o gráfico apenas quando a corrida está acontecendo ou terminou */}
+          {(status === 'correndo' || status === 'encerrada') && (
             <AntRaceChart
-              roomId={id}
-              ants={formigasSala} // Passa as formigas iniciais
-              antPositions={antPositions} // Posições atualizadas pelo Socket.IO
-              winnerId={winner} // Vencedor atual
+              ants={formigasSala}
+              antPositions={antPositions}
+              winnerId={winner}
             />
-            </div>
+          )}
 
-            <div>
+          {/* ... resto do seu código da tabela e modal ... */}
+          <div>
               <table className="table table-success table-striped">
                 <thead>
                   <tr className="table-dark">
@@ -198,20 +213,20 @@ useEffect(() => {
             <button type="submit" className="btnVerde" style={{borderRadius: "10px"}} onClick={show}>
               CLIQUE PARA APOSTAR
             </button>
-          </div>
         </div>
-        {modal && userLogado && (
+      </div>
+      {modal && userLogado && (
           <ModalAposta
             visible={modal}
             onClose={show}
             formigasSala={formigasSala}
-            roomId={id}
+            roomId={roomId}
             userId={userId}
           />
         )};
-      </div>
-    );
-}
+    </div>
+  );
+};
 
 function ModalAposta({ visible, onClose, formigasSala, roomId, userId }) {
   const [formigaSelecionada, setFormigaSelecionada] = useState("");
