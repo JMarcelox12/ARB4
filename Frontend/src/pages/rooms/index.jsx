@@ -78,16 +78,20 @@ const Room = () => {
     
     // 3. Define todos os listeners
     socket.on('room_state_update', (data) => {
-      //console.log('STATE_UPDATE:', data);
-      setTempoRestante(data.tempoRestante);
-      setStatus(data.status);
+    setTempoRestante(data.tempoRestante);
+    setStatus(data.status);
 
-      // Limpa os dados da corrida anterior quando uma nova corrida está prestes a começar
-      if (data.status === 'apostando' || data.status === 'pausando') {
-        setAntPositions({});
-        setWinner(null);
-        setFinalOrder([]);
-      }
+    if (data.status === 'apostando' || data.status === 'pausando') {
+      // Cria um objeto com todas as formigas na posição 0
+      const initialPositions = {};
+      formigasSala.forEach(ant => {
+        initialPositions[ant.id] = 0;
+      });
+      setAntPositions(initialPositions); // <-- AGORA INICIALIZA EM 0%
+      
+      setWinner(null);
+      setFinalOrder([]);
+    }
     });
 
     socket.on('race_update', (data) => {
@@ -147,7 +151,7 @@ const Room = () => {
               <div className="col" >
                 <div className={`cronometro-area status-${status}`}>
                   <div className="status-label title">Status: {status.toUpperCase()}</div>
-                  <div className={`tempo status-${status}`}>
+                  <div className={`tempo`}>
                     {String(Math.floor(tempoRestante / 60)).padStart(2, '0')}:
                     {String(tempoRestante % 60).padStart(2, '0')}
                   </div>
@@ -166,14 +170,11 @@ const Room = () => {
               </div>
             </div>
 
-          {/* Renderiza o gráfico apenas quando a corrida está acontecendo ou terminou */}
-          {(status === 'correndo' || status === 'encerrada') && (
             <AntRaceChart
               ants={formigasSala}
               antPositions={antPositions}
               winnerId={winner}
             />
-          )}
 
           {/* ... resto do seu código da tabela e modal ... */}
           <div>

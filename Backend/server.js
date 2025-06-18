@@ -1,7 +1,8 @@
 import { app, httpServer, io } from './app.js'
 
-httpServer.listen(1200, () => {
-  console.log('Servidor rodando na porta 1200!')
+const PORT = 1200
+httpServer.listen(PORT, () => {
+  console.log(`🚀 Servidor rodando e ouvindo na porta ${PORT}`)
 })
 
 export { io }

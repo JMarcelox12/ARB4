@@ -17,33 +17,55 @@ const io = new Server(httpServer, {
 
 io.on('connection', (socket) => {
   console.log('A user connected:', socket.id)
+  console.log(`\n\n[TESTE 3] 🔌 Cliente Conectado: ${socket.id}\n\n`)
 
   socket.on('join_room', (roomId) => {
     socket.join(roomId)
+    console.log(
+      `\n\n[PROVA] Cliente ${socket.id} entrou com ID da sala: -->${roomId}<-- (Tipo: ${typeof roomId})\n\n`
+    )
+
     console.log(`${socket.id} joined room ${roomId}`)
     // Opcional: Envie o estado atual da sala para o cliente que acabou de entrar
     if (roomManager.activeRooms[roomId]) {
-      const currentRoomState = roomManager.activeRooms[roomId];
+      const currentRoomState = roomManager.activeRooms[roomId]
       // ... (envia room_state_update) ...
 
-      if (currentRoomState.status === 'correndo' && currentRoomState.antPositions) {
-        console.log('Backend (join_room): activeRooms[roomId].antPositions ao tentar enviar:', currentRoomState.antPositions); // <--- ADICIONE ESTE LOG
-        console.log('Backend (join_room): raceLength ao tentar enviar:', currentRoomState.raceLength); // <--- E ESTE LOG
+      if (
+        currentRoomState.status === 'correndo' &&
+        currentRoomState.antPositions
+      ) {
+        console.log(
+          'Backend (join_room): activeRooms[roomId].antPositions ao tentar enviar:',
+          currentRoomState.antPositions
+        ) // <--- ADICIONE ESTE LOG
+        console.log(
+          'Backend (join_room): raceLength ao tentar enviar:',
+          currentRoomState.raceLength
+        ) // <--- E ESTE LOG
 
-        const raceLength = currentRoomState.raceLength;
+        const raceLength = currentRoomState.raceLength
 
-        if (raceLength && currentRoomState.antPositions) { // Verifique se antPositions não é null/undefined também
-          const antsForFrontend = Object.keys(currentRoomState.antPositions).map(antId => ({
+        if (raceLength && currentRoomState.antPositions) {
+          // Verifique se antPositions não é null/undefined também
+          const antsForFrontend = Object.keys(
+            currentRoomState.antPositions
+          ).map((antId) => ({
             id: antId,
-            position: (currentRoomState.antPositions[antId] / raceLength) * 100
-          }));
-          console.log('Backend (join_room): Dados de formigas antes de emitir race_update inicial:', antsForFrontend); // <--- ADICIONE ESTE LOG
+            position: (currentRoomState.antPositions[antId] / raceLength) * 100,
+          }))
+          console.log(
+            'Backend (join_room): Dados de formigas antes de emitir race_update inicial:',
+            antsForFrontend
+          ) // <--- ADICIONE ESTE LOG
           socket.emit('race_update', {
             roomId: roomId,
-            ants: antsForFrontend
-          });
+            ants: antsForFrontend,
+          })
         } else {
-          console.warn(`[Socket.IO] raceLength ou antPositions não definidos para a sala ${roomId} ao enviar race_update inicial.`);
+          console.warn(
+            `[Socket.IO] raceLength ou antPositions não definidos para a sala ${roomId} ao enviar race_update inicial.`
+          )
         }
       }
     }

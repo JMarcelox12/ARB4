@@ -2,11 +2,7 @@ import { PrismaClient } from '@prisma/client'
 import multer from 'multer'
 import path, { format } from 'path'
 import fs from 'fs'
-import {
-  startRaceSimulation,
-  activeRooms,
-  startRoomCycle,
-} from '../services/roomManager.js'
+import * as roomManager from '../services/roomManager.js'
 import { start } from 'repl'
 
 const prisma = new PrismaClient()
@@ -42,14 +38,14 @@ const getShuffledAnts = async () => {
 export const getRoomStatus = async (req, res) => {
   const roomId = parseInt(req.params.id)
 
-  if (!activeRooms[roomId]) {
-    // Verifique se a sala existe no activeRooms
+  if (!roomManager.activeRooms[roomId]) {
+    // Verifique se a sala existe no roomManager.activeRooms
     console.log(`Iniciando ciclo da sala ${roomId} via getRoomStatus.`)
-    await startRoomCycle(roomId)
+    await roomManager.startRoomCycle(roomId)
   }
 
   try {
-    const currentRoomState = activeRooms[roomId]
+    const currentRoomState = roomManager.activeRooms[roomId]
 
     if (!currentRoomState) {
       return res
@@ -105,7 +101,7 @@ export const createRoom = async (req, res) => {
     const inicio = new Date()
     const shuffledAnts = await getShuffledAnts()
 
-    const room = await prisma.room.create({
+    const newRoom = await prisma.room.create({
       data: {
         image: imagePath,
         name: name,
@@ -121,8 +117,8 @@ export const createRoom = async (req, res) => {
       include: { rooms: true },
     })
 
-    await startRoomCycle(room.id, 'PAUSE')
-    return res.status(200).json({ message: 'Sala criada com sucesso!', room })
+    await roomManager.startRoomCycle(newRoom.id)
+    return res.status(200).json(newRoom)
   } catch (error) {
     console.log(error)
     return res.status(500).json({ error: error.message })
@@ -232,9 +228,9 @@ export const deleteRoom = async (req, res) => {
 
 // Função para iniciar as salas
 export const playRoom = async (req, res) => {
-  const id = parseInt(req.params.id);
+  const id = parseInt(req.params.id)
 
-  console.log(`Controller: Rota playRoom atingida para a sala: ${id}`);
+  console.log(`Controller: Rota playRoom atingida para a sala: ${id}`)
 
   try {
     const sala = await prisma.room.findUnique({ where: { id: id } })
@@ -251,8 +247,10 @@ export const playRoom = async (req, res) => {
     })
 
     // Inicia o temporizador da sala
-    await startRoomCycle(id, 'PAUSE')
-    console.log(`Controller: startRoomCycle chamado com sucesso para a sala: ${id}`);
+    await roomManager.startRoomCycle(id, 'PAUSE')
+    console.log(
+      `Controller: roomManager.startRoomCycle chamado com sucesso para a sala: ${id}`
+    )
 
     res.json({ message: 'Corrida iniciada com sucesso!' })
   } catch (error) {
@@ -271,9 +269,9 @@ export const endRoom = async (req, res) => {
       data: { status: 'ENCERRADA' },
     })
 
-    if (activeRooms[id] && activeRooms[id].interval) {
-      clearInterval(activeRooms[id].interval)
-      delete activeRooms[id] // Limpa a sala do gerenciador em memória
+    if (roomManager.activeRooms[id] && roomManager.activeRooms[id].interval) {
+      clearInterval(roomManager.activeRooms[id].interval)
+      delete roomManager.activeRooms[id] // Limpa a sala do gerenciador em memória
     }
     if (roomTimers[id]) {
       clearInterval(roomTimers[id].interval)

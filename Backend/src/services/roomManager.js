@@ -6,6 +6,10 @@ const prisma = new PrismaClient()
 
 // Função para iniciar uma nova corrida (Refatorada)
 async function startRaceSimulation(roomId, ants, onFinish) {
+  console.log(
+    `\n\n[TESTE 51] RoomManager está enviando para ID da sala: -->${roomId}<-- (Tipo: ${typeof roomId})\n\n`
+  )
+
   // << Recebe o callback onFinish
   if (activeRooms[roomId] && activeRooms[roomId].interval) {
     clearInterval(activeRooms[roomId].interval)
@@ -35,7 +39,6 @@ async function startRaceSimulation(roomId, ants, onFinish) {
 
     // Um conjunto para as formigas que terminaram NESTA iteração
     const finishedThisTick = new Set()
-
     ants.forEach((ant) => {
       // Se a formiga já está na ordem de chegada, não a mova mais
       if (activeRooms[roomId].finishedAntsOrder.includes(ant.id)) {
@@ -100,6 +103,12 @@ async function startRaceSimulation(roomId, ants, onFinish) {
 let roomTimers = {} // Para gerenciar os timers de cada fase da sala
 
 async function startRoomCycle(roomId, initialStatus = 'pausando') {
+  console.log(
+    `\n\n[TESTE 52] RoomManager está enviando para ID da sala: -->${roomId}<-- (Tipo: ${typeof roomId})\n\n`
+  )
+  console.log(
+    `\n\n[TESTE 1] ✅  startRoomCycle INICIADO para a sala ${roomId} às ${new Date().toLocaleTimeString()}\n\n`
+  )
   console.log(`[Sala ${roomId}] Iniciando ciclo com status: ${initialStatus}`)
   if (roomTimers[roomId]) {
     clearInterval(roomTimers[roomId].interval)
@@ -216,11 +225,10 @@ async function startRoomCycle(roomId, initialStatus = 'pausando') {
     activeRooms[roomId].status = currentStatus
 
     const tempo = Math.floor(remainingTime)
-    console.log(
-      `[Sala ${roomId}] Emitindo estado: ${currentStatus}, Tempo: ${tempo}s`
-    )
 
-    io.to(roomId).emit('room_state_update', {
+    const roomIdString = String(roomId)
+
+    io.to(roomIdString).emit('room_state_update', {
       tempoRestante: tempo,
       status: currentStatus,
     })
@@ -234,6 +242,10 @@ async function startRoomCycle(roomId, initialStatus = 'pausando') {
 
 // Função para parar o ciclo de uma sala (chamada em 'endRoom' no controller)
 export function stopRoomCycle(roomId) {
+  console.log(
+    `\n\n[TESTE 51] RoomManager está enviando para ID da sala: -->${roomId}<-- (Tipo: ${typeof roomId})\n\n`
+  )
+
   if (activeRooms[roomId] && activeRooms[roomId].interval) {
     clearInterval(activeRooms[roomId].interval)
     delete activeRooms[roomId]
