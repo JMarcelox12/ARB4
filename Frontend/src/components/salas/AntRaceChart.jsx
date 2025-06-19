@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import Confetti from 'react-confetti';
-import '../../styles/AntRaceChart.css'; // Importamos o nosso novo arquivo de estilo
+import '../../styles/rooms/AntRaceChart.css'; // Importamos o nosso novo arquivo de estilo
 
 // Array de cores para dar vida às barras
 const coresFormigas = [

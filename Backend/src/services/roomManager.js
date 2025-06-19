@@ -74,8 +74,10 @@ async function startRaceSimulation(roomId, ants, onFinish) {
       position: ((newPositions[ant.id] / raceLength) * 100).toFixed(0),
     }))
 
+    const roomIdString = String(roomId)
+
     // Emitir o progresso da corrida
-    io.to(roomId).emit('race_update', {
+    io.to(roomIdString).emit('race_update', {
       roomId: roomId,
       ants: antsForFrontend,
     })
@@ -120,7 +122,7 @@ async function startRoomCycle(roomId, initialStatus = 'pausando') {
   const fasesConfig = {
     PAUSANDO: 30,
     APOSTANDO: 60,
-    CORRENDO: 15, // Duração da fase, não da simulação
+    CORRENDO: 30, // Duração da fase, não da simulação
     ENCERRADA: 30,
   }
 
@@ -185,8 +187,10 @@ async function startRoomCycle(roomId, initialStatus = 'pausando') {
                 )
               }
 
+              const roomIdString = String(roomId)
+
               // 2. Emitir o evento de fim de corrida
-              io.to(roomId).emit('race_finished', {
+              io.to(roomIdString).emit('race_finished', {
                 roomId: roomId,
                 winnerId: winnerId,
                 finishedAntsOrder: finishedAntsOrder,
