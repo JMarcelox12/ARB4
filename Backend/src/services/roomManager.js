@@ -1,6 +1,9 @@
 import { io } from '../../app.js'
 import { PrismaClient } from '@prisma/client'
 
+import { settleBetsForRace } from './payment.service.js'
+import { updateAntStats } from './ant.service.js'
+
 const activeRooms = {}
 const prisma = new PrismaClient()
 
@@ -168,6 +171,20 @@ async function startRoomCycle(roomId, initialStatus = 'pausando') {
 
               const { winnerId, finishedAntsOrder } = raceResults
 
+              console.log(`[Sala ${roomId}] Iniciando processos pós-corrida...`)
+
+              try {
+                await Promise.all([
+                  settleBetsForRace(roomId, winnerId),
+                  updateAntStats(finishedAntsOrder),
+                ])
+              } catch (error) {
+                console.error(
+                  `[Sala ${roomId}] Erro ao executar serviços de pós-corrida:`,
+                  error
+                )
+              }
+
               // 1. Persistir os resultados no DB
               try {
                 await prisma.room.update({
@@ -176,7 +193,11 @@ async function startRoomCycle(roomId, initialStatus = 'pausando') {
                     winnerId: winnerId,
                     vice: finishedAntsOrder[1] || null,
                     terceiro: finishedAntsOrder[2] || null,
-                    // ... etc
+                    quarto: finishedAntsOrder[3] || null,
+                    quinto: finishedAntsOrder[4] || null,
+                    sexto: finishedAntsOrder[5] || null,
+                    penultimo: finishedAntsOrder[6] || null,
+                    ultimo: finishedAntsOrder[7] || null,
                   },
                 })
                 console.log(`[Sala ${roomId}] Vencedor persistido no DB.`)

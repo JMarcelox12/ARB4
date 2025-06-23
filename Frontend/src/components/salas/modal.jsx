@@ -2,6 +2,7 @@ import "../../styles/rooms/room.css";
 import { AuthContext } from "../../services/AuthContext.jsx";
 import { useContext, useState, useEffect } from "react";
 import { campea, vice, ultimo, penultimo } from "../../services/oddCalc.js";
+import api from "../../services/api.js"
 
 export default function ModalAposta({ visible, onClose, formigasSala, roomId, userId }) {
   const [formigaSelecionada, setFormigaSelecionada] = useState("");
@@ -67,9 +68,9 @@ export default function ModalAposta({ visible, onClose, formigasSala, roomId, us
     }
 
     const formData = new FormData()
-    formData.append("userId", userId);
+    formData.append("userId", Number(userId));
     formData.append("antId", formigaSelecionada);
-    formData.append("roomId", roomId)
+    formData.append("roomId", Number(roomId))
     formData.append("value", value.replace(",", "."));
     formData.append("betType", posicaoSelecionada.toUpperCase())
 
@@ -83,7 +84,7 @@ export default function ModalAposta({ visible, onClose, formigasSala, roomId, us
       alert("Aposta criada com sucesso!")
       onClose();
     } catch (err) {
-      alert("Erro ao criar sala!")
+      alert("Erro ao criar aposta!")
       console.error(err)
     }
   };

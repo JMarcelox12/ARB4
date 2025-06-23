@@ -139,6 +139,11 @@ export function HeaderLogado() {
             <div className="offcanvas-body">
               <ul className="nav nav-pills flex-column mb-auto">
                 <li className="nav-item">
+                  <a className="nav-link text-white" href="/">
+                    Home
+                  </a>
+                </li>
+                <li className="nav-item">
                   <a className="nav-link text-white" href="/perfil" aria-current="page">
                     Perfil (vazio)
                   </a>

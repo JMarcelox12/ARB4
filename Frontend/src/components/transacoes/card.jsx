@@ -34,16 +34,28 @@ const verificarType = (tipo) => {
     }
 }
 
+  let amountStyle = {};
+  let formattedAmount = amount;
+
+  if (type === "DEPOSIT") {
+    amountStyle = { color: '#02ab21' };
+    formattedAmount = `+${amount}`;
+  } else if (type === "WITHDRAW") {
+    amountStyle = { color: '#ba0000' };
+    formattedAmount = `${amount}`;
+  }
+
+
   return (
     <>
     <div 
       className="card text-white bg-secondary m-2"
       style={{ width: '18rem', cursor: "pointer", border: "2px solid #02ad21" }}>
       <div className="card-body">
-        <p className="card-text">Data de criação: <strong>{dataFormatada}</strong></p>
-        <p className="card-text">Horário: <strong>{horaFormatada}</strong></p>
-        <p className="card-text">Valor: <strong>{amount}</strong></p>
-        <p className="card-text">Tipo: <strong>{verificarType(type)}</strong></p>
+        <p className="card-text"><strong> Valor: </strong><strong style={amountStyle}>{formattedAmount}</strong></p>
+        <p className="card-text"><strong>Tipo: </strong><strong>{verificarType(type)}</strong></p>
+        <p className="card-text"><strong>Data de criação: </strong><strong>{dataFormatada}</strong></p>
+        <p className="card-text"><strong>Horário: </strong><strong>{horaFormatada}</strong></p>
       </div>
     </div>
   </>

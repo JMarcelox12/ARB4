@@ -87,9 +87,6 @@ export default function Deposito() {
       <Header/>
 
       <div className="input flex-column align-items-center rounded">
-        <div className='tituloPaginas'>
-          <p className="fw-bold fs-3 left">Depósito</p>
-        </div>
         <form>
           <p className="fw-bold fs-3 left">Informe ou selecione um valor.</p>
 
