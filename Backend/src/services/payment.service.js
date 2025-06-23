@@ -1,117 +1,97 @@
-// src/services/paymentService.js
-
 import { PrismaClient } from '@prisma/client'
 const prisma = new PrismaClient()
 
-/**
- * Liquida todas as apostas pendentes para uma corrida finalizada.
- * Processa pagamentos para apostas vencedoras (1º, 2º, penúltimo, último)
- * e marca as perdedoras como 'LOST'.
- * @param {string} roomId - O ID da sala onde a corrida terminou.
- * @param {string[]} finishedAntsOrder - Array com os IDs das formigas na ordem exata de chegada.
- */
 export async function settleBetsForRace(roomId, finishedAntsOrder) {
   if (!finishedAntsOrder || finishedAntsOrder.length === 0) {
-    console.log(
-      `[Sala ${roomId}] Sem ordem de chegada, nenhuma aposta a ser liquidada.`
-    )
-    return
+    console.log(`[Sala ${roomId}] Sem ordem de chegada, nenhuma aposta a ser liquidada.`);
+    return;
   }
 
-  console.log(`[Sala ${roomId}] Iniciando liquidação de apostas...`)
+  console.log(`[Sala ${roomId}] Iniciando liquidação de apostas...`);
 
-  // 1. Encontrar todas as apostas pendentes para esta corrida
+  // 1. Encontrar todas as apostas pendentes para esta corrida, JÁ INCLUINDO AS ODDS.
   const allPendingBets = await prisma.bet.findMany({
     where: {
       roomId: roomId,
       status: 'PENDING',
     },
-  })
+    include: {
+      ant: {
+        select: { odd: true }
+      }
+    }
+  });
 
   if (allPendingBets.length === 0) {
-    console.log(`[Sala ${roomId}] Nenhuma aposta pendente encontrada.`)
-    return
+    console.log(`[Sala ${roomId}] Nenhuma aposta pendente encontrada.`);
+    return;
   }
 
   // 2. Determinar os IDs das posições chave
-  const raceSize = finishedAntsOrder.length
-  const firstPlaceId = finishedAntsOrder[0] || null
-  const secondPlaceId = raceSize > 1 ? finishedAntsOrder[1] : null
-  const lastPlaceId = raceSize > 0 ? finishedAntsOrder[raceSize - 1] : null
-  const penultimatePlaceId =
-    raceSize > 1 ? finishedAntsOrder[raceSize - 2] : null
+  const raceSize = finishedAntsOrder.length;
+  const placementMap = {
+    FIRST: finishedAntsOrder[0] || null,
+    SECOND: raceSize > 1 ? finishedAntsOrder[1] : null,
+    PENULTIMATE: raceSize > 1 ? finishedAntsOrder[raceSize - 2] : null,
+    LAST: raceSize > 0 ? finishedAntsOrder[raceSize - 1] : null,
+  };
 
-  const payoutOperations = []
-  const losingBetOperations = []
+  const transactionOperations = [];
 
   // 3. Iterar sobre cada aposta e verificar se foi vencedora
   for (const bet of allPendingBets) {
-    let isWinner = false
-    let payoutMultiplier = 2 // Multiplicador padrão (ex: para 1º lugar)
-
-    switch (bet.betType) {
-      case 'FIRST':
-        isWinner = bet.antId === firstPlaceId
-        payoutMultiplier = 2 // Ex: Paga 2x
-        break
-      case 'SECOND':
-        isWinner = bet.antId === secondPlaceId
-        payoutMultiplier = 3 // Ex: Paga 3x, pois é mais difícil
-        break
-      case 'PENULTIMATE':
-        isWinner = bet.antId === penultimatePlaceId
-        payoutMultiplier = 5 // Ex: Paga 5x
-        break
-      case 'LAST':
-        isWinner = bet.antId === lastPlaceId
-        payoutMultiplier = 4 // Ex: Paga 4x
-        break
-    }
+    const winningAntIdForBetType = placementMap[bet.betType];
+    const isWinner = bet.antId === winningAntIdForBetType;
 
     if (isWinner) {
-      // Se a aposta foi vencedora, prepara as operações de pagamento
-      const payoutAmount = bet.amount * payoutMultiplier
+      // --- CORREÇÃO CRÍTICA ---
+      // O pagamento deve ser calculado com base na ODD no momento da aposta, não um multiplicador fixo.
+      const payoutAmount = bet.amount * bet.ant.odd; // Usando a odd da aposta.
+      // bet.ant.odd vem do 'include' que fizemos na busca.
 
-      payoutOperations.push(
+      // Adiciona as operações de pagamento
+      transactionOperations.push(
         prisma.user.update({
           where: { id: bet.userId },
-          data: { balance: { increment: payoutAmount } },
+          data: { saldo: { increment: payoutAmount } }, // 'saldo' em vez de 'balance' para consistência
         }),
         prisma.transaction.create({
           data: {
             userId: bet.userId,
             amount: payoutAmount,
-            type: 'DEPOSIT',
+            type: 'DEPOSIT', // ou 'WINNINGS' para ser mais específico
             description: `Ganhos da aposta (${bet.betType}) na sala ${roomId}`,
           },
         }),
         prisma.bet.update({
           where: { id: bet.id },
-          data: { status: 'PAID' },
+          data: { status: 'WON', payout: payoutAmount }, // Opcional: Salvar o valor pago
         })
-      )
+      );
     } else {
-      // Se a aposta foi perdedora, prepara a operação para marcá-la como 'LOST'
-      losingBetOperations.push(
+      // Adiciona a operação para marcar como perdida
+      transactionOperations.push(
         prisma.bet.update({
           where: { id: bet.id },
           data: { status: 'LOST' },
         })
-      )
+      );
     }
   }
 
   // 4. Executar todas as atualizações em uma única transação
-  const allOperations = [...payoutOperations, ...losingBetOperations]
-
-  if (allOperations.length > 0) {
+  if (transactionOperations.length > 0) {
     try {
-      await prisma.$transaction(allOperations)
-      console.log(
-        `[Sala ${roomId}] Liquidação finalizada. ${payoutOperations.length / 3} apostas pagas. ${losingBetOperations.length} apostas perdidas.`
-      )
+      await prisma.$transaction(transactionOperations);
+
+      const wonBetsCount = transactionOperations.filter(op => op.model === 'Bet' && op.args.data.status === 'WON').length;
+      const lostBetsCount = transactionOperations.length - (wonBetsCount * 3); // Cada aposta ganha gera 3 operações
+
+      console.log(`[Sala ${roomId}] Liquidação finalizada. ${wonBetsCount} apostas pagas. ${lostBetsCount} apostas perdidas.`);
     } catch (error) {
-      console.error(`[Sala ${roomId}] ERRO CRÍTICO ao liquidar apostas:`, error)
+      console.error(`[Sala ${roomId}] ERRO CRÍTICO ao liquidar apostas:`, error);
+      // É uma boa prática relançar o erro para que o serviço que chamou esta função saiba que falhou.
+      throw error;
     }
   }
 }

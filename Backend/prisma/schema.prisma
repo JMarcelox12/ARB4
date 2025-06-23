@@ -30,7 +30,7 @@ model Bet {
   amount       Float
   potentialWin Float
   odd          Float
-  type         BetType   @default(CAMPEA)
+  type         BetType
   status       BetStatus @default(PENDING)
   createdAt    DateTime  @default(now())
 
@@ -40,10 +40,10 @@ model Bet {
 }
 
 enum BetType {
-  CAMPEA // Aposta na campeã (1º lugar)
+  CAMPEÃO // Aposta na campeã (1º lugar)
   VICE // Aposta na vice (2º lugar)
-  PENULTIMA // Aposta na penúltima (posição específica)
-  ULTIMA // Aposta na última colocada
+  PENÚLTIMA // Aposta na penúltima (posição específica)
+  ÚLTIMA // Aposta na última colocada
 }
 
 enum BetStatus {

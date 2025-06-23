@@ -68,24 +68,26 @@ export default function ModalAposta({ visible, onClose, formigasSala, roomId, us
     }
 
     const formData = new FormData()
-    formData.append("userId", Number(userId));
-    formData.append("antId", formigaSelecionada);
-    formData.append("roomId", Number(roomId))
-    formData.append("value", value.replace(",", "."));
-    formData.append("betType", posicaoSelecionada.toUpperCase())
+    formData.append("userId", userId);
+    formData.append("antId", parseInt(formigaSelecionada));
+    formData.append("roomId", parseInt(roomId))
+    formData.append("amount", parseFloat(value.replace(",", ".")));
+    formData.append("BetType", posicaoSelecionada.toUpperCase())
 
     try {
-      const response = await api.post("/app/bet/", formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      })
+      console.log("[TESTE] lendo envio");
+      const response = await api.post("/app/bet/", formData)
+      //console.log("[TESTE] lendo function");
       console.log(response.data)
-      alert("Aposta criada com sucesso!")
-      onClose();
+      alert("Aposta criada com sucesso!");
+
+      if (onClose) {
+        onClose();
+      }
     } catch (err) {
-      alert("Erro ao criar aposta!")
-      console.error(err)
+      const errorMessage = err.response?.data?.message || "Erro ao criar aposta!";
+      alert(errorMessage);
+      console.error("Erro na requisição:", err);
     }
   };
 

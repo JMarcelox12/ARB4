@@ -1,59 +1,84 @@
-import { PrismaClient } from '@prisma/client'
+import { PrismaClient } from '@prisma/client';
+import { performance } from 'perf_hooks';
 
 const prisma = new PrismaClient()
 
 //gerencia aposta
-export async function placeBet(userId, antId, roomId, amount, betType) {
-  if (amount <= 0) {
-    throw new Error('O valor da aposta deve ser maior que zero.')
+export async function placeBet(userId, antId, roomId, amount, BetType) {
+  console.time('>>>> Tempo total da função placeBet')
+
+  try {
+    const usuario = parseInt(userId)
+    const formiga = parseInt(antId)
+    const sala = parseInt(roomId)
+    const valor = parseFloat(amount)
+
+    if (valor <= 0) {
+      throw new Error('O valor da aposta deve ser maior que zero.')
+    }
+
+    console.time('--- Verificações pré-transação');
+
+    const user = await prisma.user.findUnique({ where: { id: usuario } })
+    if (!user) throw new Error('Usuário não encontrado.')
+
+    if (user.saldo < valor) throw new Error('Saldo insuficiente.')
+
+    const ant = await prisma.ant.findUnique({ where: { id: formiga } })
+    if (!ant) throw new Error('Formiga não encontrada.')
+
+    const room = await prisma.room.findUnique({ where: { id: sala } })
+    if (!room) throw new Error('Sala não encontrada.')
+
+    console.timeEnd('--- Verificações pré-transação');
+
+    if (room.status === 'CORRENDO')
+      throw new Error('Apostas não permitidas no momento.')
+
+    const odd = parseFloat(ant.odd);
+    const potentialWin = valor * odd;
+    const pw = parseFloat(potentialWin.toFixed(2));
+
+    console.time('--- Transação no Banco de Dados');
+    //cria aposta
+    return await prisma.$transaction(async () => {
+      const bet = await prisma.bet.create({
+        data: {
+          userId: usuario,
+          antId: formiga,
+          roomId: sala,
+          amount: valor,
+          potentialWin: pw,
+          odd: odd,
+          type: BetType,
+          status: 'PENDING',
+        },
+      })
+
+      //saque
+      await prisma.user.update({
+        where: { id: usuario },
+        data: { saldo: { decrement: valor } },
+      })
+
+      await prisma.transaction.create({
+        data: {
+          userId: usuario,
+          amount: -valor,
+          type: 'WITHDRAW',
+        },
+      },
+        { timeout: 20000 }
+      )
+      console.timeEnd('--- Transação no Banco de Dados');
+
+      return bet
+    });
+  } catch (error) {
+    console.error({ error: error.message })
+  } finally {
+    console.timeEnd('>>>> Tempo total da função placeBet'); // Para o cronômetro geral
   }
-
-  const user = await prisma.user.findUnique({ where: { id: userId } })
-  if (!user) throw new Error('Usuário não encontrado.')
-
-  if (user.saldo < amount) throw new Error('Saldo insuficiente.')
-
-  const ant = await prisma.ant.findUnique({ where: { id: antId } })
-  if (!ant) throw new Error('Formiga não encontrada.')
-
-  const room = await prisma.room.findUnique({ where: { id: roomId } })
-  if (!room) throw new Error('Sala não encontrada.')
-  if (room.status !== 'APOSTAS')
-    throw new Error('Apostas não permitidas no momento.')
-
-  const potentialWin = amount * ant.odd
-
-  //cria aposta
-  return await prisma.$transaction(async () => {
-    const bet = await prisma.bet.create({
-      data: {
-        userId,
-        antId,
-        roomId,
-        amount,
-        potentialWin,
-        odd: ant.odd,
-        type: betType,
-        status: 'PENDING',
-      },
-    })
-
-    //saque
-    await prisma.user.update({
-      where: { id: userId },
-      data: { saldo: { decrement: amount } },
-    })
-
-    await prisma.transaction.create({
-      data: {
-        userId,
-        amount: -amount,
-        type: 'WITHDRAW',
-      },
-    })
-
-    return bet
-  })
 }
 
 //verifica aposta

@@ -10,7 +10,7 @@ import {
   deleteBet,
 } from '../controllers/aposta.controller.js'
 
-const BetRoutes = Router()
+var BetRoutes = Router()
 
 BetRoutes.post('/', createBet)
 BetRoutes.get('/list', listBets)

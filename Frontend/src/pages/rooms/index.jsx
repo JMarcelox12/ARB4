@@ -44,16 +44,25 @@ const Room = () => {
   // Usamos useRef para manter a mesma instância do socket durante todo o ciclo de vida do componente
   const socketRef = useRef(null);
 
+  const carregarFormigasDaSala = async () => {
+    try {
+      console.log("Frontend: Recarregando dados das formigas...");
+      const response = await api.get(`/app/room/ants/${roomId}`);
+      setFormigasSala(response.data);
+      console.log("Frontend: Dados das formigas atualizados com sucesso!");
+    } catch (erro) {
+      console.error("Erro ao recarregar dados das formigas:", erro);
+    }
+  };  
+
   // Efeito para carregar dados iniciais via API (HTTP)
   useEffect(() => {
     async function carregarDadosIniciaisSala() {
       try {
-        const [statusResponse, formigasResponse] = await Promise.all([
+        const statusResponse= await Promise.all([
           api.get(`/app/room/status/${roomId}`),
-          api.get(`/app/room/ants/${roomId}`)
         ]);
         setStatus(statusResponse.data.status);
-        setFormigasSala(formigasResponse.data);
       } catch (erro) {
         console.error("Erro ao carregar dados iniciais da sala:", erro);
         setStatus('erro');
@@ -116,6 +125,15 @@ const Room = () => {
         finalPositions[f.id] = data.finishedAntsOrder.includes(f.id) ? 100 : antPositions[f.id] || 0;
       });
       setAntPositions(finalPositions);
+
+      setTimeout(() => {
+        carregarFormigasDaSala(); 
+      }, 2000); // 2000ms = 2 segundos
+    });
+
+    socket.on('stats_updated', () => {
+      console.log("Frontend: Recebido evento 'stats_updated'. Atualizando tabela de formigas.");
+      carregarFormigasDaSala(); // <--- AQUI ESTÁ A MÁGICA!
     });
 
     socket.on('disconnect', () => {

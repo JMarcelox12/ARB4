@@ -6,13 +6,16 @@ const prisma = new PrismaClient()
 // Função para criar uma aposta
 export const createBet = async (req, res) => {
   try {
-    const { userId, antId, roomId, amount, type } = req.body
-    if (!userId || !antId || !roomId || !amount) {
+    const { userId, antId, roomId, amount, BetType } = req.body
+
+    console.log("Valores desestruturados:", { userId, antId, roomId, amount, BetType });
+
+    if (!userId || !antId || !roomId || amount === undefined || amount === null || !BetType) {
       return res
         .status(400)
         .json({ error: 'Campos obrigatórios não preenchidos.' })
     }
-    const bet = await placeBet(userId, antId, roomId, amount, type)
+    const bet = await placeBet(userId, antId, roomId, amount, BetType)
     res.status(201).json(bet)
   } catch (error) {
     res.status(400).json({ error: error.message })

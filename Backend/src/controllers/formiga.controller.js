@@ -134,7 +134,7 @@ export const updateAnt = async (req, res) => {
       return res.status(404).send('Formiga não encontrada')
     }
 
-    console.log(req.body.name) 
+    console.log(req.body.name)
 
     await prisma.ant.update({
       where: {
