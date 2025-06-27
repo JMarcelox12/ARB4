@@ -1,5 +1,5 @@
 import { AuthContext } from "../../services/AuthContext.jsx";
-import { useContext, useEffect, useState, useRef } from 'react'; // Adicionei useRef
+import { useContext, useEffect, useState, useRef } from 'react';
 import { jwtDecode } from "jwt-decode";
 import { HeaderDeslogado, HeaderLogado } from '../cabecalho.jsx';
 import "../../styles/rooms/room.css";
@@ -26,43 +26,31 @@ const getUserIdFromToken = () => {
 
 const Room = () => {
   const { userLogado } = useContext(AuthContext);
-  const { id: roomId } = useParams(); // Renomear para clareza
+  const { id: roomId } = useParams();
   const userId = getUserIdFromToken();
 
   // Estados da Sala
   const [formigasSala, setFormigasSala] = useState([]);
-  const [status, setStatus] = useState('carregando'); // Inicia como carregando
+  const [status, setStatus] = useState('carregando');
   const [tempoRestante, setTempoRestante] = useState(0);
   const [modal, setModal] = useState(false);
+  const [isLoading, setIsLoanding] = useState(true);
 
   // Estados da Corrida
-  const [antPositions, setAntPositions] = useState({}); // Agora será um objeto { antId: position }
-  const [winner, setWinner] = useState(null);
+  const [antPositions, setAntPositions] = useState({});
+  const [winnerId, setWinnerId] = useState(null); // Renomeado para consistência
   const [finalOrder, setFinalOrder] = useState([]);
-  
-  // --- CORREÇÃO PRINCIPAL: GERENCIAMENTO ÚNICO DO SOCKET ---
-  // Usamos useRef para manter a mesma instância do socket durante todo o ciclo de vida do componente
+
+  // <<-- ALTERAÇÃO PRINCIPAL: Gerenciamento do Socket -->>
+  // Usamos useRef para manter a mesma instância do socket durante todo o ciclo de vida do componente.
   const socketRef = useRef(null);
 
-  const carregarFormigasDaSala = async () => {
-    try {
-      console.log("Frontend: Recarregando dados das formigas...");
-      const response = await api.get(`/app/room/ants/${roomId}`);
-      setFormigasSala(response.data);
-      console.log("Frontend: Dados das formigas atualizados com sucesso!");
-    } catch (erro) {
-      console.error("Erro ao recarregar dados das formigas:", erro);
-    }
-  };  
-
-  // Efeito para carregar dados iniciais via API (HTTP)
+  // Efeito para carregar dados iniciais da sala via API (HTTP)
   useEffect(() => {
     async function carregarDadosIniciaisSala() {
       try {
-        const statusResponse= await Promise.all([
-          api.get(`/app/room/status/${roomId}`),
-        ]);
-        setStatus(statusResponse.data.status);
+        const antsResponse = await api.get(`app/room/ants/${roomId}`);
+        setFormigasSala(antsResponse.data);
       } catch (erro) {
         console.error("Erro ao carregar dados iniciais da sala:", erro);
         setStatus('erro');
@@ -73,91 +61,80 @@ const Room = () => {
 
   // Efeito para gerenciar TODA a comunicação com o Socket.IO
   useEffect(() => {
-    // 1. Conecta ao servidor
-    // Acessamos o servidor pelo endereço no .env ou hardcoded
-    socketRef.current = io('http://localhost:1200', {
-      reconnectionAttempts: 5, // Tenta reconectar 5 vezes
+    // Só executa se tivermos o ID da sala.
+    if (!roomId) return;
+
+    // Conecta ao servidor Socket.IO.
+    // A instância é armazenada em socketRef.current para persistir.
+    socketRef.current = io('http://localhost:1200', { // Altere para a sua URL de produção se necessário
+      reconnectionAttempts: 5,
     });
 
-    const socket = socketRef.current;
+    const socket = socketRef.current; // Criamos uma variável local para facilitar o uso
 
-    // 2. Avisa o backend que entramos na sala
+    // Lida com a conexão
     socket.on('connect', () => {
-      console.log(`Frontend: Conectado! ID: ${socket.id}. Entrando na sala: ${roomId}`);
+      console.log(`[Socket] Conectado! ID: ${socket.id}. Entrando na sala: ${roomId}`);
       socket.emit('join_room', roomId);
     });
-    
-    // 3. Define todos os listeners
+
+    // Listener para o estado da sala
     socket.on('room_state_update', (data) => {
-    setTempoRestante(data.tempoRestante);
-    setStatus(data.status);
+      setTempoRestante(data.tempoRestante);
+      setStatus(data.status);
 
-    if (data.status === 'apostando' || data.status === 'pausando') {
-      // Cria um objeto com todas as formigas na posição 0
-      const initialPositions = {};
-      formigasSala.forEach(ant => {
-        initialPositions[ant.id] = 0;
-      });
-      setAntPositions(initialPositions); // <-- AGORA INICIALIZA EM 0%
-      
-      setWinner(null);
-      setFinalOrder([]);
-    }
+      // Quando a fase volta para 'APOSTANDO', reseta o pódio e as posições
+      if (data.status === 'APOSTANDO' || data.status === 'PAUSE') {
+        const initialPositions = {};
+        formigasSala.forEach(ant => {
+          initialPositions[ant.id] = 0;
+        });
+        setAntPositions(initialPositions);
+        setWinnerId(null);
+        setFinalOrder([]);
+      }
     });
 
+    // Listener para a atualização das posições durante a corrida
     socket.on('race_update', (data) => {
-      //console.log('RACE_UPDATE:', data.ants);
-      // Transforma o array de formigas em um objeto para fácil acesso
-      const newPositions = {};
-      data.ants.forEach(ant => {
-        newPositions[ant.id] = ant.position;
-      });
-      setAntPositions(newPositions);
+      const newPositions = data.ants.reduce((acc, ant) => {
+        acc[ant.id] = ant.position;
+        return acc;
+      }, {});
+      setAntPositions(prev => ({...prev, ...newPositions}));
     });
 
+    // Listener para o final da corrida (exibição do pódio)
     socket.on('race_finished', (data) => {
-      console.log('Frontend: CORRIDA TERMINOU!', data);
-      setWinner(data.winnerId);
+      console.log('[Socket] Corrida finalizada:', data);
+      setWinnerId(data.winnerId);
       setFinalOrder(data.finishedAntsOrder);
-      // Opcional: forçar as posições finais para 100% para os vencedores
+      // Força a posição final para 100% para quem terminou
       const finalPositions = {};
-      formigasSala.forEach(f => {
-        finalPositions[f.id] = data.finishedAntsOrder.includes(f.id) ? 100 : antPositions[f.id] || 0;
-      });
-      setAntPositions(finalPositions);
-
-      setTimeout(() => {
-        carregarFormigasDaSala(); 
-      }, 2000); // 2000ms = 2 segundos
-    });
-
-    socket.on('stats_updated', () => {
-      console.log("Frontend: Recebido evento 'stats_updated'. Atualizando tabela de formigas.");
-      carregarFormigasDaSala(); // <--- AQUI ESTÁ A MÁGICA!
+        formigasSala.forEach(f => {
+          if(data.finishedAntsOrder.includes(f.id)){
+            finalPositions[f.id] = 100
+          }
+        });
+      setAntPositions(prev => ({...prev, ...finalPositions}));
     });
 
     socket.on('disconnect', () => {
-      console.log('Frontend: Desconectado do servidor Socket.IO.');
+      console.log('[Socket] Desconectado do servidor.');
     });
 
-    // 4. Limpeza ao sair do componente
+    // Função de limpeza: executada quando o componente é desmontado
     return () => {
-      console.log('Frontend: Desmontando componente. Desconectando socket.');
+      console.log('[Socket] Desmontando componente. Desconectando...');
       socket.emit('leave_room', roomId);
       socket.disconnect();
     };
-  }, [roomId]); // Este efeito depende apenas do roomId
+  }, [roomId, formigasSala]); // Depende de roomId para reconectar se a sala mudar, e formigasSala para resetar posições.
 
-  const show = () => setModal(!modal);
+  // O componente AntRaceChart só renderiza quando já temos as formigas e o estado não é de pódio.
+  const deveMostrarCorrida = status !== 'ENCERRADA' && status !== 'carregando';
+  const deveMostrarPodium = status === 'ENCERRADA' && finalOrder.length > 0;
 
-  function mensagemVencedor(vencedor){
-    const util = parseInt(vencedor);
-
-    const formigaGanhadora = formigasSala.find(f => f.id === util);
-
-    return formigaGanhadora.name;
-  }
-  
   if (status === 'carregando' || userLogado === null) {
     return (
       <div className="bg-dark text-white d-flex justify-content-center align-items-center" style={{ minHeight: "100vh" }}>
@@ -165,57 +142,58 @@ const Room = () => {
       </div>
     );
   }
+  
+  // Função helper para exibir o nome do vencedor. Movida para dentro do escopo.
+  const getWinnerName = (id) => {
+    if (!id) return '';
+    const winnerAnt = formigasSala.find(f => f.id === id);
+    return winnerAnt ? winnerAnt.name : `Formiga #${id}`;
+  };
 
   return (
-    <div className="bg-dark text-white" >
+    <div className="bg-dark text-white">
       {userLogado ? <HeaderLogado /> : <HeaderDeslogado />}
 
       <div className={`row conteudo-area ${modal ? "com-lateral" : ""}`} style={{ margin: "6%", transition: "all 0.3s ease" }}>
         <div className="container-room">
-          {/* ... seu código para cronômetro e info ... */}
           <div className="row">
-              <div className="col" >
-                <div className={`cronometro-area status-${status}`}>
-                  <div className="status-label title">Status: {status.toUpperCase()}</div>
-                  <div className={`tempo`}>
-                    {String(Math.floor(tempoRestante / 60)).padStart(2, '0')}:
-                    {String(tempoRestante % 60).padStart(2, '0')}
-                  </div>
-                </div>
-              </div>
-
-              <div className="col">
-                <div className={`info-sala cronometro-area status-${status}`}>
-                  <div className="titulo">SALA #{roomId}</div>
-                  <p className="status-label title"><strong>Status:</strong> {status}</p>
-                  <p className="status-label title"><strong>Tempo restante:</strong> {tempoRestante}s</p>
-                  <p className="status-label title"><strong>Formigas na corrida: {formigasSala.length}</strong></p>
-                   {/* Exibir o vencedor aqui se houver */}
-                  {winner && <p className="status-label title"><strong>Vencedor: </strong>{mensagemVencedor(winner)}</p>}
+            <div className="col">
+              <div className={`cronometro-area status-${status}`}>
+                <div className="status-label title">{status.toUpperCase()}</div>
+                <div className={`tempo`}>
+                  {String(Math.floor(tempoRestante / 60)).padStart(2, '0')}:
+                  {String(tempoRestante % 60).padStart(2, '0')}
                 </div>
               </div>
             </div>
 
-            {status === 'encerrada' && finalOrder.length > 0 ? (
-              // Se a corrida terminou E temos a ordem final, mostre o Pódio
-              <RankingPodium 
-                finalOrder={finalOrder} 
-                ants={formigasSala} 
-              />
-            ) : (
-              // Caso contrário, mostre o gráfico da corrida normal
-              <AntRaceChart
-                ants={formigasSala}
-                antPositions={antPositions}
-                winnerId={winner}
-                roomId={roomId}
-              />
-            )}
+            <div className="col">
+              <div className={`info-sala cronometro-area status-${status}`}>
+                <div className="titulo">SALA #{roomId}</div>
+                <p className="status-label title"><strong>Formigas na corrida: {formigasSala.length}</strong></p>
+                {winnerId && <p className="status-label title"><strong>Último Vencedor: </strong>{getWinnerName(winnerId)}</p>}
+              </div>
+            </div>
+          </div>
 
-          {/* ... resto do seu código da tabela e modal ... */}
+          {deveMostrarPodium && (
+            <RankingPodium finalOrder={finalOrder} ants={formigasSala} />
+          )}
+
+          {deveMostrarCorrida && (
+            <AntRaceChart
+              socket={socketRef.current} // <<-- AQUI PASSAMOS O SOCKET PARA O FILHO
+              ants={formigasSala}
+              antPositions={antPositions}
+              winnerId={winnerId}
+            />
+          )}
+
+          {/* Resto do seu JSX (tabela, botão de aposta, modal) */}
           <div>
-              <table className="table table-success table-striped">
-                <thead>
+            <table className="table table-success table-striped">
+              {/* Conteúdo da tabela ... */}
+               <thead>
                   <tr className="table-dark">
                     <th scope="col">#</th>
                     <th scope="col">IMAGEM</th>
@@ -245,25 +223,26 @@ const Room = () => {
                   </tr>
                   ))}
                 </tbody>
-              </table>
-            </div>
-            <button type="submit" className="btnVerde" style={{borderRadius: "10px"}} onClick={show}>
+            </table>
+          </div>
+          {status === 'APOSTANDO' && (
+            <button type="submit" className="btnVerde" style={{ borderRadius: "10px" }} onClick={() => setModal(true)}>
               CLIQUE PARA APOSTAR
             </button>
+          )}
         </div>
       </div>
       {modal && userLogado && (
-          <ModalAposta
-            visible={modal}
-            onClose={show}
-            formigasSala={formigasSala}
-            roomId={roomId}
-            userId={userId}
-          />
-        )};
+        <ModalAposta
+          visible={modal}
+          onClose={() => setModal(false)}
+          formigasSala={formigasSala}
+          roomId={roomId}
+          userId={userId}
+        />
+      )}
     </div>
   );
 };
 
-
-export default Room
+export default Room;

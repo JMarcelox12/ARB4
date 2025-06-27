@@ -1,95 +1,104 @@
 import express from 'express'
 import cors from 'cors'
-import route from './src/routes/index.js'
 import { createServer } from 'http'
 import { Server } from 'socket.io'
+import path from 'path'
+import { fileURLToPath } from 'url'
+import route from './src/routes/index.js'
+import { initializeSocket } from './src/services/roomManager.js';
+
+// Importa a FUNÇÃO que cria as rotas, não o router diretamente
+import createApiRoutes from './src/routes/index.js'
 import * as roomManager from './src/services/roomManager.js'
 
+// --- Configuração inicial ---
 const app = express()
-
 const httpServer = createServer(app)
 
-const io = new Server(httpServer, {
+// --- Configuração do Socket.IO ---
+// Exportamos 'io' para que, se necessário, possamos usá-lo em scripts ou testes,
+// mas a aplicação principal funcionará por injeção de dependência.
+export const io = new Server(httpServer, {
   cors: {
-    origin: '*',
+    origin: '*', // Em produção, restrinja para o seu domínio do frontend
   },
 })
 
-io.on('connection', (socket) => {
-  console.log('A user connected:', socket.id)
-  console.log(`\n\n[TESTE 3] 🔌 Cliente Conectado: ${socket.id}\n\n`)
 
-  socket.on('join_room', (roomId) => {
-    socket.join(roomId)
-    console.log(
-      `\n\n[PROVA] Cliente ${socket.id} entrou com ID da sala: -->${roomId}<-- (Tipo: ${typeof roomId})\n\n`
-    )
-
-    console.log(`${socket.id} joined room ${roomId}`)
-    // Opcional: Envie o estado atual da sala para o cliente que acabou de entrar
-    if (roomManager.activeRooms[roomId]) {
-      const currentRoomState = roomManager.activeRooms[roomId]
-      // ... (envia room_state_update) ...
-
-      if (
-        currentRoomState.status === 'correndo' &&
-        currentRoomState.antPositions
-      ) {
-        console.log(
-          'Backend (join_room): activeRooms[roomId].antPositions ao tentar enviar:',
-          currentRoomState.antPositions
-        ) // <--- ADICIONE ESTE LOG
-        console.log(
-          'Backend (join_room): raceLength ao tentar enviar:',
-          currentRoomState.raceLength
-        ) // <--- E ESTE LOG
-
-        const raceLength = currentRoomState.raceLength
-
-        if (raceLength && currentRoomState.antPositions) {
-          // Verifique se antPositions não é null/undefined também
-          const antsForFrontend = Object.keys(
-            currentRoomState.antPositions
-          ).map((antId) => ({
-            id: antId,
-            position: (currentRoomState.antPositions[antId] / raceLength) * 100,
-          }))
-          console.log(
-            'Backend (join_room): Dados de formigas antes de emitir race_update inicial:',
-            antsForFrontend
-          ) // <--- ADICIONE ESTE LOG
-          socket.emit('race_update', {
-            roomId: roomId,
-            ants: antsForFrontend,
-          })
-        } else {
-          console.warn(
-            `[Socket.IO] raceLength ou antPositions não definidos para a sala ${roomId} ao enviar race_update inicial.`
-          )
-        }
-      }
-    }
-  })
-
-  socket.on('leave_room', (roomId) => {
-    socket.leave(roomId)
-    console.log(`${socket.id} left room ${roomId}`)
-  })
-
-  socket.on('disconnect', () => {
-    console.log('User disconnected:', socket.id)
-  })
-})
-
+// --- Configuração do Express ---
 app.use(cors())
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 
-app.use('/uploads', express.static('uploads'))
+// Para servir arquivos estáticos da pasta 'uploads'
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')))
+
 app.use('/app', route)
 
+// Rota raiz de verificação
 app.get('/', async (req, res) => {
   res.send('ARB funcionando!')
 })
 
-export { app, httpServer, io }
+initializeSocket(io);
+
+// --- Lógica do Socket.IO ---
+io.on('connection', (socket) => {
+  console.log(`🔌 Cliente Conectado: ${socket.id}`)
+
+  // Lógica para um cliente entrar em uma sala
+  socket.on('join_room', (roomId) => {
+    const roomIdentifier = String(roomId) // Garante que o nome da sala é uma string
+    socket.join(roomIdentifier)
+    console.log(
+      `[Socket.IO] Cliente ${socket.id} entrou na sala: ${roomIdentifier}`
+    )
+
+    // Opcional: Enviar o estado atual da sala para o cliente que acabou de entrar
+    const currentRoomState = roomManager.activeRooms[roomIdentifier]
+    if (currentRoomState) {
+      // Envia o estado atual (status, tempo restante)
+      // (A lógica de tempo restante está em roomManager, então talvez seja melhor emitir de lá,
+      // mas isso funciona para um 'snapshot' inicial)
+
+      // Se a corrida estiver acontecendo, envie a posição atual das formigas
+      if (
+        currentRoomState.status === 'correndo' &&
+        currentRoomState.antPositions
+      ) {
+        const raceLength = 1000 // Assumindo um valor fixo, ou pegue de uma constante
+        const antsForFrontend = Object.keys(currentRoomState.antPositions).map(
+          (antId) => ({
+            id: antId,
+            position: (
+              (currentRoomState.antPositions[antId] / raceLength) *
+              100
+            ).toFixed(0),
+          })
+        )
+
+        socket.emit('race_update', {
+          roomId: roomIdentifier,
+          ants: antsForFrontend,
+        })
+      }
+    }
+  })
+
+  // Lógica para um cliente sair de uma sala
+  socket.on('leave_room', (roomId) => {
+    const roomIdentifier = String(roomId)
+    socket.leave(roomIdentifier)
+    console.log(
+      `[Socket.IO] Cliente ${socket.id} saiu da sala: ${roomIdentifier}`
+    )
+  })
+
+  socket.on('disconnect', () => {
+    console.log(`🔌 Cliente Desconectado: ${socket.id}`)
+  })
+})
+
+export { app, httpServer }

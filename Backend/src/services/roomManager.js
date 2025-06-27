@@ -1,285 +1,282 @@
-import { io } from '../../app.js'
-import { PrismaClient } from '@prisma/client'
+import { PrismaClient } from '@prisma/client';
+import { settleBetsForRace } from './payment.service.js';
+import { updateAntStats } from './ant.service.js';
 
-import { settleBetsForRace } from './payment.service.js'
-import { updateAntStats } from './ant.service.js'
+const prisma = new PrismaClient();
 
-const activeRooms = {}
-const prisma = new PrismaClient()
+// Objeto principal que guarda o estado e o timer de cada sala ativa.
+const activeRooms = {};
 
-// Função para iniciar uma nova corrida (Refatorada)
-async function startRaceSimulation(roomId, ants, onFinish) {
-  console.log(
-    `\n\n[TESTE 51] RoomManager está enviando para ID da sala: -->${roomId}<-- (Tipo: ${typeof roomId})\n\n`
-  )
+// Variável do módulo para guardar a instância do Socket.IO.
+let io;
 
-  // << Recebe o callback onFinish
-  if (activeRooms[roomId] && activeRooms[roomId].interval) {
-    clearInterval(activeRooms[roomId].interval)
+export function initializeSocket(socketIoInstance) {
+  console.log('Socket.IO instance received in roomManager.');
+  io = socketIoInstance;
+}
+
+/**
+ * Simula a corrida para uma sala específica.
+ * Resolve com os resultados da corrida.
+ * Emite eventos de 'race_update' durante a corrida e 'confetti_burst' no final.
+ */
+async function startRaceSimulation(roomId, ants) {
+  console.log(`[Sala ${roomId}] Simulação de corrida iniciada.`);
+
+  return new Promise((resolve) => {
+    // Limpa qualquer timer de simulação antigo, caso exista
+    if (activeRooms[roomId]?.simulationInterval) {
+      clearInterval(activeRooms[roomId].simulationInterval);
+    }
+
+    const antPositions = {};
+    ants.forEach((ant) => {
+      antPositions[ant.id] = 0;
+    });
+
+    const raceLength = 1000;
+    const raceDuration = 20000; // 20 segundos
+
+    // Inicializa/Reseta o estado da corrida na sala
+    activeRooms[roomId].antPositions = antPositions;
+    activeRooms[roomId].finishedAntsOrder = [];
+    activeRooms[roomId].raceStartedAt = Date.now();
+    activeRooms[roomId].confettiFired = false; // Flag para o evento de confetes
+
+    const simulationInterval = setInterval(() => {
+      if (!activeRooms[roomId]) {
+        clearInterval(simulationInterval);
+        return;
+      }
+
+      const currentRaceTime = Date.now() - activeRooms[roomId].raceStartedAt;
+      const newPositions = { ...activeRooms[roomId].antPositions };
+      const finishedThisTick = new Set();
+
+      ants.forEach((ant) => {
+        if (activeRooms[roomId].finishedAntsOrder.includes(ant.id)) {
+          newPositions[ant.id] = raceLength;
+          return;
+        }
+        const speed = Math.random() * (raceLength / raceDuration) * 150;
+        const newPosition = Math.min(newPositions[ant.id] + speed, raceLength);
+        newPositions[ant.id] = newPosition;
+
+        if (newPosition >= raceLength) {
+          finishedThisTick.add(ant.id);
+        }
+      });
+
+      if (finishedThisTick.size > 0) {
+        finishedThisTick.forEach((antId) => {
+          if (!activeRooms[roomId].finishedAntsOrder.includes(antId)) {
+            activeRooms[roomId].finishedAntsOrder.push(antId);
+          }
+        });
+      }
+
+      activeRooms[roomId].antPositions = newPositions;
+
+      const antsForFrontend = ants.map((ant) => ({
+        id: ant.id,
+        position: ((newPositions[ant.id] / raceLength) * 100).toFixed(0),
+      }));
+
+      if (io) io.to(String(roomId)).emit('race_update', { roomId, ants: antsForFrontend });
+
+      const allFinished = activeRooms[roomId].finishedAntsOrder.length === ants.length;
+
+      // NOVO: Dispara o evento de confetes quando todas as formigas terminam
+      if (allFinished && !activeRooms[roomId].confettiFired) {
+        if (io) io.to(String(roomId)).emit('confetti_burst');
+        activeRooms[roomId].confettiFired = true;
+        console.log(`[Sala ${roomId}] Todas as formigas chegaram. Confetes disparados!`);
+      }
+
+      const timeLimitReached = currentRaceTime >= raceDuration * 1.5;
+
+      if (allFinished || timeLimitReached) {
+        clearInterval(simulationInterval);
+        activeRooms[roomId].simulationInterval = null;
+        console.log(`[Sala ${roomId}] Simulação de corrida terminada.`);
+        const results = {
+          winnerId: activeRooms[roomId].finishedAntsOrder[0] || null,
+          finishedAntsOrder: activeRooms[roomId].finishedAntsOrder,
+        };
+        resolve(results);
+      }
+    }, 100);
+
+    activeRooms[roomId].simulationInterval = simulationInterval;
+  });
+}
+
+/**
+ * Processa os resultados da corrida (pagamentos, estatísticas) e os salva.
+ * Não altera o estado da sala, apenas lida com a lógica pós-corrida.
+ */
+async function processRaceResults(roomId, raceResults) {
+    try {
+        console.log(`[Sala ${roomId}] Processando resultados pós-corrida. Vencedor: ${raceResults.winnerId}`);
+        
+        const { winnerId, finishedAntsOrder } = raceResults;
+
+        // Salva os resultados no objeto da sala para uso posterior pelo loop principal
+        if (activeRooms[roomId]) {
+            activeRooms[roomId].raceResults = { winnerId, finishedAntsOrder };
+        }
+
+        // Processa pagamentos e estatísticas em segundo plano
+        await Promise.all([
+            settleBetsForRace(io, roomId, finishedAntsOrder),
+            updateAntStats(roomId, finishedAntsOrder),
+        ]);
+
+        // Atualiza o pódio no banco de dados
+        await prisma.room.update({
+            where: { id: roomId },
+            data: {
+                winnerId: winnerId,
+                vice: finishedAntsOrder[1] || null,
+                terceiro: finishedAntsOrder[2] || null,
+            },
+        });
+
+        console.log(`[Sala ${roomId}] Resultados da corrida processados e salvos.`);
+
+    } catch (error) {
+        console.error(`[Sala ${roomId}] Erro ao processar resultados da corrida:`, error);
+        if (activeRooms[roomId]) {
+            activeRooms[roomId].status = 'PAUSE';
+            activeRooms[roomId].faseStartTime = Date.now();
+        }
+    }
+}
+
+
+/**
+ * Inicia e gerencia o ciclo de vida de uma sala (Pausa -> Apostando -> Correndo -> Encerrada).
+ */
+export async function startRoomCycle(roomId, initialStatus = 'PAUSE') {
+  console.log(`\n[Sala ${roomId}] Iniciando ciclo com status: ${initialStatus} às ${new Date().toLocaleTimeString()}\n`);
+
+  if (activeRooms[roomId]?.mainInterval) {
+    clearInterval(activeRooms[roomId].mainInterval);
   }
-
-  const antPositions = {}
-  ants.forEach((ant) => {
-    antPositions[ant.id] = 0
-  })
-
-  const raceLength = 1000
-  const raceDuration = 15000
 
   activeRooms[roomId] = {
-    ...activeRooms[roomId], // Mantém o status 'correndo' que o gerente definiu
-    antPositions,
-    finishedAntsOrder: [],
-    interval: null,
-    raceStartedAt: Date.now(),
-  }
-
-  console.log(`[Sala ${roomId}] Simulação de corrida iniciada.`)
-
-  activeRooms[roomId].interval = setInterval(() => {
-    const currentRaceTime = Date.now() - activeRooms[roomId].raceStartedAt
-    const newPositions = { ...activeRooms[roomId].antPositions }
-
-    // Um conjunto para as formigas que terminaram NESTA iteração
-    const finishedThisTick = new Set()
-    ants.forEach((ant) => {
-      // Se a formiga já está na ordem de chegada, não a mova mais
-      if (activeRooms[roomId].finishedAntsOrder.includes(ant.id)) {
-        newPositions[ant.id] = raceLength // Garante que fique em 100%
-        return
-      }
-
-      const currentPosition = newPositions[ant.id]
-      const speed = Math.random() * ((raceLength / raceDuration) * 150)
-      const newPosition = Math.min(currentPosition + speed, raceLength)
-      newPositions[ant.id] = newPosition
-
-      if (newPosition >= raceLength) {
-        finishedThisTick.add(ant.id)
-      }
-    })
-
-    // Adiciona as formigas que terminaram nesta iteração à lista de ordem de chegada
-    if (finishedThisTick.size > 0) {
-      // Você pode adicionar uma lógica para desempatar se for preciso
-      finishedThisTick.forEach((antId) => {
-        if (!activeRooms[roomId].finishedAntsOrder.includes(antId)) {
-          activeRooms[roomId].finishedAntsOrder.push(antId)
-          console.log(`[Sala ${roomId}] Formiga ${antId} finalizou.`)
-        }
-      })
-    }
-
-    activeRooms[roomId].antPositions = newPositions
-
-    const antsForFrontend = ants.map((ant) => ({
-      id: ant.id,
-      position: ((newPositions[ant.id] / raceLength) * 100).toFixed(0),
-    }))
-
-    const roomIdString = String(roomId)
-
-    // Emitir o progresso da corrida
-    io.to(roomIdString).emit('race_update', {
-      roomId: roomId,
-      ants: antsForFrontend,
-    })
-
-    const allFinished =
-      activeRooms[roomId].finishedAntsOrder.length === ants.length
-    const timeLimitReached = currentRaceTime >= raceDuration * 1.5
-
-    // Condição de término
-    if (allFinished || timeLimitReached) {
-      clearInterval(activeRooms[roomId].interval)
-      console.log(`[Sala ${roomId}] Simulação de corrida terminada.`)
-
-      const results = {
-        winnerId: activeRooms[roomId].finishedAntsOrder[0] || null,
-        finishedAntsOrder: activeRooms[roomId].finishedAntsOrder,
-      }
-
-      // Notifica o "gerente" (startRoomCycle) que a corrida terminou
-      onFinish(results)
-    }
-  }, 100)
-}
-
-let roomTimers = {} // Para gerenciar os timers de cada fase da sala
-
-async function startRoomCycle(roomId, initialStatus = 'pausando') {
-  console.log(
-    `\n\n[TESTE 52] RoomManager está enviando para ID da sala: -->${roomId}<-- (Tipo: ${typeof roomId})\n\n`
-  )
-  console.log(
-    `\n\n[TESTE 1] ✅  startRoomCycle INICIADO para a sala ${roomId} às ${new Date().toLocaleTimeString()}\n\n`
-  )
-  console.log(`[Sala ${roomId}] Iniciando ciclo com status: ${initialStatus}`)
-  if (roomTimers[roomId]) {
-    clearInterval(roomTimers[roomId].interval)
-  }
-
-  let currentStatus = initialStatus
-  let faseStartTime = Date.now()
+    ...activeRooms[roomId],
+    status: initialStatus,
+    faseStartTime: Date.now(),
+    mainInterval: null,
+    simulationInterval: null,
+    raceResults: null,
+  };
 
   const fasesConfig = {
-    PAUSANDO: 30,
-    APOSTANDO: 60,
-    CORRENDO: 30, // Duração da fase, não da simulação
+    PAUSE: 10,
+    APOSTANDO: 10,
+    CORRENDO: 35,
     ENCERRADA: 30,
-  }
+  };
 
   const updateRoomState = async () => {
-    const durationInSeconds = fasesConfig[currentStatus.toUpperCase()] || 0
-    let remainingTime = Math.max(
-      0,
-      durationInSeconds - Math.floor((Date.now() - faseStartTime) / 1000)
-    )
+    if (!activeRooms[roomId]) return;
 
-    // A transição de estado SÓ acontece quando o tempo da fase acaba
+    let { status, faseStartTime } = activeRooms[roomId];
+    const duration = fasesConfig[status] || 0;
+    let remainingTime = Math.max(0, duration - Math.floor((Date.now() - faseStartTime) / 1000));
+
     if (remainingTime <= 0) {
-      faseStartTime = Date.now() // Reseta o timer para a nova fase
+      activeRooms[roomId].faseStartTime = Date.now();
 
-      switch (currentStatus) {
-        case 'pausando':
-          currentStatus = 'apostando'
-          break
-        case 'apostando':
-          currentStatus = 'correndo'
+      switch (status) {
+        case 'PAUSE':
+          activeRooms[roomId].status = 'APOSTANDO';
+          break;
 
-          try {
-            const roomWithAnts = await prisma.room.findUnique({
-              where: { id: roomId },
-              include: { rooms: { include: { ant: true } } },
-            })
-            const antsInRace = roomWithAnts?.rooms.map((ra) => ra.ant)
+        case 'APOSTANDO':
+          activeRooms[roomId].status = 'CORRENDO';
 
-            if (!antsInRace || antsInRace.length === 0) {
-              console.error(
-                `[Sala ${roomId}] Formigas não encontradas. Voltando para 'pausando'.`
-              )
-              currentStatus = 'pausando'
-              break
+          // Dispara a simulação e o processamento em segundo plano, sem bloquear o loop.
+          (async () => {
+            try {
+              const roomWithAnts = await prisma.room.findUnique({
+                where: { id: roomId },
+                include: { rooms: { include: { ant: true } } },
+              });
+              const antsInRace = roomWithAnts?.rooms.map((ra) => ra.ant);
+              
+              if (!antsInRace || antsInRace.length === 0) {
+                 console.log(`[Sala ${roomId}] Sem formigas para a corrida. Preparando para pular fase.`);
+                 if (activeRooms[roomId]) activeRooms[roomId].raceResults = { winnerId: null, finishedAntsOrder: [] };
+                 return;
+              }
+
+              const results = await startRaceSimulation(roomId, antsInRace);
+              await processRaceResults(roomId, results);
+            } catch (e) {
+              console.error(`[Sala ${roomId}] Erro na cadeia de execução da corrida:`, e);
             }
+          })(); // IIFE (Immediately Invoked Function Expression)
+          break;
 
-            // O gerente inicia o trabalhador e passa o callback
-            startRaceSimulation(roomId, antsInRace, async (raceResults) => {
-              // --- ESTE CÓDIGO SÓ EXECUTA QUANDO A CORRIDA TERMINAR ---
-              console.log(
-                `[Sala ${roomId}] Callback 'onFinish' recebido. Vencedor: ${raceResults.winnerId}`
-              )
+        case 'CORRENDO':
+          // O tempo da fase CORRENDO terminou. Agora, fazemos a transição.
+          activeRooms[roomId].status = 'ENCERRADA';
 
-              const { winnerId, finishedAntsOrder } = raceResults
+          const results = activeRooms[roomId].raceResults;
 
-              console.log(`[Sala ${roomId}] Iniciando processos pós-corrida...`)
-
-              try {
-                await Promise.all([
-                  settleBetsForRace(roomId, winnerId),
-                  updateAntStats(finishedAntsOrder),
-                ])
-              } catch (error) {
-                console.error(
-                  `[Sala ${roomId}] Erro ao executar serviços de pós-corrida:`,
-                  error
-                )
-              }
-
-              // 1. Persistir os resultados no DB
-              try {
-                await prisma.room.update({
-                  where: { id: roomId },
-                  data: {
-                    winnerId: winnerId,
-                    vice: finishedAntsOrder[1] || null,
-                    terceiro: finishedAntsOrder[2] || null,
-                    quarto: finishedAntsOrder[3] || null,
-                    quinto: finishedAntsOrder[4] || null,
-                    sexto: finishedAntsOrder[5] || null,
-                    penultimo: finishedAntsOrder[6] || null,
-                    ultimo: finishedAntsOrder[7] || null,
-                  },
-                })
-                console.log(`[Sala ${roomId}] Vencedor persistido no DB.`)
-              } catch (error) {
-                console.error(
-                  `[Sala ${roomId}] Erro ao persistir vencedor:`,
-                  error
-                )
-              }
-
-              const roomIdString = String(roomId)
-
-              // 2. Emitir o evento de fim de corrida
-              io.to(roomIdString).emit('race_finished', {
-                roomId: roomId,
-                winnerId: winnerId,
-                finishedAntsOrder: finishedAntsOrder,
-              })
-
-              // 3. Mudar o estado para 'encerrada' e resetar o timer
-              currentStatus = 'encerrada'
-              faseStartTime = Date.now()
-            })
-          } catch (error) {
-            console.error(
-              `[Sala ${roomId}] Erro crítico ao buscar formigas:`,
-              error
-            )
-            currentStatus = 'pausando'
+          // Emite o evento final com os dados do pódio para o frontend
+          if (io && results) {
+            io.to(String(roomId)).emit('race_finished', {
+              roomId,
+              winnerId: results.winnerId,
+              finishedAntsOrder: results.finishedAntsOrder,
+            });
           }
-          break
+          
+          // Limpa os resultados para a próxima corrida
+          delete activeRooms[roomId].raceResults;
+          break;
 
-        case 'correndo':
-          // Se o tempo da fase 'correndo' acabou, mas a corrida ainda não notificou o fim,
-          // forçamos a transição para 'encerrada'. Isso é um fallback de segurança.
-          console.warn(
-            `[Sala ${roomId}] Tempo da fase 'correndo' esgotado. Forçando para 'encerrada'.`
-          )
-          currentStatus = 'encerrada'
-          break
-
-        case 'encerrada':
-          currentStatus = 'pausando'
-          break
+        case 'ENCERRADA':
+          activeRooms[roomId].status = 'PAUSE';
+          // Limpa o pódio no banco de dados para a próxima corrida
+          await prisma.room.update({
+            where: { id: roomId },
+            data: { winnerId: null, vice: null, terceiro: null },
+          });
+          break;
       }
     }
 
-    // Atualiza o objeto global, se necessário
-    if (!activeRooms[roomId]) activeRooms[roomId] = {}
-    activeRooms[roomId].status = currentStatus
+    if (io) {
+      io.to(String(roomId)).emit('room_state_update', {
+        status: activeRooms[roomId].status,
+        tempoRestante: remainingTime,
+      });
+    }
+  };
 
-    const tempo = Math.floor(remainingTime)
-
-    const roomIdString = String(roomId)
-
-    io.to(roomIdString).emit('room_state_update', {
-      tempoRestante: tempo,
-      status: currentStatus,
-    })
+  const intervalId = setInterval(updateRoomState, 1000);
+  if (activeRooms[roomId]) {
+    activeRooms[roomId].mainInterval = intervalId;
   }
-
-  roomTimers[roomId] = {
-    interval: setInterval(updateRoomState, 1000),
-  }
-  updateRoomState() // Chama imediatamente
+  updateRoomState(); // Chama imediatamente para definir o estado inicial
 }
 
-// Função para parar o ciclo de uma sala (chamada em 'endRoom' no controller)
+/**
+ * Para completamente o ciclo de uma sala.
+ */
 export function stopRoomCycle(roomId) {
-  console.log(
-    `\n\n[TESTE 51] RoomManager está enviando para ID da sala: -->${roomId}<-- (Tipo: ${typeof roomId})\n\n`
-  )
-
-  if (activeRooms[roomId] && activeRooms[roomId].interval) {
-    clearInterval(activeRooms[roomId].interval)
-    delete activeRooms[roomId]
+  if (activeRooms[roomId]) {
+    if (activeRooms[roomId].mainInterval) clearInterval(activeRooms[roomId].mainInterval);
+    if (activeRooms[roomId].simulationInterval) clearInterval(activeRooms[roomId].simulationInterval);
+    delete activeRooms[roomId];
+    console.log(`\n[Sala ${roomId}] Ciclo da sala e todas as atividades encerradas manualmente.`);
   }
-  if (roomTimers[roomId] && roomTimers[roomId].interval) {
-    clearInterval(roomTimers[roomId].interval)
-    delete roomTimers[roomId]
-  }
-  console.log(`Backend: Ciclo da sala ${roomId} encerrado no gerenciador.`)
 }
 
-export { startRaceSimulation, startRoomCycle, activeRooms }
+// Exporta o objeto de salas ativas para consulta externa, se necessário
+export { activeRooms };

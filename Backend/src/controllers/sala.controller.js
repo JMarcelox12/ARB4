@@ -135,9 +135,8 @@ export const getRoom = async (req, res) => {
 
   try {
     // Aguarda a atualização da sala antes de buscar os dados
-    await getRoomUpdate(roomId)
 
-    const room = await prisma.room.findMany({
+    const room = await prisma.room.findUnique({
       where: { id: roomId },
       include: {
         bets: true,
@@ -148,6 +147,10 @@ export const getRoom = async (req, res) => {
         },
       },
     })
+
+    if (!room) {
+      return res.status(404).json({ error: 'Sala não encontrada!' })
+    }
 
     if (room.length === 0) {
       return res.status(400).json({ error: 'Sala não encontrada!' })
@@ -266,16 +269,12 @@ export const endRoom = async (req, res) => {
   try {
     await prisma.room.update({
       where: { id },
-      data: { status: 'ENCERRADA' },
+      data: { status: 'ENCERRADO' },
     })
 
     if (roomManager.activeRooms[id] && roomManager.activeRooms[id].interval) {
       clearInterval(roomManager.activeRooms[id].interval)
       delete roomManager.activeRooms[id] // Limpa a sala do gerenciador em memória
-    }
-    if (roomTimers[id]) {
-      clearInterval(roomTimers[id].interval)
-      delete roomTimers[id]
     }
 
     res.json({ message: 'Sala encerrada com sucesso!' })

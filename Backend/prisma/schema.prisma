@@ -82,14 +82,17 @@ model Room {
   ultimo      Int?
 
   rooms RoomAnt[]
-  bets   Bet[]
+  bets  Bet[]
 }
 
 enum RoomStatus {
   PAUSE // Sala em preparo / 30s
-  BETTING // Sala em apostas / 1m
-  RACING // Sala em disputa / 15s
-  FINISH // Sala finalizada
+  APOSTANDO // Sala em apostas / 1m
+  CORRENDO // Sala em disputa / 15s
+  ENCERRADA // Sala finalizada
+  FINISH
+  BETTING
+  RACING
 }
 
 model RoomAnt {

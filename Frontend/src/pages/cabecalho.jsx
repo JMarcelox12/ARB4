@@ -23,7 +23,7 @@ export function HeaderDeslogado() {
           </button>
           <div
             className="offcanvas offcanvas-start text-white esquerda canvas"
-            tabindex="-1"
+            tabIndex="-1"
             id="offcanvasNavbar"
             aria-labelledby="offcanvasNavbarLabel"
           >
@@ -126,7 +126,7 @@ export function HeaderLogado() {
           </button>
           <div
             className="offcanvas offcanvas-start text-bg-dark esquerda canvas-color"
-            tabindex="-1"
+            tabIndex="-1"
             id="offcanvasNavbar"
             aria-labelledby="offcanvasNavbarLabel"
           >
